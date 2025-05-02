@@ -91,7 +91,7 @@ const MyProfilePage: React.FC = () => {
               <ul className="list-disc list-inside space-y-1">
                 {profile.skills.map(skill => (
                   <li key={skill.id} className="text-gray-700">
-                    <span className="font-medium">{skill.name}</span>
+                    <span className="font-medium">{skill.name}</span> 
                   </li>
                 ))}
               </ul>

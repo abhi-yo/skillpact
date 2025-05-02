@@ -137,26 +137,26 @@ const NotificationsPage: React.FC = () => {
               const { Icon, color } = getNotificationIcon(notification.type);
               
               const notificationContent = (
-                <div className={cn(
-                  "block bg-white border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] p-4 transition-all duration-150",
-                  notification.exchangeId && "hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5 cursor-pointer",
-                  !notification.isRead && "border-blue-500" // Example: Highlight unread
-                )}>
-                  <div className="flex items-start space-x-3">
-                    <div className={`flex-shrink-0 w-8 h-8 border border-black flex items-center justify-center ${color}`}>
-                      <Icon size={16} />
+                  <div className={cn(
+                    "block bg-white border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] p-4 transition-all duration-150",
+                    notification.exchangeId && "hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5 cursor-pointer",
+                    !notification.isRead && "border-blue-500" // Example: Highlight unread
+                  )}>
+                    <div className="flex items-start space-x-3">
+                      <div className={`flex-shrink-0 w-8 h-8 border border-black flex items-center justify-center ${color}`}>
+                        <Icon size={16} />
+                      </div>
+                      <div className="flex-grow">
+                        <p className="text-sm font-medium text-black">{notification.message}</p>
+                        <p className="text-xs text-gray-500 mt-1">
+                          {notification.createdAt ? format(new Date(notification.createdAt), 'PP p') : ''}
+                        </p>
+                      </div>
+                      {!notification.isRead && (
+                        <div className="flex-shrink-0 w-2 h-2 rounded-full bg-blue-500 mt-1" aria-label="Unread"></div>
+                      )}
                     </div>
-                    <div className="flex-grow">
-                      <p className="text-sm font-medium text-black">{notification.message}</p>
-                      <p className="text-xs text-gray-500 mt-1">
-                        {notification.createdAt ? format(new Date(notification.createdAt), 'PP p') : ''}
-                      </p>
-                    </div>
-                    {!notification.isRead && (
-                      <div className="flex-shrink-0 w-2 h-2 rounded-full bg-blue-500 mt-1" aria-label="Unread"></div>
-                    )}
                   </div>
-                </div>
               );
               
               return notification.exchangeId ? (

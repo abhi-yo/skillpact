@@ -8,10 +8,12 @@ export const authOptions = {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID || '',
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
+      allowDangerousEmailAccountLinking: true,
     }),
   ],
   pages: {
     signIn: "/login",
+    error: "/login",
   },
   session: {
     strategy: "jwt" as const,
@@ -23,5 +25,14 @@ export const authOptions = {
       }
       return session;
     },
+    signIn: async ({ user, account }: any) => {
+      console.log("Sign-in attempt:", {
+        email: user.email,
+        provider: account?.provider,
+        exists: !!user.id
+      });
+      return true;
+    },
   },
+  debug: process.env.NODE_ENV === 'development',
 } 

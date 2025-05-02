@@ -27,7 +27,7 @@ export default withAuth(
     const { pathname } = req.nextUrl;
     if (isPublicPath(pathname)) {
       return NextResponse.next();
-    }
+  }
   },
   {
     pages: {
@@ -36,6 +36,6 @@ export default withAuth(
   }
 );
 
-export const config = { 
+export const config = {
   matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'] 
 }; 

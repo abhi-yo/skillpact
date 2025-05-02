@@ -3,6 +3,7 @@ import { Inter, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import TrpcProvider from "@/components/TrpcProvider";
 import AuthProvider from "@/components/auth-provider";
+import { Toaster } from "react-hot-toast";
 
 // Initialize Inter font
 const inter = Inter({
@@ -26,14 +27,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+      <html lang="en">
       <body className={`${inter.variable} ${spaceGrotesk.variable} font-sans`}>
         <AuthProvider>
           <TrpcProvider>
             {children}
           </TrpcProvider>
         </AuthProvider>
-      </body>
-    </html>
+        <Toaster position="top-right" />
+        </body>
+      </html>
   );
 } 

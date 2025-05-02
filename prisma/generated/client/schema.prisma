@@ -48,7 +48,6 @@ model User {
   email         String?  @unique // Clerk manages email uniqueness
   // emailVerified     DateTime? // Clerk manages verification
   image         String?
-  // hashedPassword    String?   // Clerk manages passwords
   averageRating Float?
   ratingCount   Int?     @default(0)
   createdAt     DateTime @default(now())
