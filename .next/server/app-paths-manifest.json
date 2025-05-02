@@ -1,0 +1,9 @@
+{
+  "/services/browse/page": "app/services/browse/page.js",
+  "/dashboard/page": "app/dashboard/page.js",
+  "/services/[serviceId]/page": "app/services/[serviceId]/page.js",
+  "/login/page": "app/login/page.js",
+  "/page": "app/page.js",
+  "/api/trpc/[trpc]/route": "app/api/trpc/[trpc]/route.js",
+  "/api/auth/[...nextauth]/route": "app/api/auth/[...nextauth]/route.js"
+}
