@@ -7,7 +7,6 @@ import ServiceCategories from "@/components/ServiceCategories";
 import SocialProof from "@/components/SocialProof";
 import ValueProps from "@/components/ValueProps";
 
-;
 
 export default function HomePage() {
   return (

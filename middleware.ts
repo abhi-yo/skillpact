@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { withAuth } from 'next-auth/middleware';
+import type { NextRequest } from 'next/server';
+import { getToken } from 'next-auth/jwt';
 
 // Public routes that don't require authentication
 const publicPaths = [
@@ -20,21 +21,26 @@ const isPublicPath = (path: string) => {
   });
 };
 
-// Use NextAuth middleware
-export default withAuth(
-  function middleware(req) {
-    // Pass through to nextauth if the path is public
-    const { pathname } = req.nextUrl;
-    if (isPublicPath(pathname)) {
-      return NextResponse.next();
+export async function middleware(req: NextRequest) {
+  const { pathname } = req.nextUrl;
+  
+  // Allow access to public paths without authentication
+  if (isPublicPath(pathname)) {
+    return NextResponse.next();
   }
-  },
-  {
-    pages: {
-      signIn: '/login',
-    },
+  
+  // Check if user is authenticated
+  const token = await getToken({ req });
+  
+  // Redirect to login if not authenticated
+  if (!token) {
+    const url = new URL('/login', req.url);
+    url.searchParams.set('callbackUrl', pathname);
+    return NextResponse.redirect(url);
   }
-);
+  
+  return NextResponse.next();
+}
 
 export const config = {
   matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'] 
