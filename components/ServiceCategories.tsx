@@ -64,10 +64,10 @@ const ServiceCategories: React.FC = () => {
           {categories.map((category, index) => (
             <div 
               key={index} 
-              className="group bg-blue-50 p-6 border-2 border-black transition-all duration-200 hover:bg-blue-100 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+              className="group bg-blue-50 p-6 border-2 border-black transition-all hover:bg-blue-100 hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
             >
               <div className="flex flex-col items-center text-center">
-                <div className="p-3 bg-white rounded-lg border-2 border-black mb-4 group-hover:bg-yellow-300 transition-colors duration-200">
+                <div className="p-3 bg-white rounded-lg border-2 border-black mb-4 group-hover:bg-yellow-300 transition-colors">
                   {category.icon}
                 </div>
                 <h3 className="font-satoshi tracking-satoshi-tight text-lg font-bold text-gray-900 mb-2">{category.name}</h3>
@@ -78,7 +78,7 @@ const ServiceCategories: React.FC = () => {
         </div>
 
         <div className="mt-12 text-center">
-          <button className="px-8 py-3 bg-blue-600 text-white font-semibold transition-all transform hover:-translate-y-1 duration-200 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
+          <button className="px-8 py-3 bg-blue-600 text-white font-semibold transition-all border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none">
             Browse All Categories
           </button>
         </div>

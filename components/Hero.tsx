@@ -25,12 +25,12 @@ const Hero: React.FC = () => {
             
             <div className="flex flex-col sm:flex-row gap-4">
               <Link href="/login">
-                <span className="w-full sm:w-auto px-8 py-3 bg-blue-600 text-white font-semibold text-base transition-all transform hover:-translate-y-1 duration-200 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center cursor-pointer">
+                <span className="w-full sm:w-auto px-8 py-3 bg-blue-600 text-white font-semibold text-base transition-all border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none flex items-center justify-center cursor-pointer">
                 Get Started
                 <ArrowRight className="ml-2" size={20} />
                 </span>
               </Link>
-              <button className="w-full sm:w-auto px-8 py-3 bg-white text-blue-600 font-semibold text-base transition-all border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center">
+              <button className="w-full sm:w-auto px-8 py-3 bg-white text-blue-600 font-semibold text-base transition-all border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none flex items-center justify-center">
                 Learn More
               </button>
             </div>

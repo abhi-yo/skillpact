@@ -51,7 +51,7 @@ const Navbar: React.FC = () => {
             ))}
             {/* Sign Up / Login Button -> Now just Login */}
             <Link href="/login">
-              <span className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 font-medium transition-all transform hover:-translate-y-1 duration-200 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] cursor-pointer inline-block">
+              <span className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 font-medium transition-all border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none cursor-pointer inline-block">
                 Login
               </span>
             </Link>
@@ -85,7 +85,7 @@ const Navbar: React.FC = () => {
             ))}
             {/* Mobile Sign Up / Login Button -> Now just Login */}
             <Link href="/login" onClick={() => setMobileMenuOpen(false)} className="block w-full">
-              <span className="block w-full text-center bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 font-medium transition-all border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] cursor-pointer">
+              <span className="block w-full text-center bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 font-medium transition-all border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none cursor-pointer">
                 Login
               </span>
             </Link>

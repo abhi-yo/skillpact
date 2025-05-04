@@ -246,9 +246,9 @@ const DashboardPage: React.FC = () => {
     return (
       <div className="min-h-screen bg-blue-50">
         {/* Simple header without visible navbar */}
-        <header className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
-            <h1 className="font-satoshi tracking-tight text-2xl md:text-3xl font-bold mb-4 md:mb-0">
+        <header className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-3">
+            <h1 className="font-satoshi tracking-tight text-2xl md:text-3xl font-bold mb-2 md:mb-0">
               Welcome, {session?.user?.name || 'User'}
             </h1>
             <div className="flex items-center space-x-4">
@@ -271,7 +271,7 @@ const DashboardPage: React.FC = () => {
           </div>
         </header>
 
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             
             {/* Left sidebar - 3 columns */}

@@ -44,7 +44,7 @@ const HowItWorks: React.FC = () => {
           {steps.map((step, index) => (
             <div 
               key={index} 
-              className="bg-white p-6 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-all duration-200"
+              className="bg-white p-6 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all"
             >
               <div className="flex items-center justify-center h-16 w-16 rounded-full bg-blue-100 mb-4 border-2 border-black mx-auto">
                 {step.icon}
@@ -60,7 +60,7 @@ const HowItWorks: React.FC = () => {
         </div>
 
         <div className="mt-16 flex justify-center">
-          <div className="inline-block bg-white p-4 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transform -rotate-1">
+          <div className="inline-block bg-white p-4 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all transform -rotate-1">
             <p className="font-medium text-blue-600">
               No money changes hands. Just skills and services!
             </p>

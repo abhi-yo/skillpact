@@ -28,7 +28,7 @@ const CallToAction: React.FC = () => {
                   placeholder="Your email address"
                   className="w-full px-4 py-3 border-2 border-black focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 />
-                <button className="w-full bg-black hover:bg-gray-800 text-white font-semibold py-3 px-6 transition-all flex items-center justify-center">
+                <button className="w-full bg-black text-white font-semibold py-3 px-6 transition-all flex items-center justify-center border-2 border-black shadow-[4px_4px_0px_0px_rgba(100,100,100,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none">
                   Get Started <ArrowRight className="ml-2" size={18} />
                 </button>
               </div>

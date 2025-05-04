@@ -44,7 +44,7 @@ const ValueProps: React.FC = () => {
           {valueProps.map((prop, index) => (
             <div 
               key={index} 
-              className="bg-white p-6 border-2 border-black relative overflow-hidden transform transition-all hover:-translate-y-2 duration-200 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+              className="bg-white p-6 border-2 border-black relative overflow-hidden transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
             >
               <div className="absolute top-0 right-0 w-20 h-20 bg-blue-200 -mr-10 -mt-10 transform rotate-45"></div>
               <div className="relative z-10">

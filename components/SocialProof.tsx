@@ -42,7 +42,7 @@ const SocialProof: React.FC = () => {
           {testimonials.map((testimonial, index) => (
             <div 
               key={index} 
-              className="bg-white p-6 border-2 border-black relative transition-all duration-200 hover:-translate-y-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+              className="bg-white p-6 border-2 border-black relative transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
             >
               <div className="absolute -top-3 -left-3 bg-yellow-300 h-8 w-8 border-2 border-black flex items-center justify-center font-bold">
                 {index + 1}
@@ -62,7 +62,7 @@ const SocialProof: React.FC = () => {
           ))}
         </div>
 
-        <div className="mt-12 text-center bg-blue-50 border-2 border-black p-6 max-w-2xl mx-auto shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+        <div className="mt-12 text-center bg-blue-50 border-2 border-black p-6 max-w-2xl mx-auto shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all">
           <div className="font-bold text-2xl mb-2 text-blue-600">3,000+</div>
           <p className="text-gray-800">Service exchanges completed in our community</p>
         </div>
