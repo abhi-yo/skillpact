@@ -187,6 +187,56 @@ const DashboardPage: React.FC = () => {
     };
   }, [profileCompletionData]);
 
+  // --- Activity Chart Data Processing ---
+  const activityChartData = useMemo(() => {
+    if (!recentActivity || recentActivity.length === 0) {
+      // Provide some default data if no activity exists
+      return Array.from({ length: 7 }, (_, i) => {
+        const date = new Date();
+        date.setDate(date.getDate() - (6 - i));
+        return {
+          date: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+          value: 0
+        };
+      });
+    }
+
+    // Get the last 7 days for the x-axis
+    const last7Days = Array.from({ length: 7 }, (_, i) => {
+      const date = new Date();
+      date.setDate(date.getDate() - (6 - i));
+      return date.toISOString().split('T')[0]; // YYYY-MM-DD format
+    });
+
+    // Count activity per day
+    const activityByDay = new Map();
+    last7Days.forEach(day => {
+      activityByDay.set(day, 0);
+    });
+
+    // Count activities by day
+    recentActivity.forEach(activity => {
+      if (!activity.updatedAt) return;
+      
+      const date = new Date(activity.updatedAt);
+      const dateStr = date.toISOString().split('T')[0];
+      
+      // Only count if it's within our 7-day window
+      if (activityByDay.has(dateStr)) {
+        activityByDay.set(dateStr, activityByDay.get(dateStr) + 1);
+      }
+    });
+
+    // Format the data for the chart
+    return Array.from(activityByDay.entries()).map(([dateStr, count]) => {
+      const date = new Date(dateStr);
+      return {
+        date: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        value: count
+      };
+    });
+  }, [recentActivity]);
+
   // --- Loading State ---
   if (!isLoaded || (isSignedIn && profileLoading)) {
     return (
