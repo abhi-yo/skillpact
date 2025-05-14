@@ -46,7 +46,7 @@ model User {
   id                String    @id @default(cuid()) // Can potentially use Clerk User ID here later
   name              String?
   email             String?   @unique // Clerk manages email uniqueness
-  // emailVerified     DateTime? // Clerk manages verification
+  emailVerified     DateTime?
   image             String?
   averageRating     Float?
   ratingCount       Int?      @default(0)
