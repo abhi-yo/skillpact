@@ -62,6 +62,10 @@ model User {
   sentNotifications     Notification[] @relation("Sender")
   receivedNotifications Notification[] @relation("Recipient")
 
+  // Rating relations
+  ratingsGiven    Rating[] @relation("RatingsGiven")
+  ratingsReceived Rating[] @relation("RatingsReceived")
+
   // NextAuth relations
   accounts Account[]
   sessions Session[]
@@ -173,6 +177,9 @@ model Exchange {
 
   // Related notifications
   notifications Notification[]
+
+  // Ratings related to this exchange
+  ratings Rating[]
 }
 
 enum NotificationType {
@@ -218,4 +225,27 @@ model Availability {
   endTime   String // Format: "HH:MM"
 
   @@unique([userId, dayOfWeek, startTime, endTime])
+}
+
+// Add Rating model
+model Rating {
+  id      String  @id @default(cuid())
+  rating  Int     @db.SmallInt // 1-5 star rating
+  comment String? @db.Text
+
+  // Users involved
+  fromUserId String
+  toUserId   String
+
+  // Exchange this rating is for
+  exchangeId String
+  exchange   Exchange @relation(fields: [exchangeId], references: [id])
+  fromUser   User     @relation("RatingsGiven", fields: [fromUserId], references: [id])
+  toUser     User     @relation("RatingsReceived", fields: [toUserId], references: [id])
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([exchangeId, fromUserId])
 }

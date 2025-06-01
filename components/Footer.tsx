@@ -11,7 +11,7 @@ const Footer: React.FC = () => {
           <div className="md:col-span-1">
             <div className="font-bold text-2xl mb-4 transform -rotate-2 relative inline-block">
               <span className="absolute -inset-1 bg-yellow-300 -z-10 transform rotate-1"></span>
-              <span className="relative text-blue-900">SkillSwap</span>
+              <span className="relative text-blue-900">SkillExchange</span>
             </div>
             <p className="text-blue-200 mb-4">
               The neighborhood marketplace where services are exchanged without money.
@@ -54,7 +54,7 @@ const Footer: React.FC = () => {
           <div>
             <h3 className="font-satoshi tracking-satoshi-tight font-semibold text-lg mb-4">Contact</h3>
             <ul className="space-y-2">
-              <li className="text-blue-200">hello@skillswap.example</li>
+              <li className="text-blue-200">hello@skillexchange.example</li>
               <li className="text-blue-200">+1 (555) 123-4567</li>
               <li className="text-blue-200">123 Community Lane<br />Neighborhood City, ST 12345</li>
             </ul>
@@ -62,7 +62,7 @@ const Footer: React.FC = () => {
         </div>
         
         <div className="pt-8 border-t border-blue-800 text-center text-blue-300 text-sm">
-          <p>© {new Date().getFullYear()} SkillSwap. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} SkillExchange. All rights reserved.</p>
         </div>
       </div>
     </footer>

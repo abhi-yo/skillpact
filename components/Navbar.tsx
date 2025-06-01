@@ -34,7 +34,7 @@ const Navbar: React.FC = () => {
           <div className="flex items-center">
             <a href="#" className="text-blue-600 font-bold text-2xl transform -rotate-2 relative">
               <span className="absolute -inset-1 bg-yellow-300 -z-10 transform rotate-1"></span>
-              <span className="relative">SkillSwap</span>
+              <span className="relative">SkillExchange</span>
             </a>
           </div>
 

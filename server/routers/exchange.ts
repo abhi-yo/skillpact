@@ -146,49 +146,63 @@ export const exchangeRouter = router({
 
   // Get recent activity (completed or cancelled exchanges)
   getRecentActivity: protectedProcedure.query(async ({ ctx }) => {
-    const userId = ctx.session.user.id;
-
-    return await ctx.prisma.exchange.findMany({
-      where: {
-        OR: [
-          { providerId: userId },
-          { requesterId: userId }
-        ],
-        status: { in: [EXCHANGE_STATUS.COMPLETED, EXCHANGE_STATUS.CANCELLED] },
-      },
-      include: {
-        provider: {
-          select: {
-            id: true,
-            name: true,
-            image: true,
+    console.log('Fetching recent activity for user:', ctx.session.user.id);
+    
+    // Set a random ID to ensure the query is not cached
+    const requestId = `activity-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+    console.log('Activity request ID:', requestId);
+    
+    try {
+      const recentExchanges = await ctx.prisma.exchange.findMany({
+        where: {
+          OR: [
+            { providerId: ctx.session.user.id },
+            { requesterId: ctx.session.user.id },
+          ],
+          status: {
+            in: [EXCHANGE_STATUS.COMPLETED, EXCHANGE_STATUS.CANCELLED],
           },
         },
-        requester: {
-          select: {
-            id: true,
-            name: true,
-            image: true,
+        include: {
+          provider: {
+            select: {
+              id: true,
+              name: true,
+              image: true,
+            },
+          },
+          requester: {
+            select: {
+              id: true,
+              name: true,
+              image: true,
+            },
+          },
+          providerService: {
+            select: {
+              id: true,
+              title: true,
+            },
+          },
+          requesterService: {
+            select: {
+              id: true,
+              title: true,
+            },
           },
         },
-        providerService: {
-          select: {
-            id: true,
-            title: true,
-          },
+        orderBy: {
+          updatedAt: 'desc',
         },
-        requesterService: {
-          select: {
-            id: true,
-            title: true,
-          },
-        },
-      },
-      orderBy: {
-        updatedAt: 'desc',
-      },
-      take: 5, // Limit to 5 most recent activities
-    });
+        take: 10,
+      });
+      
+      console.log(`Found ${recentExchanges.length} recent exchanges for request ${requestId}`);
+      return recentExchanges;
+    } catch (error) {
+      console.error('Error fetching recent activity:', error);
+      throw error;
+    }
   }),
 
   // Request an exchange

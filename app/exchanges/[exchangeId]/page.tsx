@@ -6,7 +6,7 @@ import { useSession } from 'next-auth/react';
 import { trpc } from '@/lib/trpc';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, AlertCircle, ArrowLeft, User, ArrowRightLeft, Clock, Check, X, Calendar as CalendarIcon } from 'lucide-react';
+import { Loader2, AlertCircle, ArrowLeft, User, ArrowRightLeft, Clock, Check, X, Calendar as CalendarIcon, Star, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { format } from 'date-fns';
@@ -55,6 +55,8 @@ interface ExchangeDetails {
     id: string;
     title: string | null;
   } | null;
+  requesterRating: number | null;
+  providerRating: number | null;
 }
 
 // Helper function to format dates nicely
@@ -145,13 +147,27 @@ const ExchangeDetailPage: React.FC = () => {
     });
 
     // --- Complete Exchange Mutation ---
+    const utils = trpc.useContext();
     const completeMutation = trpc.exchange.completeExchange.useMutation({
         onMutate: () => {
             setIsLoadingAction(true);
         },
         onSuccess: () => {
             toast.success('Exchange marked as complete!');
-            refetch();
+            
+            // First, invalidate all the specific queries
+            utils.exchange.getRecentActivity.invalidate();
+            utils.user.getDashboardStats.invalidate();
+            utils.exchange.getUpcomingExchanges.invalidate();
+            utils.exchange.getPendingExchanges.invalidate();
+            
+            // Force invalidate all queries to refresh all parts of the app
+            utils.invalidate();
+            
+            // Add a delay to ensure invalidation is processed
+            setTimeout(() => {
+                refetch();
+            }, 500);
         },
         onError: (error) => {
             toast.error(`Failed to complete: ${error.message}`);
@@ -542,6 +558,30 @@ const ExchangeDetailPage: React.FC = () => {
                                         {isCancelling ? <Loader2 size={16} className="animate-spin mr-2"/> : <X size={16} className="mr-2"/>} 
                                         Cancel Exchange
                                     </Button>
+                                )}
+
+                                {/* Add rating button for completed exchanges */}
+                                {exchange.status === 'COMPLETED' && (
+                                    <div className="mt-6 p-4 border-2 border-black bg-blue-50">
+                                        <h3 className="font-bold text-lg mb-2">Rate this Exchange</h3>
+                                        <p className="text-sm mb-4">
+                                            Share your feedback about your experience with {exchange.provider?.name}.
+                                            Your rating helps build community trust.
+                                        </p>
+                                        
+                                        {/* Check if the current user has already rated */}
+                                        {(isProvider && exchange.requesterRating === null) || (!isProvider && exchange.providerRating === null) ? (
+                                            <Link href={`/exchanges/${exchange.id}/rate`} className="inline-flex items-center px-4 py-2 bg-blue-600 text-white font-bold border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all">
+                                                <Star className="w-4 h-4 mr-2" />
+                                                Rate Now
+                                            </Link>
+                                        ) : (
+                                            <p className="text-green-600 font-semibold flex items-center">
+                                                <CheckCircle className="w-5 h-5 mr-2" />
+                                                You've already rated this exchange
+                                            </p>
+                                        )}
+                                    </div>
                                 )}
                             </div>
                         </div>

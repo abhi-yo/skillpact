@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { trpc } from '@/lib/trpc';
@@ -74,20 +74,70 @@ const ActivityPage: React.FC = () => {
   const { data: session } = useSession();
   // Assert the type of session.user to include the ID
   const userId = (session?.user as SessionUser | undefined)?.id;
+  const utils = trpc.useContext();
+  
+  // Add refresh counter to force re-renders
+  const [refreshCounter, setRefreshCounter] = useState(0);
+  const [lastRefreshTime, setLastRefreshTime] = useState(new Date());
 
   // Fetch activity data
-  const { data: activityData, isLoading, error } = trpc.exchange.getRecentActivity.useQuery(
+  const { data: activityData, isLoading, error, refetch } = trpc.exchange.getRecentActivity.useQuery(
     undefined, // No input needed for this query based on dashboard usage
     {
       enabled: !!userId, // Only run query if userId is available
-      staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+      staleTime: 0, // Don't cache at all - always fetch fresh data
+      refetchOnMount: true,
+      refetchOnWindowFocus: true
     }
   );
+  
+  // Force refetch data when component mounts
+  useEffect(() => {
+    if (userId) {
+      console.log('Forcing activity data refetch');
+      
+      // Invalidate all queries first
+      utils.invalidate();
+      
+      // Then refetch specific queries
+      refetch();
+      utils.user.getDashboardStats.invalidate();
+      utils.exchange.getRecentActivity.invalidate();
+      
+      setLastRefreshTime(new Date());
+    }
+  }, [userId, refetch, utils, refreshCounter]);
+
+  // Create a function to handle manual refresh
+  const handleManualRefresh = () => {
+    console.log('Activity page manual refresh triggered');
+    
+    // First invalidate all queries
+    utils.invalidate();
+    
+    // Then refetch specific ones
+    refetch();
+    utils.user.getDashboardStats.invalidate();
+    utils.exchange.getRecentActivity.invalidate();
+    
+    // Increment counter to force re-renders
+    setRefreshCounter(prev => prev + 1);
+    setLastRefreshTime(new Date());
+  };
 
   // Prepare bar chart data - simplified with hardcoded months
   const barChartData = useMemo(() => {
-    // We'll show Dec through May as the months
-    const months = ["Dec", "Jan", "Feb", "Mar", "Apr", "May"];
+    // Get current month name for the chart
+    const currentMonth = new Date().toLocaleDateString('en-US', { month: 'short' }).substring(0, 3);
+    
+    // We'll show last 6 months with current month last
+    const today = new Date();
+    const months: string[] = [];
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(today);
+      d.setMonth(today.getMonth() - i);
+      months.push(d.toLocaleDateString('en-US', { month: 'short' }).substring(0, 3));
+    }
     
     // Create baseline data with all zeros
     const baseData = months.map(month => ({
@@ -114,20 +164,22 @@ const ActivityPage: React.FC = () => {
       }
     });
     
-    // Always ensure May has at least 1 completed for display purposes
-    // This ensures we have at least one visible bar
-    const mayIndex = months.findIndex(m => m === "May");
-    if (mayIndex >= 0 && baseData[mayIndex].completed === 0) {
-      baseData[mayIndex].completed = 1;
-    }
-    
     return baseData;
-  }, [activityData]);
+  }, [activityData, refreshCounter]); // Add refreshCounter to dependencies
 
   // Prepare line chart data - hours per month
   const lineChartData = useMemo(() => {
-    // We'll show Dec through May as the months
-    const months = ["Dec", "Jan", "Feb", "Mar", "Apr", "May"];
+    // Get current month name for the chart
+    const currentMonth = new Date().toLocaleDateString('en-US', { month: 'short' }).substring(0, 3);
+    
+    // We'll show last 6 months with current month last
+    const today = new Date();
+    const months: string[] = [];
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(today);
+      d.setMonth(today.getMonth() - i);
+      months.push(d.toLocaleDateString('en-US', { month: 'short' }).substring(0, 3));
+    }
     
     // Create baseline data with all zeros
     const baseData = months.map(month => ({
@@ -154,14 +206,8 @@ const ActivityPage: React.FC = () => {
       }
     });
     
-    // Ensure May has some data for display purposes
-    const mayIndex = months.findIndex(m => m === "May");
-    if (mayIndex >= 0 && baseData[mayIndex].hours === 0) {
-      baseData[mayIndex].hours = 1;
-    }
-    
     return baseData;
-  }, [activityData]);
+  }, [activityData, refreshCounter]); // Add refreshCounter to dependencies
 
   // Loading State
   if (isLoading) {
@@ -198,11 +244,23 @@ const ActivityPage: React.FC = () => {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header with Back Button */}
         <div className="flex items-center mb-8">
-            <Link href="/dashboard" className="inline-flex items-center p-2 bg-white border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-black mr-4">
-                <ArrowLeft className="h-5 w-5" strokeWidth={2}/>
-                <span className="sr-only">Back to Dashboard</span>
-            </Link>
-            <h1 className="font-satoshi tracking-tight text-3xl font-bold text-black">Activity History</h1>
+          <Link href="/dashboard" className="inline-flex items-center p-2 bg-white border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-black mr-4">
+            <ArrowLeft className="h-5 w-5" strokeWidth={2}/>
+            <span className="sr-only">Back to Dashboard</span>
+          </Link>
+          <h1 className="font-satoshi tracking-tight text-3xl font-bold text-black flex-grow">Activity History</h1>
+          <button 
+            onClick={handleManualRefresh} 
+            className="text-sm font-bold bg-blue-100 px-3 py-2 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all"
+          >
+            Refresh Data
+          </button>
+        </div>
+        
+        {/* Add debug display */}
+        <div className="bg-white border-2 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] mb-6 p-4">
+          <p className="text-sm font-medium">Activity Data: {activityData?.length || 0} exchanges found</p>
+          <p className="text-xs text-gray-600">Last updated: {lastRefreshTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true })}</p>
         </div>
 
         {/* Charts Section - Side by Side */}

@@ -32,7 +32,7 @@ const ValueProps: React.FC = () => {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl mx-auto text-center mb-16">
           <h2 className="font-satoshi tracking-satoshi-tight text-3xl md:text-4xl font-bold text-gray-900 mb-4 relative inline-block">
-            <span className="relative z-10">Why Choose SkillSwap?</span>
+            <span className="relative z-10">Why Choose SkillExchange?</span>
             <div className="absolute -bottom-2 left-0 right-0 h-3 bg-yellow-300 -z-10"></div>
           </h2>
           <p className="text-xl text-gray-700">

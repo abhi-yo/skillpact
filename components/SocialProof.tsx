@@ -17,7 +17,7 @@ const testimonials = [
     stars: 5,
   },
   {
-    quote: "I'm a college student on a tight budget. SkillSwap lets me get the help I need without spending money I don't have.",
+    quote: "I'm a college student on a tight budget. SkillExchange lets me get the help I need without spending money I don't have.",
     author: "Miguel R.",
     role: "Student",
     stars: 4,

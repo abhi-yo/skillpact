@@ -239,6 +239,17 @@ exports.Prisma.AvailabilityScalarFieldEnum = {
   endTime: 'endTime'
 };
 
+exports.Prisma.RatingScalarFieldEnum = {
+  id: 'id',
+  rating: 'rating',
+  comment: 'comment',
+  fromUserId: 'fromUserId',
+  toUserId: 'toUserId',
+  exchangeId: 'exchangeId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -285,7 +296,8 @@ exports.Prisma.ModelName = {
   Service: 'Service',
   Exchange: 'Exchange',
   Notification: 'Notification',
-  Availability: 'Availability'
+  Availability: 'Availability',
+  Rating: 'Rating'
 };
 
 /**

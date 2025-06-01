@@ -8,7 +8,7 @@ import {
   User, BarChart, Activity, PlusCircle, Search, ArrowRightLeft, MessagesSquare,
   Calendar as CalendarIcon,
   MapPin, Bell, AlertCircle, CheckCircle, Clock, Users, Sparkles, Mail,
-  Loader2, ChevronRight, List
+  Loader2, ChevronRight, List, Star
 } from 'lucide-react';
 import { trpc } from '@/lib/trpc';
 import { Calendar } from '@/components/ui/calendar';
@@ -115,13 +115,25 @@ const DashboardPage: React.FC = () => {
   );
 
   // --- tRPC Query for Dashboard Stats ---
-  const { data: dashboardStats } = trpc.user.getDashboardStats.useQuery(
+  const utils = trpc.useContext();
+  const { data: dashboardStats, refetch: refetchDashboardStats } = trpc.user.getDashboardStats.useQuery(
     undefined,
     {
       enabled: !!userId && isSignedIn,
-      staleTime: 5 * 60 * 1000,
+      staleTime: 0, // Always fetch fresh data
+      refetchOnMount: true,
+      refetchOnWindowFocus: true
     }
   );
+
+  // Force refetch dashboard stats when component mounts
+  React.useEffect(() => {
+    if (userId && isSignedIn) {
+      console.log('Forcing dashboard stats refetch');
+      refetchDashboardStats();
+      utils.exchange.getRecentActivity.invalidate();
+    }
+  }, [userId, isSignedIn, refetchDashboardStats, utils.exchange.getRecentActivity]);
 
   // --- tRPC Query for Upcoming Exchanges ---
   const { data: upcomingExchanges } = trpc.exchange.getUpcomingExchanges.useQuery(
@@ -146,7 +158,9 @@ const DashboardPage: React.FC = () => {
     undefined,
     {
       enabled: !!userId && isSignedIn,
-      staleTime: 5 * 60 * 1000,
+      staleTime: 0, // Always fetch fresh data
+      refetchOnMount: true,
+      refetchOnWindowFocus: true
     }
   );
 
@@ -319,6 +333,7 @@ const DashboardPage: React.FC = () => {
             </button>
           </div>
           </div>
+          <div className="w-full border-b-2 border-black border-dashed mt-3 mb-2"></div>
         </header>
 
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -478,9 +493,31 @@ const DashboardPage: React.FC = () => {
                   <h2 className="font-satoshi tracking-tight text-lg font-bold text-black flex items-center">
                     <BarChart className="mr-2" size={20} strokeWidth={2} /> Activity Overview
                   </h2>
-                   <Link href="/activity" className="text-xs font-bold text-blue-600 underline flex items-center focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-black">
-                    View Detailed Activity <ChevronRight className="h-3 w-3 ml-1" strokeWidth={3}/>
-                   </Link>
+                  <div className="flex items-center gap-2">
+                    <button 
+                      onClick={() => {
+                        console.log('Manual refresh triggered');
+                        // Force immediate re-fetching of all relevant queries
+                        utils.invalidate(); // Invalidate all queries first
+                        
+                        // Then explicitly refetch each query to ensure updates
+                        refetchDashboardStats();
+                        utils.exchange.getRecentActivity.invalidate();
+                        utils.user.getDashboardStats.invalidate();
+                        utils.exchange.getUpcomingExchanges.invalidate();
+                        utils.exchange.getPendingExchanges.invalidate();
+                        
+                        // Force re-render
+                        setToday(new Date());
+                      }} 
+                      className="text-xs font-bold bg-blue-100 px-2 py-1 border border-black hover:bg-blue-200"
+                    >
+                      Refresh Stats
+                    </button>
+                    <Link href="/activity" className="text-xs font-bold text-blue-600 underline flex items-center focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-black">
+                      View Detailed Activity <ChevronRight className="h-3 w-3 ml-1" strokeWidth={3}/>
+                    </Link>
+                  </div>
                 </div>
                 <div className="px-6 py-6 font-inter">
                    <div className="flex flex-col md:flex-row items-center justify-center md:justify-around gap-6 md:gap-8 mb-10">
@@ -516,6 +553,7 @@ const DashboardPage: React.FC = () => {
                       <div className="flex flex-col items-center justify-center">
                         <span className="font-satoshi text-sm font-semibold text-black mb-1">Hours Banked</span>
                         <span className="text-3xl font-bold text-black">{hoursBanked}</span>
+                        <span className="text-xs text-gray-600 mt-1">Last updated: {new Date().toLocaleTimeString()}</span>
                       </div>
                     </div>
                   </div>
@@ -619,15 +657,17 @@ const DashboardPage: React.FC = () => {
               <div className="bg-white border-2 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
                 <div className="bg-blue-500 px-4 py-3 border-b-2 border-black">
                   <h2 className="font-satoshi tracking-tight text-sm font-bold flex items-center text-white">
-                    <Users className="mr-2" size={16} strokeWidth={2} /> Community Updates
+                    <Star className="mr-2" size={16} strokeWidth={2} /> Build Reputation
                   </h2>
                 </div>
                 <div className="font-inter p-6">
                   <div className="p-6 text-center">
-                    <p className="text-sm font-medium text-black mb-4 leading-normal">No community updates yet</p>
-                    <button className="w-full px-4 py-2 bg-blue-300 font-bold border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-black">
-                      Invite Friends
-                    </button>
+                    <p className="text-sm font-medium text-black mb-4 leading-normal">Complete exchanges to enhance your reputation in the community.</p>
+                    <Link href="/reputation" className="block w-full">
+                      <span className="w-full inline-block px-4 py-2 bg-blue-300 font-bold border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-black">
+                        View Reputation
+                      </span>
+                    </Link>
                   </div>
                 </div>
               </div>

@@ -17,7 +17,7 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "SkillSwap",
+  title: "SkillExchange",
   description: "Skill exchange platform",
 };
 

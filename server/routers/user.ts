@@ -377,54 +377,69 @@ export const userRouter = router({
     // Get Dashboard Stats
     getDashboardStats: protectedProcedure.query(async ({ ctx }) => {
       const userId = ctx.session.user.id;
+      const requestId = `dashboard-stats-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+      console.log(`Fetching dashboard stats for user: ${userId} (request: ${requestId})`);
 
+      try {
         // 1. Unread Notifications Count
         const unreadNotificationsCount = await ctx.prisma.notification.count({
-        where: {
-                recipientId: userId, // Use correct field
-                isRead: false,
-        },
-      });
+          where: {
+            recipientId: userId,
+            isRead: false,
+          },
+        });
+        console.log(`Unread notifications: ${unreadNotificationsCount}`);
 
         // 2. Services Offered/Received Count & Hours Banked
+        // Use a direct database query to ensure we get the latest data
         const completedExchanges = await ctx.prisma.exchange.findMany({
-        where: {
-                status: 'COMPLETED',
-          OR: [
-            { providerId: userId },
-                    { requesterId: userId },
-          ],
-        },
-        select: { 
-          providerId: true,
-          requesterId: true,
-                hours: true,
-        },
+          where: {
+            status: 'COMPLETED',
+            OR: [
+              { providerId: userId },
+              { requesterId: userId },
+            ],
+          },
+          select: {
+            providerId: true,
+            requesterId: true,
+            hours: true,
+          },
         });
 
+        // Manually calculate stats from completed exchanges
         let servicesOfferedCount = 0;
         let servicesReceivedCount = 0;
-    let hoursBanked = 0;
+        let hoursBanked = 0;
 
-        completedExchanges.forEach(ex => {
-            if (ex.hours === null) return; // Skip if hours are null
-      
-            if (ex.providerId === userId) {
-                servicesOfferedCount++;
-                hoursBanked += ex.hours;
-            } else if (ex.requesterId === userId) {
-                servicesReceivedCount++;
-                hoursBanked -= ex.hours;
+        completedExchanges.forEach(exchange => {
+          if (exchange.providerId === userId) {
+            servicesOfferedCount++;
+            hoursBanked += exchange.hours || 0;
+          } else {
+            servicesReceivedCount++;
+            hoursBanked -= exchange.hours || 0;
+          }
+        });
+
+        console.log(`Dashboard stats for request ${requestId}:`, {
+          unreadNotificationsCount,
+          servicesOfferedCount,
+          servicesReceivedCount,
+          hoursBanked
+        });
+
+        return {
+          unreadNotificationsCount,
+          servicesOfferedCount,
+          servicesReceivedCount,
+          hoursBanked
+        };
+      } catch (error) {
+        console.error(`Error fetching dashboard stats (request ${requestId}):`, error);
+        throw error;
       }
-    });
-
-    return {
-            unreadNotificationsCount,
-            servicesOfferedCount,
-            servicesReceivedCount,
-      hoursBanked,
-    };
-  }),
+    }),
 
     // Get Notifications
   getNotifications: protectedProcedure.query(async ({ ctx }) => {
@@ -470,5 +485,305 @@ export const userRouter = router({
       });
       return { success: true };
     }),
+
+  // Create a rating for an exchange
+  createRating: protectedProcedure
+    .input(
+      z.object({
+        exchangeId: z.string(),
+        rating: z.number().min(1).max(5),
+        review: z.string().optional(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const userId = ctx.session.user.id;
+      
+      // First, fetch the exchange to verify it exists and check permissions
+      const exchange = await ctx.prisma.exchange.findUnique({
+        where: { id: input.exchangeId },
+        select: {
+          id: true,
+          status: true,
+          providerId: true,
+          requesterId: true,
+          providerRating: true,
+          requesterRating: true,
+          providerReview: true,
+          requesterReview: true,
+        },
+      });
+      
+      if (!exchange) {
+        throw new TRPCError({ 
+          code: 'NOT_FOUND', 
+          message: 'Exchange not found.' 
+        });
+      }
+      
+      // Check if exchange is completed
+      if (exchange.status !== "COMPLETED") {
+        throw new TRPCError({ 
+          code: 'BAD_REQUEST', 
+          message: 'Cannot rate an exchange that is not completed.' 
+        });
+      }
+      
+      // Determine if user is provider or requester
+      const isProvider = exchange.providerId === userId;
+      const isRequester = exchange.requesterId === userId;
+      
+      if (!isProvider && !isRequester) {
+        throw new TRPCError({ 
+          code: 'FORBIDDEN', 
+          message: 'You are not part of this exchange.' 
+        });
+      }
+      
+      // Check if user has already rated this exchange
+      if ((isProvider && exchange.providerRating !== null) || 
+          (isRequester && exchange.requesterRating !== null)) {
+        throw new TRPCError({ 
+          code: 'BAD_REQUEST', 
+          message: 'You have already rated this exchange.' 
+        });
+      }
+      
+      // Update the exchange with the rating
+      const updateData: any = {};
+      
+      if (isProvider) {
+        updateData.providerRating = input.rating;
+        updateData.providerReview = input.review || null;
+      } else {
+        updateData.requesterRating = input.rating;
+        updateData.requesterReview = input.review || null;
+      }
+      
+      // Update the exchange
+      await ctx.prisma.exchange.update({
+        where: { id: input.exchangeId },
+        data: updateData,
+      });
+      
+      // Update average ratings for the rated user
+      const ratedUserId = isProvider ? exchange.requesterId : exchange.providerId;
+      if (ratedUserId) {
+        await updateUserRating(ctx, ratedUserId);
+      }
+      
+      return { success: true };
+    }),
+
+  // Get ratings received by the current user
+  getReceivedRatings: protectedProcedure.query(async ({ ctx }) => {
+    const userId = ctx.session.user.id;
+    
+    // Fetch exchanges where the user is a provider and has been rated by the requester
+    const asProvider = await ctx.prisma.exchange.findMany({
+      where: {
+        providerId: userId,
+        requesterRating: { not: null },
+        status: "COMPLETED",
+      },
+      select: {
+        id: true,
+        requesterRating: true,
+        requesterReview: true,
+        completedDate: true,
+        requester: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+          },
+        },
+        providerService: {
+          select: {
+            id: true,
+            title: true,
+          },
+        },
+      },
+      orderBy: {
+        completedDate: 'desc',
+      },
+    });
+    
+    // Fetch exchanges where the user is a requester and has been rated by the provider
+    const asRequester = await ctx.prisma.exchange.findMany({
+      where: {
+        requesterId: userId,
+        providerRating: { not: null },
+        status: "COMPLETED",
+      },
+      select: {
+        id: true,
+        providerRating: true,
+        providerReview: true,
+        completedDate: true,
+        provider: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+          },
+        },
+        providerService: {
+          select: {
+            id: true,
+            title: true,
+          },
+        },
+      },
+      orderBy: {
+        completedDate: 'desc',
+      },
+    });
+    
+    // Format the provider ratings
+    const providerRatings = asProvider.map(exchange => ({
+      id: `provider-${exchange.id}`,
+      rating: exchange.requesterRating || 0,
+      comment: exchange.requesterReview,
+      createdAt: exchange.completedDate?.toISOString() || new Date().toISOString(),
+      fromUser: {
+        id: exchange.requester?.id || '',
+        name: exchange.requester?.name,
+        image: exchange.requester?.image,
+      },
+      exchange: {
+        id: exchange.id,
+        providerService: exchange.providerService,
+      },
+    }));
+    
+    // Format the requester ratings
+    const requesterRatings = asRequester.map(exchange => ({
+      id: `requester-${exchange.id}`,
+      rating: exchange.providerRating || 0,
+      comment: exchange.providerReview,
+      createdAt: exchange.completedDate?.toISOString() || new Date().toISOString(),
+      fromUser: {
+        id: exchange.provider?.id || '',
+        name: exchange.provider?.name,
+        image: exchange.provider?.image,
+      },
+      exchange: {
+        id: exchange.id,
+        providerService: exchange.providerService,
+      },
+    }));
+    
+    // Combine and sort by date (newest first)
+    return [...providerRatings, ...requesterRatings].sort((a, b) => 
+      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+  }),
+  
+  // Get ratings given by the current user
+  getGivenRatings: protectedProcedure.query(async ({ ctx }) => {
+    const userId = ctx.session.user.id;
+    
+    // Fetch exchanges where the user is a provider and has rated the requester
+    const asProvider = await ctx.prisma.exchange.findMany({
+      where: {
+        providerId: userId,
+        providerRating: { not: null },
+        status: "COMPLETED",
+      },
+      select: {
+        id: true,
+        providerRating: true,
+        providerReview: true,
+        completedDate: true,
+        requester: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+          },
+        },
+        providerService: {
+          select: {
+            id: true,
+            title: true,
+          },
+        },
+      },
+      orderBy: {
+        completedDate: 'desc',
+      },
+    });
+    
+    // Fetch exchanges where the user is a requester and has rated the provider
+    const asRequester = await ctx.prisma.exchange.findMany({
+      where: {
+        requesterId: userId,
+        requesterRating: { not: null },
+        status: "COMPLETED",
+      },
+      select: {
+        id: true,
+        requesterRating: true,
+        requesterReview: true,
+        completedDate: true,
+        provider: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+          },
+        },
+        providerService: {
+          select: {
+            id: true,
+            title: true,
+          },
+        },
+      },
+      orderBy: {
+        completedDate: 'desc',
+      },
+    });
+    
+    // Format the provider ratings (given to requesters)
+    const providerRatings = asProvider.map(exchange => ({
+      id: `provider-${exchange.id}`,
+      rating: exchange.providerRating || 0,
+      comment: exchange.providerReview,
+      createdAt: exchange.completedDate?.toISOString() || new Date().toISOString(),
+      fromUser: {
+        id: exchange.requester?.id || '',
+        name: exchange.requester?.name,
+        image: exchange.requester?.image,
+      },
+      exchange: {
+        id: exchange.id,
+        providerService: exchange.providerService,
+      },
+    }));
+    
+    // Format the requester ratings (given to providers)
+    const requesterRatings = asRequester.map(exchange => ({
+      id: `requester-${exchange.id}`,
+      rating: exchange.requesterRating || 0,
+      comment: exchange.requesterReview,
+      createdAt: exchange.completedDate?.toISOString() || new Date().toISOString(),
+      fromUser: {
+        id: exchange.provider?.id || '',
+        name: exchange.provider?.name,
+        image: exchange.provider?.image,
+      },
+      exchange: {
+        id: exchange.id,
+        providerService: exchange.providerService,
+      },
+    }));
+    
+    // Combine and sort by date (newest first)
+    return [...providerRatings, ...requesterRatings].sort((a, b) => 
+      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+  }),
 
 }); 
