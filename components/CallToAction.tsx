@@ -12,11 +12,11 @@ const CallToAction: React.FC = () => {
           <div className="absolute -bottom-6 -right-6 w-12 h-12 bg-yellow-300 border-2 border-black"></div>
           
           <div className="text-center mb-8">
-            <h2 className="font-satoshi tracking-satoshi-tight text-3xl md:text-4xl font-bold text-white mb-4">
-              Ready to Start Exchanging Services?
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+              Ready to Start Earning Credits?
             </h2>
             <p className="text-xl text-blue-100 max-w-2xl mx-auto">
-              Join our community today and start trading skills with your neighbors. No money needed!
+              Join our community, list your skills, and start earning credits by helping neighbors!
             </p>
           </div>
           

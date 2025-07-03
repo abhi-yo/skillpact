@@ -5,22 +5,22 @@ import { Star } from 'lucide-react';
 
 const testimonials = [
   {
-    quote: "I traded my guitar lessons for home plumbing repairs. Saved money and made a new friend in the neighborhood!",
+    quote: "I earned 15 credits teaching guitar and used them for plumbing repairs. The credit system is so fair and transparent!",
     author: "Sarah K.",
     role: "Music Teacher",
     stars: 5,
   },
   {
-    quote: "As a retiree, I offer gardening help and receive computer assistance in return. It's the perfect arrangement!",
+    quote: "I love earning credits helping neighbors with gardening and using them for tech support. Perfect for retirees!",
     author: "James T.",
     role: "Retired Engineer",
     stars: 5,
   },
   {
-    quote: "I'm a college student on a tight budget. SkillExchange lets me get the help I need without spending money I don't have.",
+    quote: "As a college student, I tutor kids for credits and get car repairs done. No money needed - just skills!",
     author: "Miguel R.",
     role: "Student",
-    stars: 4,
+    stars: 5,
   },
 ];
 
@@ -29,12 +29,12 @@ const SocialProof: React.FC = () => {
     <section id="community" className="py-16 md:py-24 bg-blue-100">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl mx-auto text-center mb-16">
-          <h2 className="font-satoshi tracking-satoshi-tight text-3xl md:text-4xl font-bold text-gray-900 mb-4 relative inline-block">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4 relative inline-block">
             <span className="relative z-10">Community Stories</span>
             <div className="absolute -bottom-2 left-0 right-0 h-3 bg-yellow-300 -z-10"></div>
           </h2>
           <p className="text-xl text-gray-700">
-            See how people are benefiting from service exchanges
+            See how people are using credits to exchange skills
           </p>
         </div>
         
@@ -63,8 +63,8 @@ const SocialProof: React.FC = () => {
         </div>
 
         <div className="mt-12 text-center bg-blue-50 border-2 border-black p-6 max-w-2xl mx-auto shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all">
-          <div className="font-bold text-2xl mb-2 text-blue-600">3,000+</div>
-          <p className="text-gray-800">Service exchanges completed in our community</p>
+          <div className="font-bold text-2xl mb-2 text-blue-600">500+</div>
+          <p className="text-gray-800">Credits earned and spent in our growing community</p>
         </div>
       </div>
     </section>

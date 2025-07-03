@@ -150,6 +150,7 @@ exports.Prisma.UserScalarFieldEnum = {
   image: 'image',
   averageRating: 'averageRating',
   ratingCount: 'ratingCount',
+  credits: 'credits',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -163,8 +164,6 @@ exports.Prisma.VerificationTokenScalarFieldEnum = {
 exports.Prisma.LocationScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
-  latitude: 'latitude',
-  longitude: 'longitude',
   address: 'address',
   city: 'city',
   state: 'state',
@@ -196,6 +195,12 @@ exports.Prisma.ServiceScalarFieldEnum = {
   imageUrl: 'imageUrl',
   hourlyRate: 'hourlyRate',
   isActive: 'isActive',
+  locationType: 'locationType',
+  address: 'address',
+  city: 'city',
+  state: 'state',
+  country: 'country',
+  serviceRadius: 'serviceRadius',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -250,6 +255,14 @@ exports.Prisma.RatingScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.MessageScalarFieldEnum = {
+  id: 'id',
+  exchangeId: 'exchangeId',
+  senderId: 'senderId',
+  content: 'content',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -264,6 +277,12 @@ exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
 };
+exports.ServiceLocationType = exports.$Enums.ServiceLocationType = {
+  REMOTE: 'REMOTE',
+  OWN: 'OWN',
+  CLIENT: 'CLIENT'
+};
+
 exports.ExchangeStatus = exports.$Enums.ExchangeStatus = {
   REQUESTED: 'REQUESTED',
   ACCEPTED: 'ACCEPTED',
@@ -297,7 +316,8 @@ exports.Prisma.ModelName = {
   Exchange: 'Exchange',
   Notification: 'Notification',
   Availability: 'Availability',
-  Rating: 'Rating'
+  Rating: 'Rating',
+  Message: 'Message'
 };
 
 /**

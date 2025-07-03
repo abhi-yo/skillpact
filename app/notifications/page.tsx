@@ -10,6 +10,7 @@ import { format } from 'date-fns';
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { toast } from "react-hot-toast";
+import { DashboardLayout } from '@/components/DashboardLayout';
 
 // Interface matching the structure returned by getNotifications
 interface Notification {
@@ -86,99 +87,110 @@ const NotificationsPage: React.FC = () => {
   // --- Loading State ---
   if (authStatus === 'loading' || isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-blue-50">
-        <Loader2 className="animate-spin h-12 w-12 text-blue-600" />
-      </div>
+      <DashboardLayout>
+        <div className="min-h-screen flex items-center justify-center">
+          <Loader2 className="animate-spin h-12 w-12 text-blue-600" />
+        </div>
+      </DashboardLayout>
     );
   }
 
   // --- Error State ---
   if (error) {
     return (
-      <div className="min-h-screen bg-blue-50 py-10 font-inter text-center">
-        <p className="text-red-600">Error loading notifications: {error.message}</p>
-        <Link href="/dashboard">
-            <button className="mt-4 px-4 py-2 bg-blue-200 border-2 border-black shadow-md">Back to Dashboard</button>
-        </Link>
-      </div>
+      <DashboardLayout>
+        <div className="min-h-screen py-10 font-inter text-center">
+          <p className="text-red-600 text-lg">Error loading notifications: {error.message}</p>
+          <Link href="/dashboard">
+            <button className="mt-4 px-4 py-2 bg-blue-200 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all">
+              Back to Dashboard
+            </button>
+          </Link>
+        </div>
+      </DashboardLayout>
     );
   }
 
   // --- Main Content ---
   return (
-    <div className="min-h-screen bg-blue-50 py-10 font-inter">
-      <div className="container mx-auto max-w-3xl">
+    <DashboardLayout>
+      <div className="w-full px-4 sm:px-8 py-6 bg-blue-50 min-h-screen">
         
         {/* Header & Mark All Read Button */}
-        <div className="flex justify-between items-center mb-8">
-            <div>
-                <Link href="/dashboard" className="inline-flex items-center text-sm font-medium text-gray-700 hover:text-black mb-1">
-                    <ArrowLeft size={16} className="mr-1" />
-                    Back to Dashboard
-                </Link>
-                <h1 className="font-satoshi tracking-tight text-3xl font-bold">Notifications</h1>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 max-w-5xl lg:max-w-6xl mx-auto">
+          <div>
+            <div className="relative inline-block">
+              <h1 className="font-satoshi tracking-tight text-3xl font-bold text-black">Notifications</h1>
+              <svg viewBox="0 0 200 8" className="w-full h-2 absolute left-0" xmlns="http://www.w3.org/2000/svg">
+                <path d="M2,6 Q50,2 100,4 T198,6" stroke="#9ca3af" strokeWidth="3" fill="none" strokeLinecap="round" />
+              </svg>
             </div>
-            <div>
-                <Button 
-                    onClick={handleMarkAllRead}
-                    disabled={markReadMutation.isPending || !notifications?.some(n => !n.isRead)}
-                    className="text-sm border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px] transition-all bg-white"
-                >
-                    {markReadMutation.isPending ? <Loader2 size={16} className="animate-spin mr-2"/> : <Check size={16} className="mr-2"/>}
-                    Mark All as Read
-                </Button>
-            </div>
+            <p className="text-base text-gray-600 mt-2">Stay updated with your latest activities</p>
+          </div>
+          <Button 
+            onClick={handleMarkAllRead}
+            disabled={markReadMutation.isPending || !notifications?.some(n => !n.isRead)}
+            className="text-base font-bold border-2 border-black rounded-lg shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all bg-white text-black px-6 py-2"
+          >
+            {markReadMutation.isPending ? <Loader2 size={18} className="animate-spin mr-2"/> : <Check size={18} className="mr-2"/>}
+            Mark All as Read
+          </Button>
         </div>
 
         {/* Notification List */}
-        <div className="space-y-4">
+        <div className="max-w-5xl lg:max-w-6xl mx-auto">
           {notifications && notifications.length > 0 ? (
-            notifications.map((notification: Notification) => {
-              const { Icon, color } = getNotificationIcon(notification.type);
-              
-              const notificationContent = (
+            <div className="space-y-3">
+              {notifications.map((notification: Notification) => {
+                const { Icon, color } = getNotificationIcon(notification.type);
+                
+                const notificationContent = (
                   <div className={cn(
-                    "block bg-white border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] p-4 transition-all duration-150",
-                    notification.exchangeId && "hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5 cursor-pointer",
-                    !notification.isRead && "border-blue-500" // Example: Highlight unread
+                    "block bg-white border-2 border-black rounded-lg shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] p-5 transition-all duration-150",
+                    notification.exchangeId && "hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] cursor-pointer",
+                    !notification.isRead && "border-l-4 border-l-blue-500"
                   )}>
-                    <div className="flex items-start space-x-3">
-                      <div className={`flex-shrink-0 w-8 h-8 border border-black flex items-center justify-center ${color}`}>
-                        <Icon size={16} />
+                    <div className="flex items-start space-x-4">
+                      <div className={`flex-shrink-0 w-10 h-10 border-2 border-black rounded-lg flex items-center justify-center ${color} shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]`}>
+                        <Icon size={18} />
                       </div>
-                      <div className="flex-grow">
-                        <p className="text-sm font-medium text-black">{notification.message}</p>
-                        <p className="text-xs text-gray-500 mt-1">
-                          {notification.createdAt ? format(new Date(notification.createdAt), 'PP p') : ''}
+                      <div className="flex-grow min-w-0">
+                        <p className="text-base font-semibold text-black leading-relaxed">{notification.message}</p>
+                        <p className="text-sm text-gray-600 mt-2">
+                          {notification.createdAt ? format(new Date(notification.createdAt), 'PPP p') : ''}
                         </p>
                       </div>
                       {!notification.isRead && (
-                        <div className="flex-shrink-0 w-2 h-2 rounded-full bg-blue-500 mt-1" aria-label="Unread"></div>
+                        <div className="flex-shrink-0 w-3 h-3 rounded-full bg-blue-500 border border-black mt-1" aria-label="Unread"></div>
                       )}
                     </div>
                   </div>
-              );
-              
-              return notification.exchangeId ? (
-                <Link key={notification.id} href={`/exchanges/${notification.exchangeId}`}>
-                  {notificationContent}
-                </Link>
-              ) : (
-                <div key={notification.id}>
-                  {notificationContent}
-                </div>
-              );
-            })
+                );
+                
+                return notification.exchangeId ? (
+                  <Link key={notification.id} href={`/exchanges/${notification.exchangeId}`}>
+                    {notificationContent}
+                  </Link>
+                ) : (
+                  <div key={notification.id}>
+                    {notificationContent}
+                  </div>
+                );
+              })}
+            </div>
           ) : (
-            <div className="text-center py-16 border-2 border-dashed border-gray-400 bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-              <Bell size={40} className="mx-auto text-gray-400 mb-4" />
-              <h2 className="text-xl font-semibold mb-2">No Notifications Yet</h2>
-              <p className="text-gray-600">You currently have no notifications.</p>
+            <div className="text-center py-20 border-2 border-dashed border-gray-400 bg-white rounded-lg shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
+              <Bell size={48} className="mx-auto text-gray-400 mb-6" />
+              <h2 className="text-2xl font-bold text-black mb-3">No Notifications Yet</h2>
+              <p className="text-base text-gray-600 mb-6">You currently have no notifications. When you have activity, it will appear here.</p>
+              <Link href="/dashboard" className="inline-block px-6 py-3 bg-blue-500 text-white font-bold border-2 border-black rounded-lg shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all">
+                Back to Dashboard
+              </Link>
             </div>
           )}
         </div>
       </div>
-    </div>
+    </DashboardLayout>
   );
 };
 

@@ -10,8 +10,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider          = "postgresql"
+  url               = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
 // NextAuth Models
@@ -50,6 +51,7 @@ model User {
   image         String?
   averageRating Float?
   ratingCount   Int?      @default(0)
+  credits       Int       @default(1000)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
@@ -69,6 +71,7 @@ model User {
   // NextAuth relations
   accounts Account[]
   sessions Session[]
+  messages Message[] @relation("UserMessages")
 }
 
 // NextAuth VerificationToken model
@@ -83,11 +86,13 @@ model VerificationToken {
 // App-specific Models
 
 model Location {
-  id        String   @id @default(cuid())
-  userId    String   @unique
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  latitude  Float
-  longitude Float
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // New geospatial field
+  coordinates Unsupported("geometry")?
+
   address   String?
   city      String?
   state     String?
@@ -95,6 +100,8 @@ model Location {
   radius    Int?     @default(10) // Service radius in kilometers
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([coordinates], type: Gist)
 }
 
 model Skill {
@@ -114,6 +121,12 @@ model ServiceCategory {
   services    Service[]
 }
 
+enum ServiceLocationType {
+  REMOTE
+  OWN
+  CLIENT
+}
+
 model Service {
   id          String           @id @default(cuid())
   title       String
@@ -125,11 +138,23 @@ model Service {
   imageUrl    String?
   hourlyRate  Float?
   isActive    Boolean          @default(true)
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
+
+  // Location-related fields
+  locationType  ServiceLocationType      @default(REMOTE)
+  coordinates   Unsupported("geometry")?
+  address       String?
+  city          String?
+  state         String?
+  country       String?
+  serviceRadius Int? // Service radius in kilometers
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   providedExchanges  Exchange[] @relation("ProviderService")
   requestedExchanges Exchange[] @relation("RequesterService")
+
+  @@index([coordinates], type: Gist)
 }
 
 enum ExchangeStatus {
@@ -179,7 +204,8 @@ model Exchange {
   notifications Notification[]
 
   // Ratings related to this exchange
-  ratings Rating[]
+  ratings  Rating[]
+  messages Message[]
 }
 
 enum NotificationType {
@@ -248,4 +274,14 @@ model Rating {
   updatedAt DateTime @updatedAt
 
   @@unique([exchangeId, fromUserId])
+}
+
+model Message {
+  id         String   @id @default(uuid())
+  exchangeId String
+  senderId   String
+  content    String
+  createdAt  DateTime @default(now())
+  exchange   Exchange @relation(fields: [exchangeId], references: [id])
+  sender     User     @relation("UserMessages", fields: [senderId], references: [id])
 }

@@ -98,23 +98,17 @@ export const userRouter = router({
     const userId = ctx.session.user.id;
     const userProfile = await ctx.prisma.user.findUnique({ 
       where: { id: userId },
-      include: {
-        location: true, 
-        skills: { 
-          select: {
-            id: true,
-            name: true,
-          },
-        },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        image: true,
+        credits: true,
+        location: true,
+        skills: { select: { id: true, name: true } },
         services: {
-              select: {
-                id: true,
-            title: true,
-            isActive: true,
-              },
-          where: {
-            isActive: true,
-          },
+          select: { id: true, title: true, isActive: true },
+          where: { isActive: true },
         },
       }
     });
@@ -217,9 +211,6 @@ export const userRouter = router({
               const locationCreatePayload: Prisma.LocationCreateWithoutUserInput = {
                   address: input.locationString ?? null,
                   radius: input.radius ?? null,
-                  latitude: 0, // Use 0 as default number value
-                  longitude: 0, // Use 0 as default number value
-                  // Add defaults for other required fields if any
               };
               // Add create operation
               dataToUpdate.location = { create: locationCreatePayload };
@@ -230,15 +221,12 @@ export const userRouter = router({
       // Skills
       if (input.skills !== undefined) {
         const skillOperations = input.skills.map(skillName => ({
-          // Use the compound unique identifier for the where clause
-          where: { userId_name: { userId: userId, name: skillName } }, 
-          // Include userId in the create clause - REMOVED userId as Prisma infers it
-          create: { name: skillName }, 
+          where: { userId_name: { userId: userId, name: skillName } },
+          create: { name: skillName },
         }));
 
         dataToUpdate.skills = {
-          set: [], // Disconnect all existing skills first
-          connectOrCreate: skillOperations, // Connect existing or create new ones
+          connectOrCreate: skillOperations,
         };
       }
 
@@ -418,7 +406,7 @@ export const userRouter = router({
             hoursBanked += exchange.hours || 0;
           } else {
             servicesReceivedCount++;
-            hoursBanked -= exchange.hours || 0;
+            // Do not subtract hours for received exchanges
           }
         });
 

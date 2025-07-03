@@ -6,14 +6,20 @@ export const serviceRouter = router({
   // Create a new service (renamed from 'create')
   createService: protectedProcedure
     .input(z.object({ 
-      // Updated schema to match the form
       title: z.string().min(5).max(100),
       description: z.string().min(10).max(500),
       categoryId: z.string().optional(),
-      hourlyRate: z.number().min(0).max(1000), // Adjust validation as needed
-      locationType: z.enum(['OWN', 'CLIENT', 'REMOTE', 'FLEXIBLE']).optional(), 
+      hourlyRate: z.number().min(0).max(1000),
+      locationType: z.enum(['OWN', 'CLIENT', 'REMOTE']).default('REMOTE'), 
       serviceRadius: z.number().min(1).max(100).optional(),
       tags: z.string().optional(),
+      // Location fields
+      latitude: z.number().optional(),
+      longitude: z.number().optional(),
+      address: z.string().nullable().optional(),
+      city: z.string().nullable().optional(),
+      state: z.string().nullable().optional(),
+      country: z.string().nullable().optional(),
     }))
     .mutation(async ({ ctx, input }) => {
       const userId = ctx.session.user.id;
@@ -26,11 +32,25 @@ export const serviceRouter = router({
           description: input.description,
           categoryId: input.categoryId || undefined,
           hourlyRate: input.hourlyRate,
-          // Removed imageUrl, hourlyRate - add back if needed
-          // Add default values if needed, e.g., isActive: true
-          isActive: true, // Default to active
+          locationType: input.locationType,
+          serviceRadius: input.serviceRadius,
+          address: input.address,
+          city: input.city,
+          state: input.state,
+          country: input.country,
+          isActive: true,
         },
       });
+      
+      // Only store coordinates for "OWN" location type services
+      if (input.latitude && input.longitude && input.locationType === 'OWN') {
+        await ctx.prisma.$executeRawUnsafe(
+          `UPDATE "Service" SET coordinates = ST_SetSRID(ST_MakePoint($1, $2), 4326) WHERE id = $3`,
+          input.longitude,
+          input.latitude,
+          service.id
+        );
+      }
       
       return service;
     }),
@@ -172,77 +192,68 @@ export const serviceRouter = router({
     .query(async ({ ctx, input }) => {
       const userId = ctx.session.user.id;
 
-      // 1. Get the current user's location and radius
-      const userProfile = await ctx.prisma.user.findUnique({
-        where: { id: userId },
-        select: { 
-          location: { 
-            select: { latitude: true, longitude: true, radius: true }
-          }
-        }
-      });
+      // 1. Get the current user's coordinates & radius
+      const loc = await ctx.prisma.$queryRawUnsafe<{
+        lat: number | null;
+        lng: number | null;
+        radius: number | null;
+      }[]>(
+        `SELECT ST_Y(coordinates) AS lat, ST_X(coordinates) AS lng, radius
+         FROM "Location" WHERE "userId" = $1 LIMIT 1`,
+        userId,
+      );
 
-      // Check if user has location and radius set
-      if (!userProfile?.location?.latitude || 
-          !userProfile?.location?.longitude || 
-          userProfile.location.radius === null || 
-          userProfile.location.radius === undefined) {
-         throw new TRPCError({ 
-            code: 'PRECONDITION_FAILED', 
-            message: 'Please set your location and service radius in your profile to see nearby services.' 
-          });
+      if (!loc[0] || loc[0].lat === null || loc[0].lng === null || loc[0].radius === null) {
+        throw new TRPCError({
+          code: 'PRECONDITION_FAILED',
+          message: 'Please set your location and service radius in your profile to see nearby services.'
+        });
       }
 
-      const { latitude, longitude, radius } = userProfile.location;
-      const radiusInMiles = radius; // Assuming radius is stored in miles
+      const { lat, lng, radius } = loc[0];
+      const radiusMeters = radius * 1000; // radius stored in km
 
-      // -----------------------------------------------------------
-      // Placeholder Logic: 
-      // This section needs to be replaced with a proper spatial query.
-      // For now, it just returns a few active services from *other* users,
-      // *without* checking distance.
-      // 
-      // Example using PostGIS (requires PostGIS extension enabled):
-      /*
-      const services = await ctx.prisma.$queryRaw`
-          SELECT s.*, u.name as userName, u.image as userImage, 
-                 ST_Distance(l.geom, ST_SetSRID(ST_MakePoint(${longitude}, ${latitude}), 4326)::geography) / 1609.34 AS distance_miles
-          FROM "Service" s
-          JOIN "User" u ON s."userId" = u.id
-          JOIN "Location" l ON u.id = l."userId"
-          WHERE s."isActive" = true
-            AND s."userId" != ${userId}
-            AND ST_DWithin(
-              l.geom, 
-              ST_SetSRID(ST_MakePoint(${longitude}, ${latitude}), 4326)::geography, 
-              ${radiusInMiles * 1609.34} -- Convert miles to meters for ST_DWithin
-            )
-          ORDER BY distance_miles ASC
-          LIMIT ${input?.limit ?? 10};
-        `;
-      return services;
-      */
-      // -----------------------------------------------------------
-      
-       // --- Start Placeholder --- 
-      console.warn("WARN: Using placeholder logic for getNearbyServices. No distance calculation.")
-      const nearbyServices = await ctx.prisma.service.findMany({
-        where: {
-          isActive: true,
-          userId: { not: userId }, // Don't show own services
-          // Add other filters like category later
+      const limit = input?.limit ?? 10;
+
+      const services = await ctx.prisma.$queryRawUnsafe<any[]>(
+        `SELECT s.id, s.title, s.description, s."hourlyRate", s."userId",
+                u.name AS "userName", u.image AS "userImage", u."averageRating",
+                ST_Distance(s.coordinates::geography, ST_SetSRID(ST_MakePoint($1,$2),4326)::geography) / 1000 AS distance_km,
+                sc.name AS "categoryName"
+         FROM "Service" s
+         JOIN "User" u ON s."userId" = u.id
+         LEFT JOIN "ServiceCategory" sc ON s."categoryId" = sc.id
+         WHERE s."isActive" = true
+           AND s."userId" <> $3
+           AND s.coordinates IS NOT NULL
+           AND s."locationType" = 'OWN'
+           AND ST_DWithin(s.coordinates::geography, ST_SetSRID(ST_MakePoint($1,$2),4326)::geography, $4)
+         ORDER BY distance_km ASC
+         LIMIT $5;`,
+        lng,
+        lat,
+        userId,
+        radiusMeters,
+        limit,
+      );
+
+      // Map the raw SQL results to match the expected interface
+      const mappedServices = services.map((service: any) => ({
+        id: service.id,
+        title: service.title,
+        description: service.description,
+        hourlyRate: service.hourlyRate,
+        distance_km: service.distance_km,
+        user: {
+          id: service.userId,
+          name: service.userName,
+          image: service.userImage,
+          averageRating: service.averageRating,
         },
-        include: {
-          user: { select: { id: true, name: true, image: true, averageRating: true } },
-          category: true,
-        },
-        take: input?.limit ?? 10,
-        orderBy: { createdAt: 'desc' }, // Placeholder order
-      });
-      // Add a placeholder distance property for the frontend
-      const servicesWithPlaceholderDistance = nearbyServices.map(s => ({ ...s, distance_miles: Math.random() * radiusInMiles }));
-      return servicesWithPlaceholderDistance;
-       // --- End Placeholder ---
+        category: service.categoryName ? { name: service.categoryName } : null,
+      }));
+
+      return mappedServices;
     }),
     
   // Get service categories
@@ -256,7 +267,40 @@ export const serviceRouter = router({
     return categories;
   }),
 
-  // Browse active services (new procedure)
+  // Search services by title
+  searchServices: publicProcedure
+    .input(z.object({ query: z.string() }))
+    .query(async ({ ctx, input }) => {
+      if (!input.query) {
+        return { services: [] };
+      }
+      
+      const services = await ctx.prisma.service.findMany({
+        where: {
+          title: {
+            contains: input.query,
+            mode: 'insensitive',
+          },
+          isActive: true,
+        },
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              image: true,
+              averageRating: true,
+            },
+          },
+          category: true,
+        },
+        take: 10,
+      });
+      
+      return { services };
+    }),
+
+  // Browse services with filters
   browseServices: publicProcedure
     .input(z.object({ 
       categoryId: z.string().optional(),

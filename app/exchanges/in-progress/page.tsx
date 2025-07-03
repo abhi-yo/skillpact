@@ -8,9 +8,9 @@ import Link from "next/link";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import FullPageLoader from "@/components/FullPageLoader";
 
-export default function ExchangeRequestsPage() {
-  const { data: session, status } = useSession();
-  const { data: exchanges, isLoading } = trpc.exchange.getUserExchanges.useQuery({ status: "pending" }, { enabled: status === "authenticated" });
+export default function InProgressExchangesPage() {
+  const { status } = useSession();
+  const { data: exchanges, isLoading } = trpc.exchange.getUserExchanges.useQuery({ status: "upcoming" }, { enabled: status === "authenticated" });
 
   if (isLoading) {
     return (
@@ -23,10 +23,10 @@ export default function ExchangeRequestsPage() {
   return (
     <DashboardLayout>
       <div className="w-full max-w-3xl mx-auto px-4 sm:px-8 py-8 min-h-screen font-inter">
-        <h1 className="font-satoshi text-3xl font-bold mb-8">Pending Exchanges</h1>
-        {!isLoading && exchanges && exchanges.length === 0 && <p>No pending exchanges.</p>}
+        <h1 className="font-satoshi text-3xl font-bold mb-8">In Progress Exchanges</h1>
+        {!isLoading && exchanges && exchanges.length === 0 && <p>No in-progress exchanges.</p>}
         <div className="space-y-4">
-          {exchanges && exchanges.map(ex => (
+          {(exchanges ?? []).map(ex => (
             <Link
               key={ex.id}
               href={`/exchanges/${ex.id}`}
@@ -36,7 +36,7 @@ export default function ExchangeRequestsPage() {
               <div className="flex-1">
                 <div className="font-bold text-lg break-words">{ex.providerService?.title || "Service"}</div>
                 <div className="text-sm text-gray-700">With: {ex.provider?.name || ex.requester?.name}</div>
-                <div className="text-xs text-gray-500">Status: {ex.status}</div>
+                <div className="text-xs text-gray-500">Scheduled: {ex.scheduledDate ? new Date(ex.scheduledDate).toLocaleString() : "Not set"}</div>
               </div>
             </Link>
           ))}

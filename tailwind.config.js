@@ -9,12 +9,11 @@ export default {
   	extend: {
   		fontFamily: {
   			sans: [
-  				'var(--font-inter)',
-  				'system-ui',
+  				'var(--font-satoshi)',
   				'sans-serif'
   			],
   			satoshi: [
-  				'Satoshi',
+  				'var(--font-satoshi)',
   				'sans-serif'
   			]
   		},

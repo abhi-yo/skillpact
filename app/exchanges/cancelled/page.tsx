@@ -1,5 +1,4 @@
 "use client";
-
 import React from "react";
 import { trpc } from "@/lib/trpc";
 import { useSession } from "next-auth/react";
@@ -8,9 +7,9 @@ import Link from "next/link";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import FullPageLoader from "@/components/FullPageLoader";
 
-export default function ExchangeRequestsPage() {
+export default function CancelledExchangesPage() {
   const { data: session, status } = useSession();
-  const { data: exchanges, isLoading } = trpc.exchange.getUserExchanges.useQuery({ status: "pending" }, { enabled: status === "authenticated" });
+  const { data: exchanges, isLoading } = trpc.exchange.getUserExchanges.useQuery({ status: "cancelled" }, { enabled: status === "authenticated" });
 
   if (isLoading) {
     return (
@@ -23,8 +22,8 @@ export default function ExchangeRequestsPage() {
   return (
     <DashboardLayout>
       <div className="w-full max-w-3xl mx-auto px-4 sm:px-8 py-8 min-h-screen font-inter">
-        <h1 className="font-satoshi text-3xl font-bold mb-8">Pending Exchanges</h1>
-        {!isLoading && exchanges && exchanges.length === 0 && <p>No pending exchanges.</p>}
+        <h1 className="font-satoshi text-3xl font-bold mb-8">Cancelled Exchanges</h1>
+        {!isLoading && exchanges && exchanges.length === 0 && <p>No cancelled exchanges.</p>}
         <div className="space-y-4">
           {exchanges && exchanges.map(ex => (
             <Link

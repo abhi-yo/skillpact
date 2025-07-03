@@ -11,10 +11,10 @@ const Footer: React.FC = () => {
           <div className="md:col-span-1">
             <div className="font-bold text-2xl mb-4 transform -rotate-2 relative inline-block">
               <span className="absolute -inset-1 bg-yellow-300 -z-10 transform rotate-1"></span>
-              <span className="relative text-blue-900">SkillExchange</span>
+              <span className="relative text-blue-900">Skillpact</span>
             </div>
             <p className="text-blue-200 mb-4">
-              The neighborhood marketplace where services are exchanged without money.
+              The credit-based platform where neighbors exchange skills and services.
             </p>
             <div className="flex space-x-4">
               <a href="#" className="text-blue-200 hover:text-white transition-colors">
@@ -33,7 +33,7 @@ const Footer: React.FC = () => {
           </div>
           
           <div>
-            <h3 className="font-satoshi tracking-satoshi-tight font-semibold text-lg mb-4">Quick Links</h3>
+            <h3 className="font-semibold text-lg mb-4">Quick Links</h3>
             <ul className="space-y-2">
               <li><a href="#how-it-works" className="text-blue-200 hover:text-white transition-colors">How It Works</a></li>
               <li><a href="#services" className="text-blue-200 hover:text-white transition-colors">Services</a></li>
@@ -43,7 +43,7 @@ const Footer: React.FC = () => {
           </div>
           
           <div>
-            <h3 className="font-satoshi tracking-satoshi-tight font-semibold text-lg mb-4">Legal</h3>
+            <h3 className="font-semibold text-lg mb-4">Legal</h3>
             <ul className="space-y-2">
               <li><a href="#" className="text-blue-200 hover:text-white transition-colors">Terms of Service</a></li>
               <li><a href="#" className="text-blue-200 hover:text-white transition-colors">Privacy Policy</a></li>
@@ -52,9 +52,9 @@ const Footer: React.FC = () => {
           </div>
           
           <div>
-            <h3 className="font-satoshi tracking-satoshi-tight font-semibold text-lg mb-4">Contact</h3>
+            <h3 className="font-semibold text-lg mb-4">Contact</h3>
             <ul className="space-y-2">
-              <li className="text-blue-200">hello@skillexchange.example</li>
+              <li className="text-blue-200">hello@skillpact.example</li>
               <li className="text-blue-200">+1 (555) 123-4567</li>
               <li className="text-blue-200">123 Community Lane<br />Neighborhood City, ST 12345</li>
             </ul>
@@ -62,7 +62,7 @@ const Footer: React.FC = () => {
         </div>
         
         <div className="pt-8 border-t border-blue-800 text-center text-blue-300 text-sm">
-          <p>© {new Date().getFullYear()} SkillExchange. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Skillpact. All rights reserved.</p>
         </div>
       </div>
     </footer>

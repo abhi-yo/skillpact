@@ -25,7 +25,7 @@ const AuthenticatedNavbar: React.FC = () => {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center">
           <Link href="/dashboard" className="text-blue-600 font-bold text-2xl">
-             SkillExchange
+             Skillpact
           </Link>
 
           <div className="hidden md:flex items-center space-x-6">

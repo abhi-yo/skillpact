@@ -51,7 +51,7 @@ const ServiceCategories: React.FC = () => {
     <section id="services" className="py-16 md:py-24 bg-white">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl mx-auto text-center mb-16">
-          <h2 className="font-satoshi tracking-satoshi-tight text-3xl md:text-4xl font-bold text-gray-900 mb-4 relative inline-block">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4 relative inline-block">
             <span className="relative z-10">Service Categories</span>
             <div className="absolute -bottom-2 left-0 right-0 h-3 bg-yellow-300 -z-10"></div>
           </h2>
@@ -70,7 +70,7 @@ const ServiceCategories: React.FC = () => {
                 <div className="p-3 bg-white rounded-lg border-2 border-black mb-4 group-hover:bg-yellow-300 transition-colors">
                   {category.icon}
                 </div>
-                <h3 className="font-satoshi tracking-satoshi-tight text-lg font-bold text-gray-900 mb-2">{category.name}</h3>
+                <h3 className="text-lg font-bold text-gray-900 mb-2">{category.name}</h3>
                 <p className="text-sm text-gray-700">{category.examples}</p>
               </div>
             </div>

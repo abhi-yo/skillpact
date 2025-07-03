@@ -7,16 +7,25 @@ export const locationRouter = router({
   getMyLocation: protectedProcedure.query(async ({ ctx }) => {
     const userId = ctx.session.user.id;
     
-    const location = await ctx.prisma.location.findUnique({
-      where: {
-        userId,
-      },
-    });
-    
-    return location;
+    const result = await ctx.prisma.$queryRawUnsafe<{
+      latitude: number | null;
+      longitude: number | null;
+      address: string | null;
+      city: string | null;
+      state: string | null;
+      country: string | null;
+      radius: number | null;
+    }[]>(
+      `SELECT ST_Y(coordinates) as latitude, ST_X(coordinates) as longitude, 
+              address, city, state, country, radius
+       FROM "Location" WHERE "userId" = $1 LIMIT 1`,
+      userId,
+    );
+
+    return result[0] ?? null;
   }),
   
-  // Set or update location
+  // Set or update location (store as PostGIS geometry)
   setLocation: protectedProcedure
     .input(
       z.object({
@@ -31,43 +40,40 @@ export const locationRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       const userId = ctx.session.user.id;
-      
-      // Check if user already has a location
-      const existingLocation = await ctx.prisma.location.findUnique({
-        where: {
+
+      try {
+        // Generate a unique ID for the location
+        const locationId = `cloc_${Math.random().toString(36).substr(2, 9)}_${Date.now()}`;
+
+        // Use raw SQL upsert to handle geometry type
+        await ctx.prisma.$executeRawUnsafe(
+          `INSERT INTO "Location" ("id", "userId", "coordinates", "address", "city", "state", "country", "radius", "createdAt", "updatedAt")
+           VALUES ($1, $2, ST_SetSRID(ST_MakePoint($3, $4), 4326), $5, $6, $7, $8, $9, NOW(), NOW())
+           ON CONFLICT ("userId") DO UPDATE
+             SET "coordinates" = EXCLUDED."coordinates",
+                 "address" = EXCLUDED."address",
+                 "city" = EXCLUDED."city",
+                 "state" = EXCLUDED."state",
+                 "country" = EXCLUDED."country",
+                 "radius" = EXCLUDED."radius",
+                 "updatedAt" = NOW();`,
+          locationId,
           userId,
-        },
-      });
-      
-      if (existingLocation) {
-        // Update existing location
-        return await ctx.prisma.location.update({
-          where: {
-            userId,
-          },
-          data: {
-            latitude: input.latitude,
-            longitude: input.longitude,
-            address: input.address,
-            city: input.city,
-            state: input.state,
-            country: input.country,
-            radius: input.radius,
-          },
-        });
-      } else {
-        // Create new location
-        return await ctx.prisma.location.create({
-          data: {
-            userId,
-            latitude: input.latitude,
-            longitude: input.longitude,
-            address: input.address,
-            city: input.city,
-            state: input.state,
-            country: input.country,
-            radius: input.radius,
-          },
+          input.longitude,
+          input.latitude,
+          input.address ?? null,
+          input.city ?? null,
+          input.state ?? null,
+          input.country ?? null,
+          input.radius ?? 10,
+        );
+
+        return { success: true };
+      } catch (error) {
+        console.error('Location save error:', error);
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to save location. Please try again.',
         });
       }
     }),

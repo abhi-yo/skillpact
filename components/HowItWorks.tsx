@@ -31,7 +31,7 @@ const HowItWorks: React.FC = () => {
     <section id="how-it-works" className="py-16 md:py-24 bg-blue-100">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl mx-auto text-center mb-16">
-          <h2 className="font-satoshi tracking-satoshi-tight text-3xl md:text-4xl font-bold text-gray-900 mb-4 relative inline-block">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4 relative inline-block">
             <span className="relative z-10">How It Works</span>
             <div className="absolute -bottom-2 left-0 right-0 h-3 bg-yellow-300 -z-10"></div>
           </h2>
@@ -49,7 +49,7 @@ const HowItWorks: React.FC = () => {
               <div className="flex items-center justify-center h-16 w-16 rounded-full bg-blue-100 mb-4 border-2 border-black mx-auto">
                 {step.icon}
               </div>
-              <h3 className="font-satoshi tracking-satoshi-tight text-xl font-bold text-gray-900 mb-2 text-center">
+              <h3 className="text-xl font-bold text-gray-900 mb-2 text-center">
                 Step {index + 1}: {step.title}
               </h3>
               <p className="text-gray-700 text-center">

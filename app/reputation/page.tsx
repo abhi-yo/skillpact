@@ -4,9 +4,11 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { Star, ChevronLeft, ThumbsUp, Loader2, Clock, User } from 'lucide-react';
+import { Star, ThumbsUp, Clock, User } from 'lucide-react';
 import { trpc } from '@/lib/trpc';
 import Image from 'next/image';
+import { DashboardLayout } from '@/components/DashboardLayout';
+import FullPageLoader from '@/components/FullPageLoader';
 
 // Define the Rating type
 interface Rating {
@@ -94,9 +96,9 @@ const ReputationPage = () => {
   // Handle loading state
   if (status === 'loading' || receivedLoading || givenLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-blue-50">
-        <Loader2 className="animate-spin h-12 w-12 text-blue-600 mb-4" strokeWidth={2} />
-      </div>
+      <DashboardLayout>
+        <FullPageLoader />
+      </DashboardLayout>
     );
   }
 
@@ -105,19 +107,11 @@ const ReputationPage = () => {
   const hasRatings = currentRatings && currentRatings.length > 0;
 
   return (
-    <div className="min-h-screen bg-blue-50">
-      <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Back button */}
-        <div className="mb-6">
-          <Link href="/dashboard" className="font-medium text-blue-600 flex items-center hover:underline">
-            <ChevronLeft className="h-4 w-4 mr-1" />
-            Back to Dashboard
-          </Link>
-        </div>
-
+    <DashboardLayout>
+      <main className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Page header */}
-        <div className="bg-white border-2 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] mb-6">
-          <div className="bg-blue-500 px-4 py-3 border-b-2 border-black">
+        <div className="bg-white border-2 border-black rounded-lg shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] mb-6">
+          <div className="bg-blue-500 px-4 py-3 border-b-2 border-black rounded-t-lg">
             <h1 className="font-satoshi tracking-tight text-xl font-bold text-white flex items-center">
               <Star className="mr-2" size={20} strokeWidth={2} />
               Your Reputation
@@ -132,7 +126,7 @@ const ReputationPage = () => {
               </div>
               <button 
                 onClick={handleRefresh}
-                className="px-3 py-2 text-sm font-bold bg-blue-100 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all"
+                className="px-3 py-2 text-sm font-bold bg-blue-100 border-2 border-black rounded-lg shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all"
               >
                 Refresh Ratings
               </button>
@@ -157,17 +151,17 @@ const ReputationPage = () => {
             </div>
             
             <div className="grid grid-cols-3 gap-4">
-              <div className="bg-green-100 p-3 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] flex flex-col items-center">
+              <div className="bg-green-100 p-3 border-2 border-black rounded-lg shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] flex flex-col items-center">
                 <Star className="h-5 w-5 text-green-600 mb-1" />
                 <span className="text-lg font-bold">{fiveStarCount}</span>
                 <span className="text-xs text-gray-600">5-star reviews</span>
               </div>
-              <div className="bg-blue-100 p-3 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] flex flex-col items-center">
+              <div className="bg-blue-100 p-3 border-2 border-black rounded-lg shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] flex flex-col items-center">
                 <User className="h-5 w-5 text-blue-600 mb-1" />
                 <span className="text-lg font-bold">{receivedRatings?.length || 0}</span>
                 <span className="text-xs text-gray-600">Total ratings</span>
               </div>
-              <div className="bg-purple-100 p-3 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] flex flex-col items-center">
+              <div className="bg-purple-100 p-3 border-2 border-black rounded-lg shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] flex flex-col items-center">
                 <Clock className="h-5 w-5 text-purple-600 mb-1" />
                 <span className="text-lg font-bold">{memberSince}</span>
                 <span className="text-xs text-gray-600">Member since</span>
@@ -178,10 +172,10 @@ const ReputationPage = () => {
 
         {/* Reviews section */}
         <div className="mb-6">
-          <div className="inline-flex border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+          <div className="inline-flex border-2 border-black rounded-lg shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] overflow-hidden">
             <button
               onClick={() => setActiveTab('received')}
-              className={`px-4 py-2 font-medium text-sm ${
+              className={`px-4 py-2 font-medium text-sm rounded-l-md ${
                 activeTab === 'received'
                   ? 'bg-blue-500 text-white'
                   : 'bg-white text-gray-700 hover:bg-blue-100'
@@ -191,7 +185,7 @@ const ReputationPage = () => {
             </button>
             <button
               onClick={() => setActiveTab('given')}
-              className={`px-4 py-2 font-medium text-sm border-l-2 border-black ${
+              className={`px-4 py-2 font-medium text-sm border-l-2 border-black rounded-r-md ${
                 activeTab === 'given'
                   ? 'bg-blue-500 text-white'
                   : 'bg-white text-gray-700 hover:bg-blue-100'
@@ -205,7 +199,7 @@ const ReputationPage = () => {
         {hasRatings ? (
           <div className="space-y-4">
             {currentRatings.map((rating: Rating) => (
-              <div key={rating.id} className="bg-white border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] p-4">
+              <div key={rating.id} className="bg-white border-2 border-black rounded-lg shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] p-4">
                 <div className="flex justify-between items-start mb-3">
                   <div className="flex items-center">
                     <div className="h-10 w-10 bg-blue-100 border border-black rounded-full flex items-center justify-center overflow-hidden">
@@ -258,7 +252,7 @@ const ReputationPage = () => {
             ))}
           </div>
         ) : (
-          <div className="bg-gray-100 border-2 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] p-8 text-center">
+          <div className="bg-gray-100 border-2 border-black rounded-lg shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] p-8 text-center">
             <ThumbsUp className="h-10 w-10 mx-auto mb-3 text-blue-500" />
             <p className="text-gray-600 mb-2">
               {activeTab === 'received' 
@@ -273,14 +267,14 @@ const ReputationPage = () => {
             
             <Link 
               href="/services/browse" 
-              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white font-bold border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all text-sm"
+              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white font-bold border-2 border-black rounded-lg shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all text-sm"
             >
               Find Services
             </Link>
           </div>
         )}
       </main>
-    </div>
+    </DashboardLayout>
   );
 };
 

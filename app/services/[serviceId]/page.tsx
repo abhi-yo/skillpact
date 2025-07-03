@@ -58,7 +58,11 @@ const ServiceDetailPage: React.FC = () => {
             if (error.data?.code === 'CONFLICT') {
                toast.error('You already have an active request for this service.');
             } else if (error.data?.code === 'BAD_REQUEST') {
-               toast.error('You cannot request your own service.');
+               if (error.message.includes('enough credits')) {
+                 toast.error('You do not have enough credits to request this service.');
+               } else {
+                 toast.error('You cannot request your own service.');
+               }
             } else {
                 toast.error(`Failed to send request: ${error.message}`);
             }
@@ -118,9 +122,9 @@ const ServiceDetailPage: React.FC = () => {
                     Back to Browse
                 </Link>
 
-                <Card className="border-2 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] bg-white">
+                <Card className="border-2 border-black rounded-lg shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] bg-white">
                     {/* Provider Info Header */}
-                    <CardHeader className="border-b-2 border-black p-2 bg-orange-100 -mt-6">
+                    <CardHeader className="border-b-2 border-black p-2 bg-orange-100 rounded-t-lg -m-[2px]">
                        <div className="flex items-center space-x-2">
                          {service.user?.image ? (
                             <Image 
@@ -170,7 +174,7 @@ const ServiceDetailPage: React.FC = () => {
                         {/* Action Button */}
                         <div className="mt-4 pt-4 border-t-2 border-black">
                             <Button 
-                                className="w-full text-base py-3 bg-green-500 hover:bg-green-600 text-white font-bold border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all disabled:opacity-70 disabled:shadow-none disabled:translate-x-0 disabled:translate-y-0" 
+                                className="w-full text-base py-3 bg-green-500 hover:bg-green-600 text-white font-bold border-2 border-black rounded-md shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all disabled:opacity-70 disabled:shadow-none disabled:translate-x-0 disabled:translate-y-0" 
                                 size="lg"
                                 onClick={handleRequestService}
                                 disabled={isRequesting || isOwnService || !service}
@@ -190,6 +194,8 @@ const ServiceDetailPage: React.FC = () => {
                                     <AlertCircle size={16} className="mr-1" /> 
                                     {createExchangeMutation.error.data?.code === 'CONFLICT' 
                                         ? 'You already have an active request.'
+                                        : createExchangeMutation.error.data?.code === 'BAD_REQUEST' && createExchangeMutation.error.message.includes('enough credits')
+                                        ? 'You do not have enough credits to request this service.'
                                         : createExchangeMutation.error.data?.code === 'BAD_REQUEST'
                                         ? 'Cannot request your own service.'
                                         : 'Could not send request.'

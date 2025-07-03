@@ -218,7 +218,7 @@ export const exchangeRouter = router({
       // Get the service to find the provider
       const service = await ctx.prisma.service.findUnique({
         where: { id: input.providerServiceId },
-        select: { userId: true, title: true }
+        select: { userId: true, title: true, hourlyRate: true }
       });
       
       if (!service) {
@@ -230,6 +230,18 @@ export const exchangeRouter = router({
           code: 'BAD_REQUEST', 
           message: 'You cannot request your own service' 
         });
+      }
+      
+      // Fetch requester credits
+      const requester = await ctx.prisma.user.findUnique({
+        where: { id: requesterId },
+        select: { credits: true }
+      });
+      if (!requester) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'Requester not found' });
+      }
+      if ((service.hourlyRate ?? 0) > requester.credits) {
+        throw new TRPCError({ code: 'BAD_REQUEST', message: 'You do not have enough credits to request this service.' });
       }
       
       // Create the exchange
@@ -437,6 +449,25 @@ export const exchangeRouter = router({
           hours: input.hours,
         },
       });
+      
+      // Deduct credits from requester and add to provider
+      // Fetch the service to get hourlyRate
+      if (updatedExchange.providerServiceId) {
+      const service = await ctx.prisma.service.findFirst({
+        where: { id: updatedExchange.providerServiceId },
+        select: { hourlyRate: true }
+      });
+      if (service && typeof service.hourlyRate === 'number') {
+        await ctx.prisma.user.update({
+          where: { id: updatedExchange.requesterId },
+          data: { credits: { decrement: service.hourlyRate } }
+        });
+        await ctx.prisma.user.update({
+          where: { id: updatedExchange.providerId },
+          data: { credits: { increment: service.hourlyRate } }
+        });
+        }
+      }
       
       // Create notifications for both parties
       await Promise.all([

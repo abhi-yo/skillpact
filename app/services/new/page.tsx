@@ -1,326 +1,354 @@
 'use client';
 
-import React, { useState } from 'react';
-import { useForm, Controller } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { useRouter } from 'next/navigation';
-import { useSession } from 'next-auth/react';
-import { trpc } from '@/lib/trpc';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, AlertCircle, MapPin, Tag, CalendarDays } from 'lucide-react';
+import * as React from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { toast } from "sonner";
+import { trpc } from "@/lib/trpc";
+import { DashboardLayout } from "@/components/DashboardLayout";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
 
-// Enhanced Zod schema
-const formSchema = z.object({
-  title: z.string().min(5, { message: 'Title must be at least 5 characters long.' }).max(100),
-  description: z.string().min(10, { message: 'Description must be at least 10 characters long.' }).max(500),
-  categoryId: z.string().optional(),
-  hourlyRate: z.coerce.number().min(0, { message: 'Rate/Hours must be non-negative.' }).max(1000),
-  locationType: z.enum(['OWN', 'CLIENT', 'REMOTE', 'FLEXIBLE'], { required_error: 'Please select a location type.' }),
-  serviceRadius: z.number().min(1).max(100).optional(),
-  tags: z.string().optional(), // Simple string for now, split later
-}).refine(data => data.locationType === 'OWN' || data.locationType === 'CLIENT' ? data.serviceRadius !== undefined : true, {
-  message: "Service radius is required for 'Own' or 'Client' location types.",
-  path: ["serviceRadius"], // Attach error to serviceRadius field
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
+const locationTypes = [
+  { value: 'REMOTE', label: 'Remote' },
+  { value: 'OWN', label: 'At My Place' },
+  { value: 'CLIENT', label: 'At Client\'s Place' },
+];
+
+const CreateServiceFormSchema = z.object({
+  title: z.string().min(5, 'Title must be at least 5 characters'),
+  description: z.string().min(10, 'Description must be at least 10 characters'),
+  hourlyRate: z.number().min(0, 'Hourly rate cannot be negative').max(1000, 'Hourly rate too high'),
+  locationType: z.enum(['OWN', 'CLIENT', 'REMOTE']),
+  serviceRadius: z.number().min(1, 'Radius must be at least 1km').max(100, 'Radius too large').optional(),
+  tags: z.string().optional(),
+  duration: z.number().min(5, 'Minimum duration is 5 minutes').max(1440, 'Maximum duration is 24 hours').optional(),
+  // Location fields
+  latitude: z.number().optional(),
+  longitude: z.number().optional(),
+  address: z.string().optional(),
+  city: z.string().optional(),
+  state: z.string().optional(),
+  country: z.string().optional(),
 });
 
-type ServiceFormValues = z.infer<typeof formSchema>;
+type CreateServiceFormValues = z.infer<typeof CreateServiceFormSchema>;
 
-// Helper function to apply Neo-Brutalism styles
-const neoBrutalismInputStyle = "border-black border-[3px] focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-blue-500 rounded-none py-2 px-3";
-const neoBrutalismLabelStyle = "font-bold text-md transform -rotate-1 inline-block mb-1";
-const neoBrutalismSectionDivider = "border-t-4 border-black my-8";
+const neoCard = "bg-white p-6 border-4 border-black rounded-lg shadow-[8px_8px_0px_#000] font-satoshi";
+const neoLabel = "font-bold text-base mb-2 text-gray-900 font-satoshi";
+const neoDivider = "border-t-4 border-black my-8";
+const neoButton = "px-6 py-2 bg-blue-500 text-white border-2 border-black rounded-lg shadow-[2px_2px_0px_#000] font-bold text-base font-satoshi hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all";
 
 const CreateServicePage: React.FC = () => {
   const router = useRouter();
-  const { data: session, status: authStatus } = useSession();
-  const [submitError, setSubmitError] = useState<string | null>(null);
-  const utils = trpc.useUtils(); // Get tRPC utils
+  const { data: categories = [], isLoading: loadingCategories } = trpc.service.getCategories.useQuery();
+  const { data: userLocation } = trpc.location.getMyLocation.useQuery();
+  
+  const createServiceMutation = trpc.service.createService.useMutation({
+    onSuccess: (data: { id: string }) => {
+      toast.success('Service created successfully!');
+      router.push(`/services/${data.id}`);
+    },
+    onError: (error: { message: string }) => {
+      toast.error(`Failed to create service: ${error.message}`);
+    },
+  });
 
-  // Redirect if not authenticated
-  React.useEffect(() => {
-    if (authStatus === 'unauthenticated') {
-      router.push('/login');
-    }
-  }, [authStatus, router]);
-
-  // Fetch categories
-  const { data: categories, isLoading: categoriesLoading, error: categoriesError } = trpc.service.getCategories.useQuery();
-
-  // Setup react-hook-form
-  const form = useForm<ServiceFormValues>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<CreateServiceFormValues>({
+    resolver: zodResolver(CreateServiceFormSchema),
     defaultValues: {
       title: '',
       description: '',
-      categoryId: undefined,
-      hourlyRate: 1,
-      locationType: undefined, // Default to undefined
-      serviceRadius: 10, // Default radius
+      hourlyRate: 0,
+      locationType: 'REMOTE',
+      serviceRadius: 10,
       tags: '',
+      duration: 60,
+      latitude: undefined,
+      longitude: undefined,
+      address: '',
+      city: '',
+      state: '',
+      country: '',
     },
   });
 
-  const watchedLocationType = form.watch('locationType');
+  const locationType = form.watch('locationType');
+  const isLocationRequired = locationType === 'OWN' && (!userLocation || !userLocation.latitude || !userLocation.longitude);
+  const isSubmitDisabled = createServiceMutation.isPending || isLocationRequired;
 
-  // tRPC mutation for creating service
-  const createServiceMutation = trpc.service.createService.useMutation({
-    onSuccess: (data) => {
-      // Invalidate dashboard stats query after successful creation
-      utils.user.getDashboardStats.invalidate();
-      
-      router.push('/dashboard');
-      // Optionally, show a success toast/message
-    },
-    onError: (error) => {
-      console.error('Failed to create service:', error);
-      setSubmitError(`Failed to create service: ${error.message || 'Please try again.'}`);
-      // Optionally, show an error toast/message
-    },
-  });
+  const onSubmit = (data: CreateServiceFormValues) => {
+    // Validate location requirement for "At My Place"
+    if (data.locationType === 'OWN' && (!userLocation || !userLocation.latitude || !userLocation.longitude)) {
+      toast.error('Please set your location in your profile before creating an "At My Place" service.');
+      return;
+    }
 
-  // Form submission handler
-  const onSubmit = (values: ServiceFormValues) => {
-    setSubmitError(null); // Clear previous errors
-    console.log('Submitting form values:', values);
-    // TODO: Update backend to accept new fields before enabling this fully
-    // For now, it will likely error out due to schema mismatch
+    // Build location data dynamically, excluding null/undefined values
+    const locationData: Record<string, unknown> = {};
+    if (data.locationType === 'OWN' && userLocation) {
+      const fields = ['latitude','longitude','address','city','state','country'] as const;
+      fields.forEach((key) => {
+        const value = (userLocation as any)[key];
+        if (value !== null && value !== undefined && value !== '') {
+          (locationData as any)[key] = value;
+        }
+      });
+    }
+
     createServiceMutation.mutate({
-       ...values, 
-       // Ensure tags/radius are handled correctly based on backend expectations
+      ...data,
+      ...locationData,
     });
   };
 
-  // Loading state for authentication or categories
-  if (authStatus === 'loading' || categoriesLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-blue-50">
-        <Loader2 className="animate-spin h-12 w-12 text-blue-600" />
-      </div>
-    );
-  }
-
-  // Handle category fetching error
-  if (categoriesError) {
-    return (
-      <div className="container mx-auto p-4 text-center text-red-600">
-        Error loading categories: {categoriesError.message}
-      </div>
-    );
-  }
-
-  // Ensure user is authenticated before rendering form
-  if (authStatus !== 'authenticated' || !session?.user) {
-    return null; // Or a message indicating authentication is required
-  }
-
   return (
-    <div className="min-h-screen bg-blue-50">
-      <div className="container mx-auto max-w-2xl pt-10 pb-10">
-         <Card className="border-2 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] bg-white mt-0">
-           <CardHeader className="border-b-2 border-black bg-indigo-100 p-5 -mt-6">
-            <CardTitle className="font-satoshi tracking-satoshi-tight text-2xl md:text-3xl font-bold">Create New Service</CardTitle>
-            <CardDescription>Fill out the details below to list a new service you can offer.</CardDescription>
-          </CardHeader>
-           <CardContent className="pt-6 px-5 pb-6">
-             <Form {...form}>
-               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 font-inter"> 
-                 
-                 {/* --- Section 1: Basic Info --- */}
-                 <div className="space-y-5 -mt-4">
-                   <h3 className="font-bold text-xl mb-5 flex items-center"><span className="inline-block border-2 border-black rounded-full w-8 h-8 flex items-center justify-center text-lg font-bold bg-yellow-200 mr-3 transform ">1</span> Basic Details</h3>
-                   <FormField
-                     control={form.control}
-                     name="title"
-                     render={({ field }) => (
-                       <FormItem>
-                         <FormLabel className={neoBrutalismLabelStyle}>Service Title</FormLabel>
-                         <FormControl>
-                           <Input placeholder="e.g., Beginner Guitar Lessons" {...field} className={neoBrutalismInputStyle}/>
-                         </FormControl>
-                         <FormMessage />
-                       </FormItem>
-                     )}
-                   />
-                   <FormField
-                     control={form.control}
-                     name="description"
-                     render={({ field }) => (
-                       <FormItem>
-                         <FormLabel className={neoBrutalismLabelStyle}>Description</FormLabel>
-                         <FormControl>
-                           <Textarea placeholder="Describe the service you are offering..." {...field} className={neoBrutalismInputStyle}/>
-                         </FormControl>
-                         <FormMessage />
-                       </FormItem>
-                     )}
-                   />
-                   <FormField
-                     control={form.control}
-                     name="categoryId"
-                     render={({ field }) => (
-                       <FormItem>
-                         <FormLabel className={neoBrutalismLabelStyle}>Category</FormLabel>
-                         <Select onValueChange={field.onChange} defaultValue={field.value} disabled={categoriesLoading || !categories || categories.length === 0}>
-                           <FormControl>
-                             <SelectTrigger className={neoBrutalismInputStyle}>
-                               <SelectValue placeholder="Select a category" />
-                             </SelectTrigger>
-                           </FormControl>
-                           <SelectContent>
-                             {categoriesLoading ? <SelectItem value="loading" disabled>Loading...</SelectItem> : categories && categories.length > 0 ? categories.map(cat => <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>) : <SelectItem value="no-cat" disabled>No categories found.</SelectItem>}
-                           </SelectContent>
-                         </Select>
-                         <FormMessage />
-                       </FormItem>
-                     )}
-                   />
-                   <FormField
-                     control={form.control}
-                     name="hourlyRate"
-                     render={({ field }) => (
-                       <FormItem>
-                         <FormLabel className={neoBrutalismLabelStyle}>Estimated Hours / Rate Equivalent</FormLabel>
-                         <FormControl>
-                           <Input type="number" step="0.5" placeholder="e.g., 1.5" {...field} className={neoBrutalismInputStyle}/>
-                         </FormControl>
-                         <FormMessage />
-                       </FormItem>
-                     )}
-                   />
-                 </div>
-
-                 <div className={neoBrutalismSectionDivider + " mt-10 mb-8"}></div>
-
-                 {/* --- Section 2: Logistics --- */}
-                 <div className="space-y-5">
-                    <h3 className="font-bold text-xl mb-5 flex items-center"><span className="inline-block border-2 border-black rounded-full w-8 h-8 flex items-center justify-center text-lg font-bold bg-pink-200 mr-3">2</span> Logistics</h3>
-                   <FormField
-                     control={form.control}
-                     name="locationType"
-                     render={({ field }) => (
-                       <FormItem className="space-y-3">
-                         <FormLabel className={neoBrutalismLabelStyle}><MapPin size={16} className="inline mr-1"/> Service Location</FormLabel>
-                         <FormControl>
-                           <RadioGroup
-                             onValueChange={field.onChange}
-                             defaultValue={field.value}
-                             className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4"
-                           >
-                             <FormItem className="flex items-center space-x-2 border-2 border-black p-2 shadow-sm bg-blue-50"><FormControl><RadioGroupItem value="OWN" /></FormControl><FormLabel className="font-normal">At my location</FormLabel></FormItem>
-                             <FormItem className="flex items-center space-x-2 border-2 border-black p-2 shadow-sm bg-green-50"><FormControl><RadioGroupItem value="CLIENT" /></FormControl><FormLabel className="font-normal">At client's location</FormLabel></FormItem>
-                             <FormItem className="flex items-center space-x-2 border-2 border-black p-2 shadow-sm bg-purple-50"><FormControl><RadioGroupItem value="REMOTE" /></FormControl><FormLabel className="font-normal">Remote/Virtual</FormLabel></FormItem>
-                             <FormItem className="flex items-center space-x-2 border-2 border-black p-2 shadow-sm bg-yellow-50"><FormControl><RadioGroupItem value="FLEXIBLE" /></FormControl><FormLabel className="font-normal">Flexible</FormLabel></FormItem>
-                           </RadioGroup>
-                         </FormControl>
-                         <FormMessage />
-                       </FormItem>
-                     )}
-                   />
-                   
-                   {(watchedLocationType === 'OWN' || watchedLocationType === 'CLIENT') && (
-                     <FormField
-                       control={form.control}
-                       name="serviceRadius"
-                       render={({ field }) => (
-                         <FormItem>
-                           <FormLabel className={neoBrutalismLabelStyle}>Service Radius (km)</FormLabel>
-                            <div className="flex items-center space-x-4">
-                              <FormControl>
-                                 <Slider 
-                                   defaultValue={[field.value || 10]} 
-                                   max={100} 
-                                   min={1}
-                                   step={1} 
-                                   onValueChange={(value) => field.onChange(value[0])}
-                                   className="border-black border-2 h-3 my-3"
-                                   />
-                              </FormControl>
-                              <span className="font-bold border-2 border-black px-2 py-1 bg-white w-16 text-center">
-                                {field.value || 10} km
-                              </span>
+    <DashboardLayout>
+      <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+        <div className="relative">
+          <h1 className="font-satoshi text-3xl font-bold text-black">Offer a New Service</h1>
+          <div className="relative">
+            <svg 
+              viewBox="0 0 300 8" 
+              className="w-72 h-2 absolute left-0"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path 
+                d="M2,6 Q75,2 150,4 T298,6" 
+                stroke="#9ca3af" 
+                strokeWidth="3" 
+                fill="none" 
+                strokeLinecap="round"
+              />
+            </svg>
+          </div>
+        </div>
+        <p className="text-md text-gray-600 ">Share your skills with the community. Fill out the form below to create a new service offering.</p>
+        <div className={neoCard}>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+              {/* Service Details */}
+              <div>
+                <h3 className={neoLabel}>Service Details</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <FormField
+                    control={form.control}
+                    name="title"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className={neoLabel}>Title</FormLabel>
+                        <FormControl>
+                          <Input placeholder="e.g., Expert Web Design" {...field} className="w-full rounded-lg" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="duration"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className={neoLabel}>Estimated Duration (minutes)</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            min={5}
+                            max={1440}
+                            step={5}
+                            placeholder="60"
+                            value={field.value}
+                            onChange={e => field.onChange(e.target.value === '' ? '' : Number(e.target.value))}
+                            className="w-full rounded-lg"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="mt-6">
+                  <FormField
+                    control={form.control}
+                    name="description"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className={neoLabel}>Description</FormLabel>
+                        <FormControl>
+                          <Textarea rows={5} placeholder="Describe your service in detail..." {...field} className="rounded-lg" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+              <div className={neoDivider}></div>
+              {/* Pricing */}
+              <div>
+                <h3 className={neoLabel}>Pricing (per hour, in credits)</h3>
+                <FormField
+                  control={form.control}
+                  name="hourlyRate"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <div className="flex items-center gap-4">
+                          <Slider 
+                            min={0} 
+                            max={1000}
+                            step={1}
+                            onValueChange={(value) => field.onChange(value[0])}
+                            value={[field.value]}
+                            className="w-full"
+                          />
+                          <div className="font-bold text-lg p-2 bg-yellow-200 border-2 border-black rounded-lg w-24 text-center">
+                            {field.value} C
+                          </div>
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <div className={neoDivider}></div>
+              {/* Location Type */}
+              <div>
+                <h3 className={neoLabel}>Service Location</h3>
+                <FormField
+                  control={form.control}
+                  name="locationType"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <RadioGroup
+                          onValueChange={field.onChange}
+                          value={field.value}
+                          className="flex flex-wrap gap-4"
+                        >
+                          {locationTypes.map((lt) => (
+                            <div key={lt.value} className="flex items-center space-x-2">
+                              <RadioGroupItem value={lt.value} id={lt.value} />
+                              <Label htmlFor={lt.value}>{lt.label}</Label>
                             </div>
-                           <FormMessage />
-                         </FormItem>
-                       )}
-                     />
-                   )}
-                   
-                   {/* Availability Placeholder */}
-                   <div className="pt-2">
-                     <Label className={neoBrutalismLabelStyle}><CalendarDays size={16} className="inline mr-1"/> Availability</Label>
-                     <div className="p-4 border-2 border-dashed border-gray-400 text-center mt-2 bg-gray-50">
-                       <p className="text-sm text-gray-600">Detailed availability scheduling coming soon!</p>
-                       <p className="text-xs text-gray-500 mt-1">For now, describe general availability in the description.</p>
-                     </div>
-                   </div>
-                 </div>
-
-                 <div className={neoBrutalismSectionDivider + " mt-10 mb-8"}></div>
-
-                 {/* --- Section 3: Discovery --- */}
-                 <div className="space-y-5">
-                   <h3 className="font-bold text-xl mb-5 flex items-center"><span className="inline-block border-2 border-black rounded-full w-8 h-8 flex items-center justify-center text-lg font-bold bg-orange-200 mr-3 transform -rotate-3">3</span> Discovery</h3>
-                   <FormField
-                     control={form.control}
-                     name="tags"
-                     render={({ field }) => (
-                       <FormItem>
-                         <FormLabel className={neoBrutalismLabelStyle}><Tag size={16} className="inline mr-1"/> Tags / Keywords (Optional)</FormLabel>
-                         <FormControl>
-                           <Input placeholder="e.g., acoustic, blues, beginner friendly, songwriting (comma-separated)" {...field} className={neoBrutalismInputStyle}/>
-                         </FormControl>
-                         <p className="text-xs text-gray-600 mt-1 italic">Separate tags with commas. These help others find your service.</p>
-                         <FormMessage />
-                       </FormItem>
-                     )}
-                   />
-                   {/* Image Upload Placeholder */}
-                    <div className="pt-2">
-                       <Label className={neoBrutalismLabelStyle}>Service Images (Optional)</Label>
-                       <div className="p-6 border-4 border-dashed border-black text-center mt-2 bg-gray-50">
-                         <svg className="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true"><path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
-                         <p className="text-sm text-gray-600 mt-2">Image upload coming soon! Add up to 3 photos.</p>
-                       </div>
+                          ))}
+                        </RadioGroup>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <div className="mt-4">
+                  {locationType === 'OWN' && (
+                    <div className="bg-blue-50 border-2 border-blue-200 p-4 rounded-lg">
+                      <p className="text-sm text-blue-800">
+                        <strong>Service Location:</strong> Your profile location will be used for this service.
+                        {userLocation ? (
+                          <span className="block mt-1 text-blue-600">
+                            📍 {userLocation.address || 'Location set in profile'}
+                          </span>
+                                                 ) : (
+                           <span className="block mt-1 text-orange-600">
+                             ⚠️ Please set your location in your profile first.{' '}
+                             <Link href="/profile/edit" className="underline hover:text-orange-800">
+                               Go to Profile
+                             </Link>
+                           </span>
+                         )}
+                      </p>
                     </div>
-                 </div>
-
-                 {/* Submit Error Message */}
-                {submitError && (
-                  <div className="flex items-center p-3 bg-red-100 border-2 border-red-400 text-red-700 text-sm mt-6">
-                     <AlertCircle className="h-5 w-5 mr-2" />
-                     <span>{submitError}</span>
+                  )}
+                  {locationType === 'REMOTE' && (
+                    <div className="bg-gray-50 border-2 border-gray-200 p-4 rounded-lg">
+                      <p className="text-sm text-gray-600">
+                        <strong>Remote Service:</strong> This service can be provided online or remotely. No physical location required.
+                      </p>
+                    </div>
+                  )}
+                  {locationType === 'CLIENT' && (
+                    <div className="bg-green-50 border-2 border-green-200 p-4 rounded-lg">
+                      <p className="text-sm text-green-800">
+                        <strong>At Client's Location:</strong> You will travel to the client's location to provide this service.
+                      </p>
+                    </div>
+                  )}
+                </div>
+                
+                {locationType === 'OWN' && (
+                  <div className="mt-6">
+                    <FormField
+                      control={form.control}
+                      name="serviceRadius"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className={neoLabel}>Service Radius (km)</FormLabel>
+                          <p className="text-sm text-gray-600 mb-2">
+                            How far are you willing to travel from your location?
+                          </p>
+                          <FormControl>
+                            <Slider 
+                              min={1} 
+                              max={100}
+                              step={1}
+                              onValueChange={(value) => field.onChange(value[0])}
+                              value={[field.value || 10]}
+                              className="w-full"
+                            />
+                          </FormControl>
+                          <div className="font-bold text-md mt-2">{field.value || 10} km</div>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                   </div>
                 )}
-
-                {/* Submit Button */}
-                 <Button 
-                   type="submit" 
-                   disabled={createServiceMutation.isPending}
-                   className="w-full font-bold text-lg py-3 bg-blue-500 hover:bg-blue-600 text-white border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all disabled:opacity-70 disabled:shadow-none disabled:translate-x-0 disabled:translate-y-0 flex items-center justify-center"
-                 >
-                   {createServiceMutation.isPending ? (
-                     <>
-                       <Loader2 className="mr-2 h-5 w-5 animate-spin" /> Creating...
-                     </>
-                   ) : (
-                     'Create Service Listing'
-                   )}
-                 </Button>
-              </form>
-            </Form>
-          </CardContent>
-        </Card>
+              </div>
+              <div className={neoDivider}></div>
+              {/* Tags */}
+              <div>
+                <h3 className={neoLabel}>Tags (optional)</h3>
+                <FormField
+                  control={form.control}
+                  name="tags"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Input placeholder="e.g., web, design, marketing" {...field} className="rounded-lg" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <div className="mt-8 flex justify-end">
+                <Button type="submit" size="lg" className={neoButton} disabled={isSubmitDisabled}>
+                  {createServiceMutation.isPending ? 'Submitting...' : 
+                   isLocationRequired ? 'Set Location First' : 'Create Service'}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </div>
       </div>
-    </div>
+    </DashboardLayout>
   );
 };
 

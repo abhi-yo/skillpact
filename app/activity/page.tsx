@@ -4,7 +4,7 @@ import React, { useMemo, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { trpc } from '@/lib/trpc';
-import { Loader2, AlertCircle, ArrowLeft, CheckCircle, XCircle, BarChart, LineChart as LineChartIcon } from 'lucide-react';
+import { Loader2, AlertCircle, CheckCircle, XCircle, BarChart, LineChart as LineChartIcon } from 'lucide-react';
 import { 
   Bar, 
   BarChart as RechartsBarChart,
@@ -28,6 +28,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from '@/components/ui/chart';
+import { DashboardLayout } from '@/components/DashboardLayout';
 
 // Interface for exchange data (reuse from dashboard or define specifically)
 interface ActivityItem {
@@ -79,6 +80,7 @@ const ActivityPage: React.FC = () => {
   // Add refresh counter to force re-renders
   const [refreshCounter, setRefreshCounter] = useState(0);
   const [lastRefreshTime, setLastRefreshTime] = useState(new Date());
+  const [clientTime, setClientTime] = useState<string | null>(null);
 
   // Fetch activity data
   const { data: activityData, isLoading, error, refetch } = trpc.exchange.getRecentActivity.useQuery(
@@ -107,6 +109,12 @@ const ActivityPage: React.FC = () => {
       setLastRefreshTime(new Date());
     }
   }, [userId, refetch, utils, refreshCounter]);
+
+  useEffect(() => {
+    setClientTime(
+      lastRefreshTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true })
+    );
+  }, [lastRefreshTime]);
 
   // Create a function to handle manual refresh
   const handleManualRefresh = () => {
@@ -225,14 +233,10 @@ const ActivityPage: React.FC = () => {
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-red-50 p-4">
-        <div className="bg-white p-6 border-2 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] text-center max-w-md">
+        <div className="bg-white p-6 border-2 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] rounded-lg text-center max-w-md">
            <AlertCircle className="mx-auto h-10 w-10 text-red-500 mb-3" strokeWidth={2} />
            <h2 className="font-satoshi text-xl font-bold text-red-700 mb-2">Error Loading Activity</h2>
            <p className="text-sm text-gray-600 mb-4 leading-normal">Could not load your activity history. Please try again later.</p>
-           <Link href="/dashboard" className="inline-flex items-center mt-4 px-4 py-2 bg-red-100 text-red-700 font-semibold border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-black">
-                <ArrowLeft className="mr-2 h-4 w-4" strokeWidth={2}/>
-                Back to Dashboard
-            </Link>
         </div>
       </div>
     );
@@ -240,45 +244,40 @@ const ActivityPage: React.FC = () => {
 
   // --- Render Activity Page ---
   return (
-    <div className="min-h-screen bg-blue-50 font-inter pb-10">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header with Back Button */}
-        <div className="flex items-center mb-8">
-          <Link href="/dashboard" className="inline-flex items-center p-2 bg-white border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-black mr-4">
-            <ArrowLeft className="h-5 w-5" strokeWidth={2}/>
-            <span className="sr-only">Back to Dashboard</span>
-          </Link>
-          <h1 className="font-satoshi tracking-tight text-3xl font-bold text-black flex-grow">Activity History</h1>
-          <button 
-            onClick={handleManualRefresh} 
-            className="text-sm font-bold bg-blue-100 px-3 py-2 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all"
-          >
-            Refresh Data
-          </button>
-        </div>
-        
-        {/* Add debug display */}
-        <div className="bg-white border-2 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] mb-6 p-4">
-          <p className="text-sm font-medium">Activity Data: {activityData?.length || 0} exchanges found</p>
-          <p className="text-xs text-gray-600">Last updated: {lastRefreshTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true })}</p>
-        </div>
-
-        {/* Charts Section - Side by Side */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          {/* Bar Chart */}
-          <div className="bg-white border-2 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
-            <div className="p-5">
+    <DashboardLayout>
+      <div className="min-h-screen bg-blue-50 font-inter pb-10">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="relative mb-8">
+            <h1 className="font-satoshi tracking-tight text-3xl font-bold text-black">Activity History</h1>
+            <div className="relative">
+              <svg 
+                viewBox="0 0 200 8" 
+                className="w-48 h-2 absolute left-0"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path 
+                  d="M2,6 Q50,2 100,4 T198,6" 
+                  stroke="#9ca3af" 
+                  strokeWidth="3" 
+                  fill="none" 
+                  strokeLinecap="round"
+                />
+              </svg>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-8 mb-8">
+            {/* Bar Chart */}
+            <div className="bg-white border-2 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] rounded-lg p-5">
               <div className="flex items-center mb-1">
                 <BarChart className="mr-2" size={24} strokeWidth={2} />
                 <h2 className="font-satoshi tracking-tight text-xl font-bold text-black">Exchange Activity</h2>
               </div>
               <p className="text-sm text-gray-600">Completed exchanges per month</p>
-              
-              <div className="h-[280px] w-full mt-4">
+              <div className="h-[280px] w-full mt-4 -ml-8">
                 <ResponsiveContainer width="100%" height="100%">
                   <RechartsBarChart 
                     data={barChartData}
-                    margin={{ top: 20, right: 20, left: 10, bottom: 20 }}
+                    margin={{ top: 20, right: 0, left: 2, bottom: 20 }}
                   >
                     <CartesianGrid strokeDasharray="3 3" vertical={false} />
                     <XAxis 
@@ -290,8 +289,6 @@ const ActivityPage: React.FC = () => {
                       allowDecimals={false}
                       tickLine={false}
                       axisLine={false}
-                      domain={[0, 2]}
-                      ticks={[0, 1, 2]}
                     />
                     <Bar 
                       dataKey="completed"
@@ -304,22 +301,18 @@ const ActivityPage: React.FC = () => {
                 </ResponsiveContainer>
               </div>
             </div>
-          </div>
-
-          {/* Line Chart */}
-          <div className="bg-white border-2 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
-            <div className="p-5">
+            {/* Line Chart */}
+            <div className="bg-white border-2 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] rounded-lg p-5">
               <div className="flex items-center mb-1">
                 <LineChartIcon className="mr-2" size={24} strokeWidth={2} />
                 <h2 className="font-satoshi tracking-tight text-xl font-bold text-black">Hours Banked</h2>
               </div>
               <p className="text-sm text-gray-600">Hours accumulated per month</p>
-              
-              <div className="h-[280px] w-full mt-4">
+              <div className="h-[280px] w-full mt-4 -ml-8">
                 <ResponsiveContainer width="100%" height="100%">
                   <RechartsLineChart 
                     data={lineChartData}
-                    margin={{ top: 20, right: 20, left: 10, bottom: 20 }}
+                    margin={{ top: 20, right: 2, left: 0, bottom: 20 }}
                   >
                     <CartesianGrid strokeDasharray="3 3" vertical={false} />
                     <XAxis 
@@ -331,8 +324,6 @@ const ActivityPage: React.FC = () => {
                       allowDecimals={false}
                       tickLine={false}
                       axisLine={false}
-                      domain={[0, 2]}
-                      ticks={[0, 1, 2]}
                     />
                     <Line
                       type="monotone"
@@ -348,62 +339,8 @@ const ActivityPage: React.FC = () => {
             </div>
           </div>
         </div>
-
-        {/* Completed Exchange Card */}
-        <div className="bg-white border-2 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] p-5 mb-8">
-          <div className="flex items-start justify-between">
-            <div className="flex items-start">
-              <div className="flex-shrink-0 w-8 h-8 border-2 border-black bg-green-200 flex items-center justify-center mr-4 mt-1">
-                <CheckCircle size={18} className="text-green-700" strokeWidth={2} />
-              </div>
-              <div>
-                <p className="text-base font-semibold text-black">
-                  Completed Exchange <span className="font-medium text-gray-700">with Akshat Singh</span>
-                </p>
-                <p className="text-sm text-gray-600 mt-0.5">
-                  Service: "100 Sol Exchange" - 1 hour
-                </p>
-                <p className="text-xs text-gray-500 mt-1">
-                  May 3, 2025
-                </p>
-              </div>
-            </div>
-            <button className="px-3 py-1.5 text-xs bg-blue-100 border border-black hover:bg-blue-200 transition-colors focus-visible:ring-1 focus-visible:ring-offset-1 focus-visible:ring-black">
-              View Exchange
-            </button>
-          </div>
-        </div>
-
-        {/* All Activity */}
-        <div className="bg-white border-2 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
-          <h3 className="font-satoshi text-lg font-bold p-5 border-b-2 border-black">All Activity</h3>
-          
-          <div className="p-5 border-b-2 border-black">
-            <div className="flex items-start justify-between">
-              <div className="flex items-start">
-                <div className="flex-shrink-0 w-8 h-8 border-2 border-black bg-green-200 flex items-center justify-center mr-4 mt-1">
-                  <CheckCircle size={18} className="text-green-700" strokeWidth={2} />
-                </div>
-                <div>
-                  <p className="text-base font-semibold text-black">
-                    Completed Exchange <span className="font-medium text-gray-700">with Akshat Singh</span>
-                  </p>
-                  <p className="text-sm text-gray-600 mt-0.5">
-                    Service: "100 Sol Exchange" - 1 hour
-                  </p>
-                  <p className="text-xs text-gray-500 mt-1">
-                    May 3, 2025
-                  </p>
-                </div>
-              </div>
-              <button className="px-3 py-1.5 text-xs bg-blue-100 border border-black hover:bg-blue-200 transition-colors focus-visible:ring-1 focus-visible:ring-offset-1 focus-visible:ring-black">
-                View Exchange
-              </button>
-            </div>
-          </div>
-        </div>
       </div>
-    </div>
+    </DashboardLayout>
   );
 };
 

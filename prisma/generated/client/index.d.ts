@@ -73,12 +73,26 @@ export type Availability = $Result.DefaultSelection<Prisma.$AvailabilityPayload>
  * 
  */
 export type Rating = $Result.DefaultSelection<Prisma.$RatingPayload>
+/**
+ * Model Message
+ * 
+ */
+export type Message = $Result.DefaultSelection<Prisma.$MessagePayload>
 
 /**
  * Enums
  */
 export namespace $Enums {
-  export const ExchangeStatus: {
+  export const ServiceLocationType: {
+  REMOTE: 'REMOTE',
+  OWN: 'OWN',
+  CLIENT: 'CLIENT'
+};
+
+export type ServiceLocationType = (typeof ServiceLocationType)[keyof typeof ServiceLocationType]
+
+
+export const ExchangeStatus: {
   REQUESTED: 'REQUESTED',
   ACCEPTED: 'ACCEPTED',
   SCHEDULED: 'SCHEDULED',
@@ -105,6 +119,10 @@ export const NotificationType: {
 export type NotificationType = (typeof NotificationType)[keyof typeof NotificationType]
 
 }
+
+export type ServiceLocationType = $Enums.ServiceLocationType
+
+export const ServiceLocationType: typeof $Enums.ServiceLocationType
 
 export type ExchangeStatus = $Enums.ExchangeStatus
 
@@ -358,6 +376,16 @@ export class PrismaClient<
     * ```
     */
   get rating(): Prisma.RatingDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.message`: Exposes CRUD operations for the **Message** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Messages
+    * const messages = await prisma.message.findMany()
+    * ```
+    */
+  get message(): Prisma.MessageDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -809,7 +837,8 @@ export namespace Prisma {
     Exchange: 'Exchange',
     Notification: 'Notification',
     Availability: 'Availability',
-    Rating: 'Rating'
+    Rating: 'Rating',
+    Message: 'Message'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -828,7 +857,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "account" | "session" | "user" | "verificationToken" | "location" | "skill" | "serviceCategory" | "service" | "exchange" | "notification" | "availability" | "rating"
+      modelProps: "account" | "session" | "user" | "verificationToken" | "location" | "skill" | "serviceCategory" | "service" | "exchange" | "notification" | "availability" | "rating" | "message"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1720,6 +1749,80 @@ export namespace Prisma {
           }
         }
       }
+      Message: {
+        payload: Prisma.$MessagePayload<ExtArgs>
+        fields: Prisma.MessageFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.MessageFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MessagePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.MessageFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MessagePayload>
+          }
+          findFirst: {
+            args: Prisma.MessageFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MessagePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.MessageFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MessagePayload>
+          }
+          findMany: {
+            args: Prisma.MessageFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MessagePayload>[]
+          }
+          create: {
+            args: Prisma.MessageCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MessagePayload>
+          }
+          createMany: {
+            args: Prisma.MessageCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.MessageCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MessagePayload>[]
+          }
+          delete: {
+            args: Prisma.MessageDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MessagePayload>
+          }
+          update: {
+            args: Prisma.MessageUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MessagePayload>
+          }
+          deleteMany: {
+            args: Prisma.MessageDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.MessageUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.MessageUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MessagePayload>[]
+          }
+          upsert: {
+            args: Prisma.MessageUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MessagePayload>
+          }
+          aggregate: {
+            args: Prisma.MessageAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateMessage>
+          }
+          groupBy: {
+            args: Prisma.MessageGroupByArgs<ExtArgs>
+            result: $Utils.Optional<MessageGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.MessageCountArgs<ExtArgs>
+            result: $Utils.Optional<MessageCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -1816,6 +1919,7 @@ export namespace Prisma {
     notification?: NotificationOmit
     availability?: AvailabilityOmit
     rating?: RatingOmit
+    message?: MessageOmit
   }
 
   /* Types for Logging */
@@ -1920,6 +2024,7 @@ export namespace Prisma {
     ratingsReceived: number
     accounts: number
     sessions: number
+    messages: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -1933,6 +2038,7 @@ export namespace Prisma {
     ratingsReceived?: boolean | UserCountOutputTypeCountRatingsReceivedArgs
     accounts?: boolean | UserCountOutputTypeCountAccountsArgs
     sessions?: boolean | UserCountOutputTypeCountSessionsArgs
+    messages?: boolean | UserCountOutputTypeCountMessagesArgs
   }
 
   // Custom InputTypes
@@ -2016,6 +2122,13 @@ export namespace Prisma {
     where?: SessionWhereInput
   }
 
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountMessagesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: MessageWhereInput
+  }
+
 
   /**
    * Count Type ServiceCategoryCountOutputType
@@ -2095,11 +2208,13 @@ export namespace Prisma {
   export type ExchangeCountOutputType = {
     notifications: number
     ratings: number
+    messages: number
   }
 
   export type ExchangeCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     notifications?: boolean | ExchangeCountOutputTypeCountNotificationsArgs
     ratings?: boolean | ExchangeCountOutputTypeCountRatingsArgs
+    messages?: boolean | ExchangeCountOutputTypeCountMessagesArgs
   }
 
   // Custom InputTypes
@@ -2125,6 +2240,13 @@ export namespace Prisma {
    */
   export type ExchangeCountOutputTypeCountRatingsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: RatingWhereInput
+  }
+
+  /**
+   * ExchangeCountOutputType without action
+   */
+  export type ExchangeCountOutputTypeCountMessagesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: MessageWhereInput
   }
 
 
@@ -4375,11 +4497,13 @@ export namespace Prisma {
   export type UserAvgAggregateOutputType = {
     averageRating: number | null
     ratingCount: number | null
+    credits: number | null
   }
 
   export type UserSumAggregateOutputType = {
     averageRating: number | null
     ratingCount: number | null
+    credits: number | null
   }
 
   export type UserMinAggregateOutputType = {
@@ -4390,6 +4514,7 @@ export namespace Prisma {
     image: string | null
     averageRating: number | null
     ratingCount: number | null
+    credits: number | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -4402,6 +4527,7 @@ export namespace Prisma {
     image: string | null
     averageRating: number | null
     ratingCount: number | null
+    credits: number | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -4414,6 +4540,7 @@ export namespace Prisma {
     image: number
     averageRating: number
     ratingCount: number
+    credits: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -4423,11 +4550,13 @@ export namespace Prisma {
   export type UserAvgAggregateInputType = {
     averageRating?: true
     ratingCount?: true
+    credits?: true
   }
 
   export type UserSumAggregateInputType = {
     averageRating?: true
     ratingCount?: true
+    credits?: true
   }
 
   export type UserMinAggregateInputType = {
@@ -4438,6 +4567,7 @@ export namespace Prisma {
     image?: true
     averageRating?: true
     ratingCount?: true
+    credits?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -4450,6 +4580,7 @@ export namespace Prisma {
     image?: true
     averageRating?: true
     ratingCount?: true
+    credits?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -4462,6 +4593,7 @@ export namespace Prisma {
     image?: true
     averageRating?: true
     ratingCount?: true
+    credits?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -4561,6 +4693,7 @@ export namespace Prisma {
     image: string | null
     averageRating: number | null
     ratingCount: number | null
+    credits: number
     createdAt: Date
     updatedAt: Date
     _count: UserCountAggregateOutputType | null
@@ -4592,6 +4725,7 @@ export namespace Prisma {
     image?: boolean
     averageRating?: boolean
     ratingCount?: boolean
+    credits?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     location?: boolean | User$locationArgs<ExtArgs>
@@ -4605,6 +4739,7 @@ export namespace Prisma {
     ratingsReceived?: boolean | User$ratingsReceivedArgs<ExtArgs>
     accounts?: boolean | User$accountsArgs<ExtArgs>
     sessions?: boolean | User$sessionsArgs<ExtArgs>
+    messages?: boolean | User$messagesArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -4616,6 +4751,7 @@ export namespace Prisma {
     image?: boolean
     averageRating?: boolean
     ratingCount?: boolean
+    credits?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["user"]>
@@ -4628,6 +4764,7 @@ export namespace Prisma {
     image?: boolean
     averageRating?: boolean
     ratingCount?: boolean
+    credits?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["user"]>
@@ -4640,11 +4777,12 @@ export namespace Prisma {
     image?: boolean
     averageRating?: boolean
     ratingCount?: boolean
+    credits?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "email" | "emailVerified" | "image" | "averageRating" | "ratingCount" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "email" | "emailVerified" | "image" | "averageRating" | "ratingCount" | "credits" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     location?: boolean | User$locationArgs<ExtArgs>
     skills?: boolean | User$skillsArgs<ExtArgs>
@@ -4657,6 +4795,7 @@ export namespace Prisma {
     ratingsReceived?: boolean | User$ratingsReceivedArgs<ExtArgs>
     accounts?: boolean | User$accountsArgs<ExtArgs>
     sessions?: boolean | User$sessionsArgs<ExtArgs>
+    messages?: boolean | User$messagesArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -4676,6 +4815,7 @@ export namespace Prisma {
       ratingsReceived: Prisma.$RatingPayload<ExtArgs>[]
       accounts: Prisma.$AccountPayload<ExtArgs>[]
       sessions: Prisma.$SessionPayload<ExtArgs>[]
+      messages: Prisma.$MessagePayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -4685,6 +4825,7 @@ export namespace Prisma {
       image: string | null
       averageRating: number | null
       ratingCount: number | null
+      credits: number
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["user"]>
@@ -5092,6 +5233,7 @@ export namespace Prisma {
     ratingsReceived<T extends User$ratingsReceivedArgs<ExtArgs> = {}>(args?: Subset<T, User$ratingsReceivedArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RatingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     accounts<T extends User$accountsArgs<ExtArgs> = {}>(args?: Subset<T, User$accountsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AccountPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     sessions<T extends User$sessionsArgs<ExtArgs> = {}>(args?: Subset<T, User$sessionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    messages<T extends User$messagesArgs<ExtArgs> = {}>(args?: Subset<T, User$messagesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MessagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -5128,6 +5270,7 @@ export namespace Prisma {
     readonly image: FieldRef<"User", 'String'>
     readonly averageRating: FieldRef<"User", 'Float'>
     readonly ratingCount: FieldRef<"User", 'Int'>
+    readonly credits: FieldRef<"User", 'Int'>
     readonly createdAt: FieldRef<"User", 'DateTime'>
     readonly updatedAt: FieldRef<"User", 'DateTime'>
   }
@@ -5774,6 +5917,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: SessionScalarFieldEnum | SessionScalarFieldEnum[]
+  }
+
+  /**
+   * User.messages
+   */
+  export type User$messagesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Message
+     */
+    select?: MessageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Message
+     */
+    omit?: MessageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MessageInclude<ExtArgs> | null
+    where?: MessageWhereInput
+    orderBy?: MessageOrderByWithRelationInput | MessageOrderByWithRelationInput[]
+    cursor?: MessageWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: MessageScalarFieldEnum | MessageScalarFieldEnum[]
   }
 
   /**
@@ -6777,22 +6944,16 @@ export namespace Prisma {
   }
 
   export type LocationAvgAggregateOutputType = {
-    latitude: number | null
-    longitude: number | null
     radius: number | null
   }
 
   export type LocationSumAggregateOutputType = {
-    latitude: number | null
-    longitude: number | null
     radius: number | null
   }
 
   export type LocationMinAggregateOutputType = {
     id: string | null
     userId: string | null
-    latitude: number | null
-    longitude: number | null
     address: string | null
     city: string | null
     state: string | null
@@ -6805,8 +6966,6 @@ export namespace Prisma {
   export type LocationMaxAggregateOutputType = {
     id: string | null
     userId: string | null
-    latitude: number | null
-    longitude: number | null
     address: string | null
     city: string | null
     state: string | null
@@ -6819,8 +6978,6 @@ export namespace Prisma {
   export type LocationCountAggregateOutputType = {
     id: number
     userId: number
-    latitude: number
-    longitude: number
     address: number
     city: number
     state: number
@@ -6833,22 +6990,16 @@ export namespace Prisma {
 
 
   export type LocationAvgAggregateInputType = {
-    latitude?: true
-    longitude?: true
     radius?: true
   }
 
   export type LocationSumAggregateInputType = {
-    latitude?: true
-    longitude?: true
     radius?: true
   }
 
   export type LocationMinAggregateInputType = {
     id?: true
     userId?: true
-    latitude?: true
-    longitude?: true
     address?: true
     city?: true
     state?: true
@@ -6861,8 +7012,6 @@ export namespace Prisma {
   export type LocationMaxAggregateInputType = {
     id?: true
     userId?: true
-    latitude?: true
-    longitude?: true
     address?: true
     city?: true
     state?: true
@@ -6875,8 +7024,6 @@ export namespace Prisma {
   export type LocationCountAggregateInputType = {
     id?: true
     userId?: true
-    latitude?: true
-    longitude?: true
     address?: true
     city?: true
     state?: true
@@ -6976,8 +7123,6 @@ export namespace Prisma {
   export type LocationGroupByOutputType = {
     id: string
     userId: string
-    latitude: number
-    longitude: number
     address: string | null
     city: string | null
     state: string | null
@@ -7009,8 +7154,6 @@ export namespace Prisma {
   export type LocationSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     userId?: boolean
-    latitude?: boolean
-    longitude?: boolean
     address?: boolean
     city?: boolean
     state?: boolean
@@ -7024,8 +7167,6 @@ export namespace Prisma {
   export type LocationSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     userId?: boolean
-    latitude?: boolean
-    longitude?: boolean
     address?: boolean
     city?: boolean
     state?: boolean
@@ -7039,8 +7180,6 @@ export namespace Prisma {
   export type LocationSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     userId?: boolean
-    latitude?: boolean
-    longitude?: boolean
     address?: boolean
     city?: boolean
     state?: boolean
@@ -7054,8 +7193,6 @@ export namespace Prisma {
   export type LocationSelectScalar = {
     id?: boolean
     userId?: boolean
-    latitude?: boolean
-    longitude?: boolean
     address?: boolean
     city?: boolean
     state?: boolean
@@ -7065,7 +7202,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type LocationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "latitude" | "longitude" | "address" | "city" | "state" | "country" | "radius" | "createdAt" | "updatedAt", ExtArgs["result"]["location"]>
+  export type LocationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "address" | "city" | "state" | "country" | "radius" | "createdAt" | "updatedAt", ExtArgs["result"]["location"]>
   export type LocationInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
   }
@@ -7084,8 +7221,6 @@ export namespace Prisma {
     scalars: $Extensions.GetPayloadResult<{
       id: string
       userId: string
-      latitude: number
-      longitude: number
       address: string | null
       city: string | null
       state: string | null
@@ -7519,8 +7654,6 @@ export namespace Prisma {
   interface LocationFieldRefs {
     readonly id: FieldRef<"Location", 'String'>
     readonly userId: FieldRef<"Location", 'String'>
-    readonly latitude: FieldRef<"Location", 'Float'>
-    readonly longitude: FieldRef<"Location", 'Float'>
     readonly address: FieldRef<"Location", 'String'>
     readonly city: FieldRef<"Location", 'String'>
     readonly state: FieldRef<"Location", 'String'>
@@ -10045,10 +10178,12 @@ export namespace Prisma {
 
   export type ServiceAvgAggregateOutputType = {
     hourlyRate: number | null
+    serviceRadius: number | null
   }
 
   export type ServiceSumAggregateOutputType = {
     hourlyRate: number | null
+    serviceRadius: number | null
   }
 
   export type ServiceMinAggregateOutputType = {
@@ -10060,6 +10195,12 @@ export namespace Prisma {
     imageUrl: string | null
     hourlyRate: number | null
     isActive: boolean | null
+    locationType: $Enums.ServiceLocationType | null
+    address: string | null
+    city: string | null
+    state: string | null
+    country: string | null
+    serviceRadius: number | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -10073,6 +10214,12 @@ export namespace Prisma {
     imageUrl: string | null
     hourlyRate: number | null
     isActive: boolean | null
+    locationType: $Enums.ServiceLocationType | null
+    address: string | null
+    city: string | null
+    state: string | null
+    country: string | null
+    serviceRadius: number | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -10086,6 +10233,12 @@ export namespace Prisma {
     imageUrl: number
     hourlyRate: number
     isActive: number
+    locationType: number
+    address: number
+    city: number
+    state: number
+    country: number
+    serviceRadius: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -10094,10 +10247,12 @@ export namespace Prisma {
 
   export type ServiceAvgAggregateInputType = {
     hourlyRate?: true
+    serviceRadius?: true
   }
 
   export type ServiceSumAggregateInputType = {
     hourlyRate?: true
+    serviceRadius?: true
   }
 
   export type ServiceMinAggregateInputType = {
@@ -10109,6 +10264,12 @@ export namespace Prisma {
     imageUrl?: true
     hourlyRate?: true
     isActive?: true
+    locationType?: true
+    address?: true
+    city?: true
+    state?: true
+    country?: true
+    serviceRadius?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -10122,6 +10283,12 @@ export namespace Prisma {
     imageUrl?: true
     hourlyRate?: true
     isActive?: true
+    locationType?: true
+    address?: true
+    city?: true
+    state?: true
+    country?: true
+    serviceRadius?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -10135,6 +10302,12 @@ export namespace Prisma {
     imageUrl?: true
     hourlyRate?: true
     isActive?: true
+    locationType?: true
+    address?: true
+    city?: true
+    state?: true
+    country?: true
+    serviceRadius?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -10235,6 +10408,12 @@ export namespace Prisma {
     imageUrl: string | null
     hourlyRate: number | null
     isActive: boolean
+    locationType: $Enums.ServiceLocationType
+    address: string | null
+    city: string | null
+    state: string | null
+    country: string | null
+    serviceRadius: number | null
     createdAt: Date
     updatedAt: Date
     _count: ServiceCountAggregateOutputType | null
@@ -10267,6 +10446,12 @@ export namespace Prisma {
     imageUrl?: boolean
     hourlyRate?: boolean
     isActive?: boolean
+    locationType?: boolean
+    address?: boolean
+    city?: boolean
+    state?: boolean
+    country?: boolean
+    serviceRadius?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
@@ -10285,6 +10470,12 @@ export namespace Prisma {
     imageUrl?: boolean
     hourlyRate?: boolean
     isActive?: boolean
+    locationType?: boolean
+    address?: boolean
+    city?: boolean
+    state?: boolean
+    country?: boolean
+    serviceRadius?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
@@ -10300,6 +10491,12 @@ export namespace Prisma {
     imageUrl?: boolean
     hourlyRate?: boolean
     isActive?: boolean
+    locationType?: boolean
+    address?: boolean
+    city?: boolean
+    state?: boolean
+    country?: boolean
+    serviceRadius?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
@@ -10315,11 +10512,17 @@ export namespace Prisma {
     imageUrl?: boolean
     hourlyRate?: boolean
     isActive?: boolean
+    locationType?: boolean
+    address?: boolean
+    city?: boolean
+    state?: boolean
+    country?: boolean
+    serviceRadius?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type ServiceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "description" | "userId" | "categoryId" | "imageUrl" | "hourlyRate" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["service"]>
+  export type ServiceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "description" | "userId" | "categoryId" | "imageUrl" | "hourlyRate" | "isActive" | "locationType" | "address" | "city" | "state" | "country" | "serviceRadius" | "createdAt" | "updatedAt", ExtArgs["result"]["service"]>
   export type ServiceInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
     category?: boolean | Service$categoryArgs<ExtArgs>
@@ -10353,6 +10556,12 @@ export namespace Prisma {
       imageUrl: string | null
       hourlyRate: number | null
       isActive: boolean
+      locationType: $Enums.ServiceLocationType
+      address: string | null
+      city: string | null
+      state: string | null
+      country: string | null
+      serviceRadius: number | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["service"]>
@@ -10790,6 +10999,12 @@ export namespace Prisma {
     readonly imageUrl: FieldRef<"Service", 'String'>
     readonly hourlyRate: FieldRef<"Service", 'Float'>
     readonly isActive: FieldRef<"Service", 'Boolean'>
+    readonly locationType: FieldRef<"Service", 'ServiceLocationType'>
+    readonly address: FieldRef<"Service", 'String'>
+    readonly city: FieldRef<"Service", 'String'>
+    readonly state: FieldRef<"Service", 'String'>
+    readonly country: FieldRef<"Service", 'String'>
+    readonly serviceRadius: FieldRef<"Service", 'Int'>
     readonly createdAt: FieldRef<"Service", 'DateTime'>
     readonly updatedAt: FieldRef<"Service", 'DateTime'>
   }
@@ -11573,6 +11788,7 @@ export namespace Prisma {
     requester?: boolean | UserDefaultArgs<ExtArgs>
     notifications?: boolean | Exchange$notificationsArgs<ExtArgs>
     ratings?: boolean | Exchange$ratingsArgs<ExtArgs>
+    messages?: boolean | Exchange$messagesArgs<ExtArgs>
     _count?: boolean | ExchangeCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["exchange"]>
 
@@ -11649,6 +11865,7 @@ export namespace Prisma {
     requester?: boolean | UserDefaultArgs<ExtArgs>
     notifications?: boolean | Exchange$notificationsArgs<ExtArgs>
     ratings?: boolean | Exchange$ratingsArgs<ExtArgs>
+    messages?: boolean | Exchange$messagesArgs<ExtArgs>
     _count?: boolean | ExchangeCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type ExchangeIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -11673,6 +11890,7 @@ export namespace Prisma {
       requester: Prisma.$UserPayload<ExtArgs>
       notifications: Prisma.$NotificationPayload<ExtArgs>[]
       ratings: Prisma.$RatingPayload<ExtArgs>[]
+      messages: Prisma.$MessagePayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -12091,6 +12309,7 @@ export namespace Prisma {
     requester<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     notifications<T extends Exchange$notificationsArgs<ExtArgs> = {}>(args?: Subset<T, Exchange$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     ratings<T extends Exchange$ratingsArgs<ExtArgs> = {}>(args?: Subset<T, Exchange$ratingsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RatingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    messages<T extends Exchange$messagesArgs<ExtArgs> = {}>(args?: Subset<T, Exchange$messagesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MessagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -12615,6 +12834,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: RatingScalarFieldEnum | RatingScalarFieldEnum[]
+  }
+
+  /**
+   * Exchange.messages
+   */
+  export type Exchange$messagesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Message
+     */
+    select?: MessageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Message
+     */
+    omit?: MessageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MessageInclude<ExtArgs> | null
+    where?: MessageWhereInput
+    orderBy?: MessageOrderByWithRelationInput | MessageOrderByWithRelationInput[]
+    cursor?: MessageWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: MessageScalarFieldEnum | MessageScalarFieldEnum[]
   }
 
   /**
@@ -15977,6 +16220,1072 @@ export namespace Prisma {
 
 
   /**
+   * Model Message
+   */
+
+  export type AggregateMessage = {
+    _count: MessageCountAggregateOutputType | null
+    _min: MessageMinAggregateOutputType | null
+    _max: MessageMaxAggregateOutputType | null
+  }
+
+  export type MessageMinAggregateOutputType = {
+    id: string | null
+    exchangeId: string | null
+    senderId: string | null
+    content: string | null
+    createdAt: Date | null
+  }
+
+  export type MessageMaxAggregateOutputType = {
+    id: string | null
+    exchangeId: string | null
+    senderId: string | null
+    content: string | null
+    createdAt: Date | null
+  }
+
+  export type MessageCountAggregateOutputType = {
+    id: number
+    exchangeId: number
+    senderId: number
+    content: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type MessageMinAggregateInputType = {
+    id?: true
+    exchangeId?: true
+    senderId?: true
+    content?: true
+    createdAt?: true
+  }
+
+  export type MessageMaxAggregateInputType = {
+    id?: true
+    exchangeId?: true
+    senderId?: true
+    content?: true
+    createdAt?: true
+  }
+
+  export type MessageCountAggregateInputType = {
+    id?: true
+    exchangeId?: true
+    senderId?: true
+    content?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type MessageAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Message to aggregate.
+     */
+    where?: MessageWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Messages to fetch.
+     */
+    orderBy?: MessageOrderByWithRelationInput | MessageOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: MessageWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Messages from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Messages.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Messages
+    **/
+    _count?: true | MessageCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: MessageMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: MessageMaxAggregateInputType
+  }
+
+  export type GetMessageAggregateType<T extends MessageAggregateArgs> = {
+        [P in keyof T & keyof AggregateMessage]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateMessage[P]>
+      : GetScalarType<T[P], AggregateMessage[P]>
+  }
+
+
+
+
+  export type MessageGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: MessageWhereInput
+    orderBy?: MessageOrderByWithAggregationInput | MessageOrderByWithAggregationInput[]
+    by: MessageScalarFieldEnum[] | MessageScalarFieldEnum
+    having?: MessageScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: MessageCountAggregateInputType | true
+    _min?: MessageMinAggregateInputType
+    _max?: MessageMaxAggregateInputType
+  }
+
+  export type MessageGroupByOutputType = {
+    id: string
+    exchangeId: string
+    senderId: string
+    content: string
+    createdAt: Date
+    _count: MessageCountAggregateOutputType | null
+    _min: MessageMinAggregateOutputType | null
+    _max: MessageMaxAggregateOutputType | null
+  }
+
+  type GetMessageGroupByPayload<T extends MessageGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<MessageGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof MessageGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], MessageGroupByOutputType[P]>
+            : GetScalarType<T[P], MessageGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type MessageSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    exchangeId?: boolean
+    senderId?: boolean
+    content?: boolean
+    createdAt?: boolean
+    exchange?: boolean | ExchangeDefaultArgs<ExtArgs>
+    sender?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["message"]>
+
+  export type MessageSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    exchangeId?: boolean
+    senderId?: boolean
+    content?: boolean
+    createdAt?: boolean
+    exchange?: boolean | ExchangeDefaultArgs<ExtArgs>
+    sender?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["message"]>
+
+  export type MessageSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    exchangeId?: boolean
+    senderId?: boolean
+    content?: boolean
+    createdAt?: boolean
+    exchange?: boolean | ExchangeDefaultArgs<ExtArgs>
+    sender?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["message"]>
+
+  export type MessageSelectScalar = {
+    id?: boolean
+    exchangeId?: boolean
+    senderId?: boolean
+    content?: boolean
+    createdAt?: boolean
+  }
+
+  export type MessageOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "exchangeId" | "senderId" | "content" | "createdAt", ExtArgs["result"]["message"]>
+  export type MessageInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    exchange?: boolean | ExchangeDefaultArgs<ExtArgs>
+    sender?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type MessageIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    exchange?: boolean | ExchangeDefaultArgs<ExtArgs>
+    sender?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type MessageIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    exchange?: boolean | ExchangeDefaultArgs<ExtArgs>
+    sender?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $MessagePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Message"
+    objects: {
+      exchange: Prisma.$ExchangePayload<ExtArgs>
+      sender: Prisma.$UserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      exchangeId: string
+      senderId: string
+      content: string
+      createdAt: Date
+    }, ExtArgs["result"]["message"]>
+    composites: {}
+  }
+
+  type MessageGetPayload<S extends boolean | null | undefined | MessageDefaultArgs> = $Result.GetResult<Prisma.$MessagePayload, S>
+
+  type MessageCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<MessageFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: MessageCountAggregateInputType | true
+    }
+
+  export interface MessageDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Message'], meta: { name: 'Message' } }
+    /**
+     * Find zero or one Message that matches the filter.
+     * @param {MessageFindUniqueArgs} args - Arguments to find a Message
+     * @example
+     * // Get one Message
+     * const message = await prisma.message.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends MessageFindUniqueArgs>(args: SelectSubset<T, MessageFindUniqueArgs<ExtArgs>>): Prisma__MessageClient<$Result.GetResult<Prisma.$MessagePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Message that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {MessageFindUniqueOrThrowArgs} args - Arguments to find a Message
+     * @example
+     * // Get one Message
+     * const message = await prisma.message.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends MessageFindUniqueOrThrowArgs>(args: SelectSubset<T, MessageFindUniqueOrThrowArgs<ExtArgs>>): Prisma__MessageClient<$Result.GetResult<Prisma.$MessagePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Message that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MessageFindFirstArgs} args - Arguments to find a Message
+     * @example
+     * // Get one Message
+     * const message = await prisma.message.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends MessageFindFirstArgs>(args?: SelectSubset<T, MessageFindFirstArgs<ExtArgs>>): Prisma__MessageClient<$Result.GetResult<Prisma.$MessagePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Message that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MessageFindFirstOrThrowArgs} args - Arguments to find a Message
+     * @example
+     * // Get one Message
+     * const message = await prisma.message.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends MessageFindFirstOrThrowArgs>(args?: SelectSubset<T, MessageFindFirstOrThrowArgs<ExtArgs>>): Prisma__MessageClient<$Result.GetResult<Prisma.$MessagePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Messages that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MessageFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Messages
+     * const messages = await prisma.message.findMany()
+     * 
+     * // Get first 10 Messages
+     * const messages = await prisma.message.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const messageWithIdOnly = await prisma.message.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends MessageFindManyArgs>(args?: SelectSubset<T, MessageFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MessagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Message.
+     * @param {MessageCreateArgs} args - Arguments to create a Message.
+     * @example
+     * // Create one Message
+     * const Message = await prisma.message.create({
+     *   data: {
+     *     // ... data to create a Message
+     *   }
+     * })
+     * 
+     */
+    create<T extends MessageCreateArgs>(args: SelectSubset<T, MessageCreateArgs<ExtArgs>>): Prisma__MessageClient<$Result.GetResult<Prisma.$MessagePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Messages.
+     * @param {MessageCreateManyArgs} args - Arguments to create many Messages.
+     * @example
+     * // Create many Messages
+     * const message = await prisma.message.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends MessageCreateManyArgs>(args?: SelectSubset<T, MessageCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Messages and returns the data saved in the database.
+     * @param {MessageCreateManyAndReturnArgs} args - Arguments to create many Messages.
+     * @example
+     * // Create many Messages
+     * const message = await prisma.message.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Messages and only return the `id`
+     * const messageWithIdOnly = await prisma.message.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends MessageCreateManyAndReturnArgs>(args?: SelectSubset<T, MessageCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MessagePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Message.
+     * @param {MessageDeleteArgs} args - Arguments to delete one Message.
+     * @example
+     * // Delete one Message
+     * const Message = await prisma.message.delete({
+     *   where: {
+     *     // ... filter to delete one Message
+     *   }
+     * })
+     * 
+     */
+    delete<T extends MessageDeleteArgs>(args: SelectSubset<T, MessageDeleteArgs<ExtArgs>>): Prisma__MessageClient<$Result.GetResult<Prisma.$MessagePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Message.
+     * @param {MessageUpdateArgs} args - Arguments to update one Message.
+     * @example
+     * // Update one Message
+     * const message = await prisma.message.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends MessageUpdateArgs>(args: SelectSubset<T, MessageUpdateArgs<ExtArgs>>): Prisma__MessageClient<$Result.GetResult<Prisma.$MessagePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Messages.
+     * @param {MessageDeleteManyArgs} args - Arguments to filter Messages to delete.
+     * @example
+     * // Delete a few Messages
+     * const { count } = await prisma.message.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends MessageDeleteManyArgs>(args?: SelectSubset<T, MessageDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Messages.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MessageUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Messages
+     * const message = await prisma.message.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends MessageUpdateManyArgs>(args: SelectSubset<T, MessageUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Messages and returns the data updated in the database.
+     * @param {MessageUpdateManyAndReturnArgs} args - Arguments to update many Messages.
+     * @example
+     * // Update many Messages
+     * const message = await prisma.message.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Messages and only return the `id`
+     * const messageWithIdOnly = await prisma.message.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends MessageUpdateManyAndReturnArgs>(args: SelectSubset<T, MessageUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MessagePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Message.
+     * @param {MessageUpsertArgs} args - Arguments to update or create a Message.
+     * @example
+     * // Update or create a Message
+     * const message = await prisma.message.upsert({
+     *   create: {
+     *     // ... data to create a Message
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Message we want to update
+     *   }
+     * })
+     */
+    upsert<T extends MessageUpsertArgs>(args: SelectSubset<T, MessageUpsertArgs<ExtArgs>>): Prisma__MessageClient<$Result.GetResult<Prisma.$MessagePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Messages.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MessageCountArgs} args - Arguments to filter Messages to count.
+     * @example
+     * // Count the number of Messages
+     * const count = await prisma.message.count({
+     *   where: {
+     *     // ... the filter for the Messages we want to count
+     *   }
+     * })
+    **/
+    count<T extends MessageCountArgs>(
+      args?: Subset<T, MessageCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], MessageCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Message.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MessageAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends MessageAggregateArgs>(args: Subset<T, MessageAggregateArgs>): Prisma.PrismaPromise<GetMessageAggregateType<T>>
+
+    /**
+     * Group by Message.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MessageGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends MessageGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: MessageGroupByArgs['orderBy'] }
+        : { orderBy?: MessageGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, MessageGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetMessageGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Message model
+   */
+  readonly fields: MessageFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Message.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__MessageClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    exchange<T extends ExchangeDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ExchangeDefaultArgs<ExtArgs>>): Prisma__ExchangeClient<$Result.GetResult<Prisma.$ExchangePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    sender<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Message model
+   */
+  interface MessageFieldRefs {
+    readonly id: FieldRef<"Message", 'String'>
+    readonly exchangeId: FieldRef<"Message", 'String'>
+    readonly senderId: FieldRef<"Message", 'String'>
+    readonly content: FieldRef<"Message", 'String'>
+    readonly createdAt: FieldRef<"Message", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Message findUnique
+   */
+  export type MessageFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Message
+     */
+    select?: MessageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Message
+     */
+    omit?: MessageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MessageInclude<ExtArgs> | null
+    /**
+     * Filter, which Message to fetch.
+     */
+    where: MessageWhereUniqueInput
+  }
+
+  /**
+   * Message findUniqueOrThrow
+   */
+  export type MessageFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Message
+     */
+    select?: MessageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Message
+     */
+    omit?: MessageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MessageInclude<ExtArgs> | null
+    /**
+     * Filter, which Message to fetch.
+     */
+    where: MessageWhereUniqueInput
+  }
+
+  /**
+   * Message findFirst
+   */
+  export type MessageFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Message
+     */
+    select?: MessageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Message
+     */
+    omit?: MessageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MessageInclude<ExtArgs> | null
+    /**
+     * Filter, which Message to fetch.
+     */
+    where?: MessageWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Messages to fetch.
+     */
+    orderBy?: MessageOrderByWithRelationInput | MessageOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Messages.
+     */
+    cursor?: MessageWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Messages from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Messages.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Messages.
+     */
+    distinct?: MessageScalarFieldEnum | MessageScalarFieldEnum[]
+  }
+
+  /**
+   * Message findFirstOrThrow
+   */
+  export type MessageFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Message
+     */
+    select?: MessageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Message
+     */
+    omit?: MessageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MessageInclude<ExtArgs> | null
+    /**
+     * Filter, which Message to fetch.
+     */
+    where?: MessageWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Messages to fetch.
+     */
+    orderBy?: MessageOrderByWithRelationInput | MessageOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Messages.
+     */
+    cursor?: MessageWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Messages from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Messages.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Messages.
+     */
+    distinct?: MessageScalarFieldEnum | MessageScalarFieldEnum[]
+  }
+
+  /**
+   * Message findMany
+   */
+  export type MessageFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Message
+     */
+    select?: MessageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Message
+     */
+    omit?: MessageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MessageInclude<ExtArgs> | null
+    /**
+     * Filter, which Messages to fetch.
+     */
+    where?: MessageWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Messages to fetch.
+     */
+    orderBy?: MessageOrderByWithRelationInput | MessageOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Messages.
+     */
+    cursor?: MessageWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Messages from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Messages.
+     */
+    skip?: number
+    distinct?: MessageScalarFieldEnum | MessageScalarFieldEnum[]
+  }
+
+  /**
+   * Message create
+   */
+  export type MessageCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Message
+     */
+    select?: MessageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Message
+     */
+    omit?: MessageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MessageInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Message.
+     */
+    data: XOR<MessageCreateInput, MessageUncheckedCreateInput>
+  }
+
+  /**
+   * Message createMany
+   */
+  export type MessageCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Messages.
+     */
+    data: MessageCreateManyInput | MessageCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Message createManyAndReturn
+   */
+  export type MessageCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Message
+     */
+    select?: MessageSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Message
+     */
+    omit?: MessageOmit<ExtArgs> | null
+    /**
+     * The data used to create many Messages.
+     */
+    data: MessageCreateManyInput | MessageCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MessageIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Message update
+   */
+  export type MessageUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Message
+     */
+    select?: MessageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Message
+     */
+    omit?: MessageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MessageInclude<ExtArgs> | null
+    /**
+     * The data needed to update a Message.
+     */
+    data: XOR<MessageUpdateInput, MessageUncheckedUpdateInput>
+    /**
+     * Choose, which Message to update.
+     */
+    where: MessageWhereUniqueInput
+  }
+
+  /**
+   * Message updateMany
+   */
+  export type MessageUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Messages.
+     */
+    data: XOR<MessageUpdateManyMutationInput, MessageUncheckedUpdateManyInput>
+    /**
+     * Filter which Messages to update
+     */
+    where?: MessageWhereInput
+    /**
+     * Limit how many Messages to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Message updateManyAndReturn
+   */
+  export type MessageUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Message
+     */
+    select?: MessageSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Message
+     */
+    omit?: MessageOmit<ExtArgs> | null
+    /**
+     * The data used to update Messages.
+     */
+    data: XOR<MessageUpdateManyMutationInput, MessageUncheckedUpdateManyInput>
+    /**
+     * Filter which Messages to update
+     */
+    where?: MessageWhereInput
+    /**
+     * Limit how many Messages to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MessageIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Message upsert
+   */
+  export type MessageUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Message
+     */
+    select?: MessageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Message
+     */
+    omit?: MessageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MessageInclude<ExtArgs> | null
+    /**
+     * The filter to search for the Message to update in case it exists.
+     */
+    where: MessageWhereUniqueInput
+    /**
+     * In case the Message found by the `where` argument doesn't exist, create a new Message with this data.
+     */
+    create: XOR<MessageCreateInput, MessageUncheckedCreateInput>
+    /**
+     * In case the Message was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<MessageUpdateInput, MessageUncheckedUpdateInput>
+  }
+
+  /**
+   * Message delete
+   */
+  export type MessageDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Message
+     */
+    select?: MessageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Message
+     */
+    omit?: MessageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MessageInclude<ExtArgs> | null
+    /**
+     * Filter which Message to delete.
+     */
+    where: MessageWhereUniqueInput
+  }
+
+  /**
+   * Message deleteMany
+   */
+  export type MessageDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Messages to delete
+     */
+    where?: MessageWhereInput
+    /**
+     * Limit how many Messages to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Message without action
+   */
+  export type MessageDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Message
+     */
+    select?: MessageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Message
+     */
+    omit?: MessageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MessageInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -16026,6 +17335,7 @@ export namespace Prisma {
     image: 'image',
     averageRating: 'averageRating',
     ratingCount: 'ratingCount',
+    credits: 'credits',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -16045,8 +17355,6 @@ export namespace Prisma {
   export const LocationScalarFieldEnum: {
     id: 'id',
     userId: 'userId',
-    latitude: 'latitude',
-    longitude: 'longitude',
     address: 'address',
     city: 'city',
     state: 'state',
@@ -16087,6 +17395,12 @@ export namespace Prisma {
     imageUrl: 'imageUrl',
     hourlyRate: 'hourlyRate',
     isActive: 'isActive',
+    locationType: 'locationType',
+    address: 'address',
+    city: 'city',
+    state: 'state',
+    country: 'country',
+    serviceRadius: 'serviceRadius',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -16154,6 +17468,17 @@ export namespace Prisma {
   };
 
   export type RatingScalarFieldEnum = (typeof RatingScalarFieldEnum)[keyof typeof RatingScalarFieldEnum]
+
+
+  export const MessageScalarFieldEnum: {
+    id: 'id',
+    exchangeId: 'exchangeId',
+    senderId: 'senderId',
+    content: 'content',
+    createdAt: 'createdAt'
+  };
+
+  export type MessageScalarFieldEnum = (typeof MessageScalarFieldEnum)[keyof typeof MessageScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -16245,6 +17570,20 @@ export namespace Prisma {
    * Reference to a field of type 'Boolean'
    */
   export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+    
+
+
+  /**
+   * Reference to a field of type 'ServiceLocationType'
+   */
+  export type EnumServiceLocationTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ServiceLocationType'>
+    
+
+
+  /**
+   * Reference to a field of type 'ServiceLocationType[]'
+   */
+  export type ListEnumServiceLocationTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ServiceLocationType[]'>
     
 
 
@@ -16433,6 +17772,7 @@ export namespace Prisma {
     image?: StringNullableFilter<"User"> | string | null
     averageRating?: FloatNullableFilter<"User"> | number | null
     ratingCount?: IntNullableFilter<"User"> | number | null
+    credits?: IntFilter<"User"> | number
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
     location?: XOR<LocationNullableScalarRelationFilter, LocationWhereInput> | null
@@ -16446,6 +17786,7 @@ export namespace Prisma {
     ratingsReceived?: RatingListRelationFilter
     accounts?: AccountListRelationFilter
     sessions?: SessionListRelationFilter
+    messages?: MessageListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -16456,6 +17797,7 @@ export namespace Prisma {
     image?: SortOrderInput | SortOrder
     averageRating?: SortOrderInput | SortOrder
     ratingCount?: SortOrderInput | SortOrder
+    credits?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     location?: LocationOrderByWithRelationInput
@@ -16469,6 +17811,7 @@ export namespace Prisma {
     ratingsReceived?: RatingOrderByRelationAggregateInput
     accounts?: AccountOrderByRelationAggregateInput
     sessions?: SessionOrderByRelationAggregateInput
+    messages?: MessageOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -16482,6 +17825,7 @@ export namespace Prisma {
     image?: StringNullableFilter<"User"> | string | null
     averageRating?: FloatNullableFilter<"User"> | number | null
     ratingCount?: IntNullableFilter<"User"> | number | null
+    credits?: IntFilter<"User"> | number
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
     location?: XOR<LocationNullableScalarRelationFilter, LocationWhereInput> | null
@@ -16495,6 +17839,7 @@ export namespace Prisma {
     ratingsReceived?: RatingListRelationFilter
     accounts?: AccountListRelationFilter
     sessions?: SessionListRelationFilter
+    messages?: MessageListRelationFilter
   }, "id" | "email">
 
   export type UserOrderByWithAggregationInput = {
@@ -16505,6 +17850,7 @@ export namespace Prisma {
     image?: SortOrderInput | SortOrder
     averageRating?: SortOrderInput | SortOrder
     ratingCount?: SortOrderInput | SortOrder
+    credits?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: UserCountOrderByAggregateInput
@@ -16525,6 +17871,7 @@ export namespace Prisma {
     image?: StringNullableWithAggregatesFilter<"User"> | string | null
     averageRating?: FloatNullableWithAggregatesFilter<"User"> | number | null
     ratingCount?: IntNullableWithAggregatesFilter<"User"> | number | null
+    credits?: IntWithAggregatesFilter<"User"> | number
     createdAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
   }
@@ -16578,8 +17925,6 @@ export namespace Prisma {
     NOT?: LocationWhereInput | LocationWhereInput[]
     id?: StringFilter<"Location"> | string
     userId?: StringFilter<"Location"> | string
-    latitude?: FloatFilter<"Location"> | number
-    longitude?: FloatFilter<"Location"> | number
     address?: StringNullableFilter<"Location"> | string | null
     city?: StringNullableFilter<"Location"> | string | null
     state?: StringNullableFilter<"Location"> | string | null
@@ -16593,8 +17938,6 @@ export namespace Prisma {
   export type LocationOrderByWithRelationInput = {
     id?: SortOrder
     userId?: SortOrder
-    latitude?: SortOrder
-    longitude?: SortOrder
     address?: SortOrderInput | SortOrder
     city?: SortOrderInput | SortOrder
     state?: SortOrderInput | SortOrder
@@ -16611,8 +17954,6 @@ export namespace Prisma {
     AND?: LocationWhereInput | LocationWhereInput[]
     OR?: LocationWhereInput[]
     NOT?: LocationWhereInput | LocationWhereInput[]
-    latitude?: FloatFilter<"Location"> | number
-    longitude?: FloatFilter<"Location"> | number
     address?: StringNullableFilter<"Location"> | string | null
     city?: StringNullableFilter<"Location"> | string | null
     state?: StringNullableFilter<"Location"> | string | null
@@ -16626,8 +17967,6 @@ export namespace Prisma {
   export type LocationOrderByWithAggregationInput = {
     id?: SortOrder
     userId?: SortOrder
-    latitude?: SortOrder
-    longitude?: SortOrder
     address?: SortOrderInput | SortOrder
     city?: SortOrderInput | SortOrder
     state?: SortOrderInput | SortOrder
@@ -16648,8 +17987,6 @@ export namespace Prisma {
     NOT?: LocationScalarWhereWithAggregatesInput | LocationScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"Location"> | string
     userId?: StringWithAggregatesFilter<"Location"> | string
-    latitude?: FloatWithAggregatesFilter<"Location"> | number
-    longitude?: FloatWithAggregatesFilter<"Location"> | number
     address?: StringNullableWithAggregatesFilter<"Location"> | string | null
     city?: StringNullableWithAggregatesFilter<"Location"> | string | null
     state?: StringNullableWithAggregatesFilter<"Location"> | string | null
@@ -16767,6 +18104,12 @@ export namespace Prisma {
     imageUrl?: StringNullableFilter<"Service"> | string | null
     hourlyRate?: FloatNullableFilter<"Service"> | number | null
     isActive?: BoolFilter<"Service"> | boolean
+    locationType?: EnumServiceLocationTypeFilter<"Service"> | $Enums.ServiceLocationType
+    address?: StringNullableFilter<"Service"> | string | null
+    city?: StringNullableFilter<"Service"> | string | null
+    state?: StringNullableFilter<"Service"> | string | null
+    country?: StringNullableFilter<"Service"> | string | null
+    serviceRadius?: IntNullableFilter<"Service"> | number | null
     createdAt?: DateTimeFilter<"Service"> | Date | string
     updatedAt?: DateTimeFilter<"Service"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
@@ -16784,6 +18127,12 @@ export namespace Prisma {
     imageUrl?: SortOrderInput | SortOrder
     hourlyRate?: SortOrderInput | SortOrder
     isActive?: SortOrder
+    locationType?: SortOrder
+    address?: SortOrderInput | SortOrder
+    city?: SortOrderInput | SortOrder
+    state?: SortOrderInput | SortOrder
+    country?: SortOrderInput | SortOrder
+    serviceRadius?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     user?: UserOrderByWithRelationInput
@@ -16804,6 +18153,12 @@ export namespace Prisma {
     imageUrl?: StringNullableFilter<"Service"> | string | null
     hourlyRate?: FloatNullableFilter<"Service"> | number | null
     isActive?: BoolFilter<"Service"> | boolean
+    locationType?: EnumServiceLocationTypeFilter<"Service"> | $Enums.ServiceLocationType
+    address?: StringNullableFilter<"Service"> | string | null
+    city?: StringNullableFilter<"Service"> | string | null
+    state?: StringNullableFilter<"Service"> | string | null
+    country?: StringNullableFilter<"Service"> | string | null
+    serviceRadius?: IntNullableFilter<"Service"> | number | null
     createdAt?: DateTimeFilter<"Service"> | Date | string
     updatedAt?: DateTimeFilter<"Service"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
@@ -16821,6 +18176,12 @@ export namespace Prisma {
     imageUrl?: SortOrderInput | SortOrder
     hourlyRate?: SortOrderInput | SortOrder
     isActive?: SortOrder
+    locationType?: SortOrder
+    address?: SortOrderInput | SortOrder
+    city?: SortOrderInput | SortOrder
+    state?: SortOrderInput | SortOrder
+    country?: SortOrderInput | SortOrder
+    serviceRadius?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: ServiceCountOrderByAggregateInput
@@ -16842,6 +18203,12 @@ export namespace Prisma {
     imageUrl?: StringNullableWithAggregatesFilter<"Service"> | string | null
     hourlyRate?: FloatNullableWithAggregatesFilter<"Service"> | number | null
     isActive?: BoolWithAggregatesFilter<"Service"> | boolean
+    locationType?: EnumServiceLocationTypeWithAggregatesFilter<"Service"> | $Enums.ServiceLocationType
+    address?: StringNullableWithAggregatesFilter<"Service"> | string | null
+    city?: StringNullableWithAggregatesFilter<"Service"> | string | null
+    state?: StringNullableWithAggregatesFilter<"Service"> | string | null
+    country?: StringNullableWithAggregatesFilter<"Service"> | string | null
+    serviceRadius?: IntNullableWithAggregatesFilter<"Service"> | number | null
     createdAt?: DateTimeWithAggregatesFilter<"Service"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Service"> | Date | string
   }
@@ -16872,6 +18239,7 @@ export namespace Prisma {
     requester?: XOR<UserScalarRelationFilter, UserWhereInput>
     notifications?: NotificationListRelationFilter
     ratings?: RatingListRelationFilter
+    messages?: MessageListRelationFilter
   }
 
   export type ExchangeOrderByWithRelationInput = {
@@ -16897,6 +18265,7 @@ export namespace Prisma {
     requester?: UserOrderByWithRelationInput
     notifications?: NotificationOrderByRelationAggregateInput
     ratings?: RatingOrderByRelationAggregateInput
+    messages?: MessageOrderByRelationAggregateInput
   }
 
   export type ExchangeWhereUniqueInput = Prisma.AtLeast<{
@@ -16925,6 +18294,7 @@ export namespace Prisma {
     requester?: XOR<UserScalarRelationFilter, UserWhereInput>
     notifications?: NotificationListRelationFilter
     ratings?: RatingListRelationFilter
+    messages?: MessageListRelationFilter
   }, "id">
 
   export type ExchangeOrderByWithAggregationInput = {
@@ -17188,6 +18558,64 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"Rating"> | Date | string
   }
 
+  export type MessageWhereInput = {
+    AND?: MessageWhereInput | MessageWhereInput[]
+    OR?: MessageWhereInput[]
+    NOT?: MessageWhereInput | MessageWhereInput[]
+    id?: StringFilter<"Message"> | string
+    exchangeId?: StringFilter<"Message"> | string
+    senderId?: StringFilter<"Message"> | string
+    content?: StringFilter<"Message"> | string
+    createdAt?: DateTimeFilter<"Message"> | Date | string
+    exchange?: XOR<ExchangeScalarRelationFilter, ExchangeWhereInput>
+    sender?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }
+
+  export type MessageOrderByWithRelationInput = {
+    id?: SortOrder
+    exchangeId?: SortOrder
+    senderId?: SortOrder
+    content?: SortOrder
+    createdAt?: SortOrder
+    exchange?: ExchangeOrderByWithRelationInput
+    sender?: UserOrderByWithRelationInput
+  }
+
+  export type MessageWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: MessageWhereInput | MessageWhereInput[]
+    OR?: MessageWhereInput[]
+    NOT?: MessageWhereInput | MessageWhereInput[]
+    exchangeId?: StringFilter<"Message"> | string
+    senderId?: StringFilter<"Message"> | string
+    content?: StringFilter<"Message"> | string
+    createdAt?: DateTimeFilter<"Message"> | Date | string
+    exchange?: XOR<ExchangeScalarRelationFilter, ExchangeWhereInput>
+    sender?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }, "id">
+
+  export type MessageOrderByWithAggregationInput = {
+    id?: SortOrder
+    exchangeId?: SortOrder
+    senderId?: SortOrder
+    content?: SortOrder
+    createdAt?: SortOrder
+    _count?: MessageCountOrderByAggregateInput
+    _max?: MessageMaxOrderByAggregateInput
+    _min?: MessageMinOrderByAggregateInput
+  }
+
+  export type MessageScalarWhereWithAggregatesInput = {
+    AND?: MessageScalarWhereWithAggregatesInput | MessageScalarWhereWithAggregatesInput[]
+    OR?: MessageScalarWhereWithAggregatesInput[]
+    NOT?: MessageScalarWhereWithAggregatesInput | MessageScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Message"> | string
+    exchangeId?: StringWithAggregatesFilter<"Message"> | string
+    senderId?: StringWithAggregatesFilter<"Message"> | string
+    content?: StringWithAggregatesFilter<"Message"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"Message"> | Date | string
+  }
+
   export type AccountCreateInput = {
     id?: string
     type: string
@@ -17348,6 +18776,7 @@ export namespace Prisma {
     image?: string | null
     averageRating?: number | null
     ratingCount?: number | null
+    credits?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     location?: LocationCreateNestedOneWithoutUserInput
@@ -17361,6 +18790,7 @@ export namespace Prisma {
     ratingsReceived?: RatingCreateNestedManyWithoutToUserInput
     accounts?: AccountCreateNestedManyWithoutUserInput
     sessions?: SessionCreateNestedManyWithoutUserInput
+    messages?: MessageCreateNestedManyWithoutSenderInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -17371,6 +18801,7 @@ export namespace Prisma {
     image?: string | null
     averageRating?: number | null
     ratingCount?: number | null
+    credits?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     location?: LocationUncheckedCreateNestedOneWithoutUserInput
@@ -17384,6 +18815,7 @@ export namespace Prisma {
     ratingsReceived?: RatingUncheckedCreateNestedManyWithoutToUserInput
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    messages?: MessageUncheckedCreateNestedManyWithoutSenderInput
   }
 
   export type UserUpdateInput = {
@@ -17394,6 +18826,7 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     averageRating?: NullableFloatFieldUpdateOperationsInput | number | null
     ratingCount?: NullableIntFieldUpdateOperationsInput | number | null
+    credits?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     location?: LocationUpdateOneWithoutUserNestedInput
@@ -17407,6 +18840,7 @@ export namespace Prisma {
     ratingsReceived?: RatingUpdateManyWithoutToUserNestedInput
     accounts?: AccountUpdateManyWithoutUserNestedInput
     sessions?: SessionUpdateManyWithoutUserNestedInput
+    messages?: MessageUpdateManyWithoutSenderNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -17417,6 +18851,7 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     averageRating?: NullableFloatFieldUpdateOperationsInput | number | null
     ratingCount?: NullableIntFieldUpdateOperationsInput | number | null
+    credits?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     location?: LocationUncheckedUpdateOneWithoutUserNestedInput
@@ -17430,6 +18865,7 @@ export namespace Prisma {
     ratingsReceived?: RatingUncheckedUpdateManyWithoutToUserNestedInput
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    messages?: MessageUncheckedUpdateManyWithoutSenderNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -17440,6 +18876,7 @@ export namespace Prisma {
     image?: string | null
     averageRating?: number | null
     ratingCount?: number | null
+    credits?: number
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -17452,6 +18889,7 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     averageRating?: NullableFloatFieldUpdateOperationsInput | number | null
     ratingCount?: NullableIntFieldUpdateOperationsInput | number | null
+    credits?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -17464,6 +18902,7 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     averageRating?: NullableFloatFieldUpdateOperationsInput | number | null
     ratingCount?: NullableIntFieldUpdateOperationsInput | number | null
+    credits?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -17512,8 +18951,6 @@ export namespace Prisma {
 
   export type LocationCreateInput = {
     id?: string
-    latitude: number
-    longitude: number
     address?: string | null
     city?: string | null
     state?: string | null
@@ -17527,8 +18964,6 @@ export namespace Prisma {
   export type LocationUncheckedCreateInput = {
     id?: string
     userId: string
-    latitude: number
-    longitude: number
     address?: string | null
     city?: string | null
     state?: string | null
@@ -17540,8 +18975,6 @@ export namespace Prisma {
 
   export type LocationUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    latitude?: FloatFieldUpdateOperationsInput | number
-    longitude?: FloatFieldUpdateOperationsInput | number
     address?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
     state?: NullableStringFieldUpdateOperationsInput | string | null
@@ -17555,8 +18988,6 @@ export namespace Prisma {
   export type LocationUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
-    latitude?: FloatFieldUpdateOperationsInput | number
-    longitude?: FloatFieldUpdateOperationsInput | number
     address?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
     state?: NullableStringFieldUpdateOperationsInput | string | null
@@ -17569,8 +19000,6 @@ export namespace Prisma {
   export type LocationCreateManyInput = {
     id?: string
     userId: string
-    latitude: number
-    longitude: number
     address?: string | null
     city?: string | null
     state?: string | null
@@ -17582,8 +19011,6 @@ export namespace Prisma {
 
   export type LocationUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
-    latitude?: FloatFieldUpdateOperationsInput | number
-    longitude?: FloatFieldUpdateOperationsInput | number
     address?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
     state?: NullableStringFieldUpdateOperationsInput | string | null
@@ -17596,8 +19023,6 @@ export namespace Prisma {
   export type LocationUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
-    latitude?: FloatFieldUpdateOperationsInput | number
-    longitude?: FloatFieldUpdateOperationsInput | number
     address?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
     state?: NullableStringFieldUpdateOperationsInput | string | null
@@ -17708,6 +19133,12 @@ export namespace Prisma {
     imageUrl?: string | null
     hourlyRate?: number | null
     isActive?: boolean
+    locationType?: $Enums.ServiceLocationType
+    address?: string | null
+    city?: string | null
+    state?: string | null
+    country?: string | null
+    serviceRadius?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutServicesInput
@@ -17725,6 +19156,12 @@ export namespace Prisma {
     imageUrl?: string | null
     hourlyRate?: number | null
     isActive?: boolean
+    locationType?: $Enums.ServiceLocationType
+    address?: string | null
+    city?: string | null
+    state?: string | null
+    country?: string | null
+    serviceRadius?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
     providedExchanges?: ExchangeUncheckedCreateNestedManyWithoutProviderServiceInput
@@ -17738,6 +19175,12 @@ export namespace Prisma {
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     hourlyRate?: NullableFloatFieldUpdateOperationsInput | number | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    locationType?: EnumServiceLocationTypeFieldUpdateOperationsInput | $Enums.ServiceLocationType
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    state?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    serviceRadius?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutServicesNestedInput
@@ -17755,6 +19198,12 @@ export namespace Prisma {
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     hourlyRate?: NullableFloatFieldUpdateOperationsInput | number | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    locationType?: EnumServiceLocationTypeFieldUpdateOperationsInput | $Enums.ServiceLocationType
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    state?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    serviceRadius?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     providedExchanges?: ExchangeUncheckedUpdateManyWithoutProviderServiceNestedInput
@@ -17770,6 +19219,12 @@ export namespace Prisma {
     imageUrl?: string | null
     hourlyRate?: number | null
     isActive?: boolean
+    locationType?: $Enums.ServiceLocationType
+    address?: string | null
+    city?: string | null
+    state?: string | null
+    country?: string | null
+    serviceRadius?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -17781,6 +19236,12 @@ export namespace Prisma {
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     hourlyRate?: NullableFloatFieldUpdateOperationsInput | number | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    locationType?: EnumServiceLocationTypeFieldUpdateOperationsInput | $Enums.ServiceLocationType
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    state?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    serviceRadius?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -17794,6 +19255,12 @@ export namespace Prisma {
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     hourlyRate?: NullableFloatFieldUpdateOperationsInput | number | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    locationType?: EnumServiceLocationTypeFieldUpdateOperationsInput | $Enums.ServiceLocationType
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    state?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    serviceRadius?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -17817,6 +19284,7 @@ export namespace Prisma {
     requester: UserCreateNestedOneWithoutRequestedExchangesInput
     notifications?: NotificationCreateNestedManyWithoutExchangeInput
     ratings?: RatingCreateNestedManyWithoutExchangeInput
+    messages?: MessageCreateNestedManyWithoutExchangeInput
   }
 
   export type ExchangeUncheckedCreateInput = {
@@ -17838,6 +19306,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     notifications?: NotificationUncheckedCreateNestedManyWithoutExchangeInput
     ratings?: RatingUncheckedCreateNestedManyWithoutExchangeInput
+    messages?: MessageUncheckedCreateNestedManyWithoutExchangeInput
   }
 
   export type ExchangeUpdateInput = {
@@ -17859,6 +19328,7 @@ export namespace Prisma {
     requester?: UserUpdateOneRequiredWithoutRequestedExchangesNestedInput
     notifications?: NotificationUpdateManyWithoutExchangeNestedInput
     ratings?: RatingUpdateManyWithoutExchangeNestedInput
+    messages?: MessageUpdateManyWithoutExchangeNestedInput
   }
 
   export type ExchangeUncheckedUpdateInput = {
@@ -17880,6 +19350,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     notifications?: NotificationUncheckedUpdateManyWithoutExchangeNestedInput
     ratings?: RatingUncheckedUpdateManyWithoutExchangeNestedInput
+    messages?: MessageUncheckedUpdateManyWithoutExchangeNestedInput
   }
 
   export type ExchangeCreateManyInput = {
@@ -18146,6 +19617,60 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type MessageCreateInput = {
+    id?: string
+    content: string
+    createdAt?: Date | string
+    exchange: ExchangeCreateNestedOneWithoutMessagesInput
+    sender: UserCreateNestedOneWithoutMessagesInput
+  }
+
+  export type MessageUncheckedCreateInput = {
+    id?: string
+    exchangeId: string
+    senderId: string
+    content: string
+    createdAt?: Date | string
+  }
+
+  export type MessageUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    content?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    exchange?: ExchangeUpdateOneRequiredWithoutMessagesNestedInput
+    sender?: UserUpdateOneRequiredWithoutMessagesNestedInput
+  }
+
+  export type MessageUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    exchangeId?: StringFieldUpdateOperationsInput | string
+    senderId?: StringFieldUpdateOperationsInput | string
+    content?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MessageCreateManyInput = {
+    id?: string
+    exchangeId: string
+    senderId: string
+    content: string
+    createdAt?: Date | string
+  }
+
+  export type MessageUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    content?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MessageUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    exchangeId?: StringFieldUpdateOperationsInput | string
+    senderId?: StringFieldUpdateOperationsInput | string
+    content?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -18375,6 +19900,17 @@ export namespace Prisma {
     not?: NestedFloatNullableFilter<$PrismaModel> | number | null
   }
 
+  export type IntFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntFilter<$PrismaModel> | number
+  }
+
   export type LocationNullableScalarRelationFilter = {
     is?: LocationWhereInput | null
     isNot?: LocationWhereInput | null
@@ -18422,6 +19958,12 @@ export namespace Prisma {
     none?: SessionWhereInput
   }
 
+  export type MessageListRelationFilter = {
+    every?: MessageWhereInput
+    some?: MessageWhereInput
+    none?: MessageWhereInput
+  }
+
   export type SkillOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
@@ -18450,6 +19992,10 @@ export namespace Prisma {
     _count?: SortOrder
   }
 
+  export type MessageOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
   export type UserCountOrderByAggregateInput = {
     id?: SortOrder
     name?: SortOrder
@@ -18458,6 +20004,7 @@ export namespace Prisma {
     image?: SortOrder
     averageRating?: SortOrder
     ratingCount?: SortOrder
+    credits?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -18465,6 +20012,7 @@ export namespace Prisma {
   export type UserAvgOrderByAggregateInput = {
     averageRating?: SortOrder
     ratingCount?: SortOrder
+    credits?: SortOrder
   }
 
   export type UserMaxOrderByAggregateInput = {
@@ -18475,6 +20023,7 @@ export namespace Prisma {
     image?: SortOrder
     averageRating?: SortOrder
     ratingCount?: SortOrder
+    credits?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -18487,6 +20036,7 @@ export namespace Prisma {
     image?: SortOrder
     averageRating?: SortOrder
     ratingCount?: SortOrder
+    credits?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -18494,6 +20044,7 @@ export namespace Prisma {
   export type UserSumOrderByAggregateInput = {
     averageRating?: SortOrder
     ratingCount?: SortOrder
+    credits?: SortOrder
   }
 
   export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -18526,6 +20077,22 @@ export namespace Prisma {
     _max?: NestedFloatNullableFilter<$PrismaModel>
   }
 
+  export type IntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
+  }
+
   export type VerificationTokenIdentifierTokenCompoundUniqueInput = {
     identifier: string
     token: string
@@ -18549,22 +20116,9 @@ export namespace Prisma {
     expires?: SortOrder
   }
 
-  export type FloatFilter<$PrismaModel = never> = {
-    equals?: number | FloatFieldRefInput<$PrismaModel>
-    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
-    lt?: number | FloatFieldRefInput<$PrismaModel>
-    lte?: number | FloatFieldRefInput<$PrismaModel>
-    gt?: number | FloatFieldRefInput<$PrismaModel>
-    gte?: number | FloatFieldRefInput<$PrismaModel>
-    not?: NestedFloatFilter<$PrismaModel> | number
-  }
-
   export type LocationCountOrderByAggregateInput = {
     id?: SortOrder
     userId?: SortOrder
-    latitude?: SortOrder
-    longitude?: SortOrder
     address?: SortOrder
     city?: SortOrder
     state?: SortOrder
@@ -18575,16 +20129,12 @@ export namespace Prisma {
   }
 
   export type LocationAvgOrderByAggregateInput = {
-    latitude?: SortOrder
-    longitude?: SortOrder
     radius?: SortOrder
   }
 
   export type LocationMaxOrderByAggregateInput = {
     id?: SortOrder
     userId?: SortOrder
-    latitude?: SortOrder
-    longitude?: SortOrder
     address?: SortOrder
     city?: SortOrder
     state?: SortOrder
@@ -18597,8 +20147,6 @@ export namespace Prisma {
   export type LocationMinOrderByAggregateInput = {
     id?: SortOrder
     userId?: SortOrder
-    latitude?: SortOrder
-    longitude?: SortOrder
     address?: SortOrder
     city?: SortOrder
     state?: SortOrder
@@ -18609,25 +20157,7 @@ export namespace Prisma {
   }
 
   export type LocationSumOrderByAggregateInput = {
-    latitude?: SortOrder
-    longitude?: SortOrder
     radius?: SortOrder
-  }
-
-  export type FloatWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | FloatFieldRefInput<$PrismaModel>
-    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
-    lt?: number | FloatFieldRefInput<$PrismaModel>
-    lte?: number | FloatFieldRefInput<$PrismaModel>
-    gt?: number | FloatFieldRefInput<$PrismaModel>
-    gte?: number | FloatFieldRefInput<$PrismaModel>
-    not?: NestedFloatWithAggregatesFilter<$PrismaModel> | number
-    _count?: NestedIntFilter<$PrismaModel>
-    _avg?: NestedFloatFilter<$PrismaModel>
-    _sum?: NestedFloatFilter<$PrismaModel>
-    _min?: NestedFloatFilter<$PrismaModel>
-    _max?: NestedFloatFilter<$PrismaModel>
   }
 
   export type SkillUserIdNameCompoundUniqueInput = {
@@ -18679,6 +20209,13 @@ export namespace Prisma {
     not?: NestedBoolFilter<$PrismaModel> | boolean
   }
 
+  export type EnumServiceLocationTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.ServiceLocationType | EnumServiceLocationTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.ServiceLocationType[] | ListEnumServiceLocationTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ServiceLocationType[] | ListEnumServiceLocationTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumServiceLocationTypeFilter<$PrismaModel> | $Enums.ServiceLocationType
+  }
+
   export type ServiceCategoryNullableScalarRelationFilter = {
     is?: ServiceCategoryWhereInput | null
     isNot?: ServiceCategoryWhereInput | null
@@ -18693,12 +20230,19 @@ export namespace Prisma {
     imageUrl?: SortOrder
     hourlyRate?: SortOrder
     isActive?: SortOrder
+    locationType?: SortOrder
+    address?: SortOrder
+    city?: SortOrder
+    state?: SortOrder
+    country?: SortOrder
+    serviceRadius?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
 
   export type ServiceAvgOrderByAggregateInput = {
     hourlyRate?: SortOrder
+    serviceRadius?: SortOrder
   }
 
   export type ServiceMaxOrderByAggregateInput = {
@@ -18710,6 +20254,12 @@ export namespace Prisma {
     imageUrl?: SortOrder
     hourlyRate?: SortOrder
     isActive?: SortOrder
+    locationType?: SortOrder
+    address?: SortOrder
+    city?: SortOrder
+    state?: SortOrder
+    country?: SortOrder
+    serviceRadius?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -18723,12 +20273,19 @@ export namespace Prisma {
     imageUrl?: SortOrder
     hourlyRate?: SortOrder
     isActive?: SortOrder
+    locationType?: SortOrder
+    address?: SortOrder
+    city?: SortOrder
+    state?: SortOrder
+    country?: SortOrder
+    serviceRadius?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
 
   export type ServiceSumOrderByAggregateInput = {
     hourlyRate?: SortOrder
+    serviceRadius?: SortOrder
   }
 
   export type BoolWithAggregatesFilter<$PrismaModel = never> = {
@@ -18737,6 +20294,16 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedBoolFilter<$PrismaModel>
     _max?: NestedBoolFilter<$PrismaModel>
+  }
+
+  export type EnumServiceLocationTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ServiceLocationType | EnumServiceLocationTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.ServiceLocationType[] | ListEnumServiceLocationTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ServiceLocationType[] | ListEnumServiceLocationTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumServiceLocationTypeWithAggregatesFilter<$PrismaModel> | $Enums.ServiceLocationType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumServiceLocationTypeFilter<$PrismaModel>
+    _max?: NestedEnumServiceLocationTypeFilter<$PrismaModel>
   }
 
   export type EnumExchangeStatusFilter<$PrismaModel = never> = {
@@ -18893,17 +20460,6 @@ export namespace Prisma {
     _max?: NestedEnumNotificationTypeFilter<$PrismaModel>
   }
 
-  export type IntFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[] | ListIntFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntFilter<$PrismaModel> | number
-  }
-
   export type AvailabilityUserIdDayOfWeekStartTimeEndTimeCompoundUniqueInput = {
     userId: string
     dayOfWeek: number
@@ -18941,22 +20497,6 @@ export namespace Prisma {
 
   export type AvailabilitySumOrderByAggregateInput = {
     dayOfWeek?: SortOrder
-  }
-
-  export type IntWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[] | ListIntFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
-    _count?: NestedIntFilter<$PrismaModel>
-    _avg?: NestedFloatFilter<$PrismaModel>
-    _sum?: NestedIntFilter<$PrismaModel>
-    _min?: NestedIntFilter<$PrismaModel>
-    _max?: NestedIntFilter<$PrismaModel>
   }
 
   export type ExchangeScalarRelationFilter = {
@@ -19008,6 +20548,30 @@ export namespace Prisma {
 
   export type RatingSumOrderByAggregateInput = {
     rating?: SortOrder
+  }
+
+  export type MessageCountOrderByAggregateInput = {
+    id?: SortOrder
+    exchangeId?: SortOrder
+    senderId?: SortOrder
+    content?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type MessageMaxOrderByAggregateInput = {
+    id?: SortOrder
+    exchangeId?: SortOrder
+    senderId?: SortOrder
+    content?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type MessageMinOrderByAggregateInput = {
+    id?: SortOrder
+    exchangeId?: SortOrder
+    senderId?: SortOrder
+    content?: SortOrder
+    createdAt?: SortOrder
   }
 
   export type UserCreateNestedOneWithoutAccountsInput = {
@@ -19134,6 +20698,13 @@ export namespace Prisma {
     connect?: SessionWhereUniqueInput | SessionWhereUniqueInput[]
   }
 
+  export type MessageCreateNestedManyWithoutSenderInput = {
+    create?: XOR<MessageCreateWithoutSenderInput, MessageUncheckedCreateWithoutSenderInput> | MessageCreateWithoutSenderInput[] | MessageUncheckedCreateWithoutSenderInput[]
+    connectOrCreate?: MessageCreateOrConnectWithoutSenderInput | MessageCreateOrConnectWithoutSenderInput[]
+    createMany?: MessageCreateManySenderInputEnvelope
+    connect?: MessageWhereUniqueInput | MessageWhereUniqueInput[]
+  }
+
   export type LocationUncheckedCreateNestedOneWithoutUserInput = {
     create?: XOR<LocationCreateWithoutUserInput, LocationUncheckedCreateWithoutUserInput>
     connectOrCreate?: LocationCreateOrConnectWithoutUserInput
@@ -19210,12 +20781,27 @@ export namespace Prisma {
     connect?: SessionWhereUniqueInput | SessionWhereUniqueInput[]
   }
 
+  export type MessageUncheckedCreateNestedManyWithoutSenderInput = {
+    create?: XOR<MessageCreateWithoutSenderInput, MessageUncheckedCreateWithoutSenderInput> | MessageCreateWithoutSenderInput[] | MessageUncheckedCreateWithoutSenderInput[]
+    connectOrCreate?: MessageCreateOrConnectWithoutSenderInput | MessageCreateOrConnectWithoutSenderInput[]
+    createMany?: MessageCreateManySenderInputEnvelope
+    connect?: MessageWhereUniqueInput | MessageWhereUniqueInput[]
+  }
+
   export type NullableDateTimeFieldUpdateOperationsInput = {
     set?: Date | string | null
   }
 
   export type NullableFloatFieldUpdateOperationsInput = {
     set?: number | null
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
+  export type IntFieldUpdateOperationsInput = {
+    set?: number
     increment?: number
     decrement?: number
     multiply?: number
@@ -19372,6 +20958,20 @@ export namespace Prisma {
     deleteMany?: SessionScalarWhereInput | SessionScalarWhereInput[]
   }
 
+  export type MessageUpdateManyWithoutSenderNestedInput = {
+    create?: XOR<MessageCreateWithoutSenderInput, MessageUncheckedCreateWithoutSenderInput> | MessageCreateWithoutSenderInput[] | MessageUncheckedCreateWithoutSenderInput[]
+    connectOrCreate?: MessageCreateOrConnectWithoutSenderInput | MessageCreateOrConnectWithoutSenderInput[]
+    upsert?: MessageUpsertWithWhereUniqueWithoutSenderInput | MessageUpsertWithWhereUniqueWithoutSenderInput[]
+    createMany?: MessageCreateManySenderInputEnvelope
+    set?: MessageWhereUniqueInput | MessageWhereUniqueInput[]
+    disconnect?: MessageWhereUniqueInput | MessageWhereUniqueInput[]
+    delete?: MessageWhereUniqueInput | MessageWhereUniqueInput[]
+    connect?: MessageWhereUniqueInput | MessageWhereUniqueInput[]
+    update?: MessageUpdateWithWhereUniqueWithoutSenderInput | MessageUpdateWithWhereUniqueWithoutSenderInput[]
+    updateMany?: MessageUpdateManyWithWhereWithoutSenderInput | MessageUpdateManyWithWhereWithoutSenderInput[]
+    deleteMany?: MessageScalarWhereInput | MessageScalarWhereInput[]
+  }
+
   export type LocationUncheckedUpdateOneWithoutUserNestedInput = {
     create?: XOR<LocationCreateWithoutUserInput, LocationUncheckedCreateWithoutUserInput>
     connectOrCreate?: LocationCreateOrConnectWithoutUserInput
@@ -19522,18 +21122,24 @@ export namespace Prisma {
     deleteMany?: SessionScalarWhereInput | SessionScalarWhereInput[]
   }
 
+  export type MessageUncheckedUpdateManyWithoutSenderNestedInput = {
+    create?: XOR<MessageCreateWithoutSenderInput, MessageUncheckedCreateWithoutSenderInput> | MessageCreateWithoutSenderInput[] | MessageUncheckedCreateWithoutSenderInput[]
+    connectOrCreate?: MessageCreateOrConnectWithoutSenderInput | MessageCreateOrConnectWithoutSenderInput[]
+    upsert?: MessageUpsertWithWhereUniqueWithoutSenderInput | MessageUpsertWithWhereUniqueWithoutSenderInput[]
+    createMany?: MessageCreateManySenderInputEnvelope
+    set?: MessageWhereUniqueInput | MessageWhereUniqueInput[]
+    disconnect?: MessageWhereUniqueInput | MessageWhereUniqueInput[]
+    delete?: MessageWhereUniqueInput | MessageWhereUniqueInput[]
+    connect?: MessageWhereUniqueInput | MessageWhereUniqueInput[]
+    update?: MessageUpdateWithWhereUniqueWithoutSenderInput | MessageUpdateWithWhereUniqueWithoutSenderInput[]
+    updateMany?: MessageUpdateManyWithWhereWithoutSenderInput | MessageUpdateManyWithWhereWithoutSenderInput[]
+    deleteMany?: MessageScalarWhereInput | MessageScalarWhereInput[]
+  }
+
   export type UserCreateNestedOneWithoutLocationInput = {
     create?: XOR<UserCreateWithoutLocationInput, UserUncheckedCreateWithoutLocationInput>
     connectOrCreate?: UserCreateOrConnectWithoutLocationInput
     connect?: UserWhereUniqueInput
-  }
-
-  export type FloatFieldUpdateOperationsInput = {
-    set?: number
-    increment?: number
-    decrement?: number
-    multiply?: number
-    divide?: number
   }
 
   export type UserUpdateOneRequiredWithoutLocationNestedInput = {
@@ -19642,6 +21248,10 @@ export namespace Prisma {
 
   export type BoolFieldUpdateOperationsInput = {
     set?: boolean
+  }
+
+  export type EnumServiceLocationTypeFieldUpdateOperationsInput = {
+    set?: $Enums.ServiceLocationType
   }
 
   export type UserUpdateOneRequiredWithoutServicesNestedInput = {
@@ -19756,6 +21366,13 @@ export namespace Prisma {
     connect?: RatingWhereUniqueInput | RatingWhereUniqueInput[]
   }
 
+  export type MessageCreateNestedManyWithoutExchangeInput = {
+    create?: XOR<MessageCreateWithoutExchangeInput, MessageUncheckedCreateWithoutExchangeInput> | MessageCreateWithoutExchangeInput[] | MessageUncheckedCreateWithoutExchangeInput[]
+    connectOrCreate?: MessageCreateOrConnectWithoutExchangeInput | MessageCreateOrConnectWithoutExchangeInput[]
+    createMany?: MessageCreateManyExchangeInputEnvelope
+    connect?: MessageWhereUniqueInput | MessageWhereUniqueInput[]
+  }
+
   export type NotificationUncheckedCreateNestedManyWithoutExchangeInput = {
     create?: XOR<NotificationCreateWithoutExchangeInput, NotificationUncheckedCreateWithoutExchangeInput> | NotificationCreateWithoutExchangeInput[] | NotificationUncheckedCreateWithoutExchangeInput[]
     connectOrCreate?: NotificationCreateOrConnectWithoutExchangeInput | NotificationCreateOrConnectWithoutExchangeInput[]
@@ -19768,6 +21385,13 @@ export namespace Prisma {
     connectOrCreate?: RatingCreateOrConnectWithoutExchangeInput | RatingCreateOrConnectWithoutExchangeInput[]
     createMany?: RatingCreateManyExchangeInputEnvelope
     connect?: RatingWhereUniqueInput | RatingWhereUniqueInput[]
+  }
+
+  export type MessageUncheckedCreateNestedManyWithoutExchangeInput = {
+    create?: XOR<MessageCreateWithoutExchangeInput, MessageUncheckedCreateWithoutExchangeInput> | MessageCreateWithoutExchangeInput[] | MessageUncheckedCreateWithoutExchangeInput[]
+    connectOrCreate?: MessageCreateOrConnectWithoutExchangeInput | MessageCreateOrConnectWithoutExchangeInput[]
+    createMany?: MessageCreateManyExchangeInputEnvelope
+    connect?: MessageWhereUniqueInput | MessageWhereUniqueInput[]
   }
 
   export type EnumExchangeStatusFieldUpdateOperationsInput = {
@@ -19838,6 +21462,20 @@ export namespace Prisma {
     deleteMany?: RatingScalarWhereInput | RatingScalarWhereInput[]
   }
 
+  export type MessageUpdateManyWithoutExchangeNestedInput = {
+    create?: XOR<MessageCreateWithoutExchangeInput, MessageUncheckedCreateWithoutExchangeInput> | MessageCreateWithoutExchangeInput[] | MessageUncheckedCreateWithoutExchangeInput[]
+    connectOrCreate?: MessageCreateOrConnectWithoutExchangeInput | MessageCreateOrConnectWithoutExchangeInput[]
+    upsert?: MessageUpsertWithWhereUniqueWithoutExchangeInput | MessageUpsertWithWhereUniqueWithoutExchangeInput[]
+    createMany?: MessageCreateManyExchangeInputEnvelope
+    set?: MessageWhereUniqueInput | MessageWhereUniqueInput[]
+    disconnect?: MessageWhereUniqueInput | MessageWhereUniqueInput[]
+    delete?: MessageWhereUniqueInput | MessageWhereUniqueInput[]
+    connect?: MessageWhereUniqueInput | MessageWhereUniqueInput[]
+    update?: MessageUpdateWithWhereUniqueWithoutExchangeInput | MessageUpdateWithWhereUniqueWithoutExchangeInput[]
+    updateMany?: MessageUpdateManyWithWhereWithoutExchangeInput | MessageUpdateManyWithWhereWithoutExchangeInput[]
+    deleteMany?: MessageScalarWhereInput | MessageScalarWhereInput[]
+  }
+
   export type NotificationUncheckedUpdateManyWithoutExchangeNestedInput = {
     create?: XOR<NotificationCreateWithoutExchangeInput, NotificationUncheckedCreateWithoutExchangeInput> | NotificationCreateWithoutExchangeInput[] | NotificationUncheckedCreateWithoutExchangeInput[]
     connectOrCreate?: NotificationCreateOrConnectWithoutExchangeInput | NotificationCreateOrConnectWithoutExchangeInput[]
@@ -19864,6 +21502,20 @@ export namespace Prisma {
     update?: RatingUpdateWithWhereUniqueWithoutExchangeInput | RatingUpdateWithWhereUniqueWithoutExchangeInput[]
     updateMany?: RatingUpdateManyWithWhereWithoutExchangeInput | RatingUpdateManyWithWhereWithoutExchangeInput[]
     deleteMany?: RatingScalarWhereInput | RatingScalarWhereInput[]
+  }
+
+  export type MessageUncheckedUpdateManyWithoutExchangeNestedInput = {
+    create?: XOR<MessageCreateWithoutExchangeInput, MessageUncheckedCreateWithoutExchangeInput> | MessageCreateWithoutExchangeInput[] | MessageUncheckedCreateWithoutExchangeInput[]
+    connectOrCreate?: MessageCreateOrConnectWithoutExchangeInput | MessageCreateOrConnectWithoutExchangeInput[]
+    upsert?: MessageUpsertWithWhereUniqueWithoutExchangeInput | MessageUpsertWithWhereUniqueWithoutExchangeInput[]
+    createMany?: MessageCreateManyExchangeInputEnvelope
+    set?: MessageWhereUniqueInput | MessageWhereUniqueInput[]
+    disconnect?: MessageWhereUniqueInput | MessageWhereUniqueInput[]
+    delete?: MessageWhereUniqueInput | MessageWhereUniqueInput[]
+    connect?: MessageWhereUniqueInput | MessageWhereUniqueInput[]
+    update?: MessageUpdateWithWhereUniqueWithoutExchangeInput | MessageUpdateWithWhereUniqueWithoutExchangeInput[]
+    updateMany?: MessageUpdateManyWithWhereWithoutExchangeInput | MessageUpdateManyWithWhereWithoutExchangeInput[]
+    deleteMany?: MessageScalarWhereInput | MessageScalarWhereInput[]
   }
 
   export type UserCreateNestedOneWithoutSentNotificationsInput = {
@@ -19916,14 +21568,6 @@ export namespace Prisma {
     update?: XOR<XOR<ExchangeUpdateToOneWithWhereWithoutNotificationsInput, ExchangeUpdateWithoutNotificationsInput>, ExchangeUncheckedUpdateWithoutNotificationsInput>
   }
 
-  export type IntFieldUpdateOperationsInput = {
-    set?: number
-    increment?: number
-    decrement?: number
-    multiply?: number
-    divide?: number
-  }
-
   export type ExchangeCreateNestedOneWithoutRatingsInput = {
     create?: XOR<ExchangeCreateWithoutRatingsInput, ExchangeUncheckedCreateWithoutRatingsInput>
     connectOrCreate?: ExchangeCreateOrConnectWithoutRatingsInput
@@ -19964,6 +21608,34 @@ export namespace Prisma {
     upsert?: UserUpsertWithoutRatingsReceivedInput
     connect?: UserWhereUniqueInput
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutRatingsReceivedInput, UserUpdateWithoutRatingsReceivedInput>, UserUncheckedUpdateWithoutRatingsReceivedInput>
+  }
+
+  export type ExchangeCreateNestedOneWithoutMessagesInput = {
+    create?: XOR<ExchangeCreateWithoutMessagesInput, ExchangeUncheckedCreateWithoutMessagesInput>
+    connectOrCreate?: ExchangeCreateOrConnectWithoutMessagesInput
+    connect?: ExchangeWhereUniqueInput
+  }
+
+  export type UserCreateNestedOneWithoutMessagesInput = {
+    create?: XOR<UserCreateWithoutMessagesInput, UserUncheckedCreateWithoutMessagesInput>
+    connectOrCreate?: UserCreateOrConnectWithoutMessagesInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type ExchangeUpdateOneRequiredWithoutMessagesNestedInput = {
+    create?: XOR<ExchangeCreateWithoutMessagesInput, ExchangeUncheckedCreateWithoutMessagesInput>
+    connectOrCreate?: ExchangeCreateOrConnectWithoutMessagesInput
+    upsert?: ExchangeUpsertWithoutMessagesInput
+    connect?: ExchangeWhereUniqueInput
+    update?: XOR<XOR<ExchangeUpdateToOneWithWhereWithoutMessagesInput, ExchangeUpdateWithoutMessagesInput>, ExchangeUncheckedUpdateWithoutMessagesInput>
+  }
+
+  export type UserUpdateOneRequiredWithoutMessagesNestedInput = {
+    create?: XOR<UserCreateWithoutMessagesInput, UserUncheckedCreateWithoutMessagesInput>
+    connectOrCreate?: UserCreateOrConnectWithoutMessagesInput
+    upsert?: UserUpsertWithoutMessagesInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutMessagesInput, UserUpdateWithoutMessagesInput>, UserUncheckedUpdateWithoutMessagesInput>
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -20143,6 +21815,22 @@ export namespace Prisma {
     _max?: NestedFloatNullableFilter<$PrismaModel>
   }
 
+  export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
+  }
+
   export type NestedFloatFilter<$PrismaModel = never> = {
     equals?: number | FloatFieldRefInput<$PrismaModel>
     in?: number[] | ListFloatFieldRefInput<$PrismaModel>
@@ -20154,25 +21842,16 @@ export namespace Prisma {
     not?: NestedFloatFilter<$PrismaModel> | number
   }
 
-  export type NestedFloatWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | FloatFieldRefInput<$PrismaModel>
-    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
-    lt?: number | FloatFieldRefInput<$PrismaModel>
-    lte?: number | FloatFieldRefInput<$PrismaModel>
-    gt?: number | FloatFieldRefInput<$PrismaModel>
-    gte?: number | FloatFieldRefInput<$PrismaModel>
-    not?: NestedFloatWithAggregatesFilter<$PrismaModel> | number
-    _count?: NestedIntFilter<$PrismaModel>
-    _avg?: NestedFloatFilter<$PrismaModel>
-    _sum?: NestedFloatFilter<$PrismaModel>
-    _min?: NestedFloatFilter<$PrismaModel>
-    _max?: NestedFloatFilter<$PrismaModel>
-  }
-
   export type NestedBoolFilter<$PrismaModel = never> = {
     equals?: boolean | BooleanFieldRefInput<$PrismaModel>
     not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+
+  export type NestedEnumServiceLocationTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.ServiceLocationType | EnumServiceLocationTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.ServiceLocationType[] | ListEnumServiceLocationTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ServiceLocationType[] | ListEnumServiceLocationTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumServiceLocationTypeFilter<$PrismaModel> | $Enums.ServiceLocationType
   }
 
   export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
@@ -20181,6 +21860,16 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedBoolFilter<$PrismaModel>
     _max?: NestedBoolFilter<$PrismaModel>
+  }
+
+  export type NestedEnumServiceLocationTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ServiceLocationType | EnumServiceLocationTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.ServiceLocationType[] | ListEnumServiceLocationTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ServiceLocationType[] | ListEnumServiceLocationTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumServiceLocationTypeWithAggregatesFilter<$PrismaModel> | $Enums.ServiceLocationType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumServiceLocationTypeFilter<$PrismaModel>
+    _max?: NestedEnumServiceLocationTypeFilter<$PrismaModel>
   }
 
   export type NestedEnumExchangeStatusFilter<$PrismaModel = never> = {
@@ -20217,22 +21906,6 @@ export namespace Prisma {
     _max?: NestedEnumNotificationTypeFilter<$PrismaModel>
   }
 
-  export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[] | ListIntFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
-    _count?: NestedIntFilter<$PrismaModel>
-    _avg?: NestedFloatFilter<$PrismaModel>
-    _sum?: NestedIntFilter<$PrismaModel>
-    _min?: NestedIntFilter<$PrismaModel>
-    _max?: NestedIntFilter<$PrismaModel>
-  }
-
   export type UserCreateWithoutAccountsInput = {
     id?: string
     name?: string | null
@@ -20241,6 +21914,7 @@ export namespace Prisma {
     image?: string | null
     averageRating?: number | null
     ratingCount?: number | null
+    credits?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     location?: LocationCreateNestedOneWithoutUserInput
@@ -20253,6 +21927,7 @@ export namespace Prisma {
     ratingsGiven?: RatingCreateNestedManyWithoutFromUserInput
     ratingsReceived?: RatingCreateNestedManyWithoutToUserInput
     sessions?: SessionCreateNestedManyWithoutUserInput
+    messages?: MessageCreateNestedManyWithoutSenderInput
   }
 
   export type UserUncheckedCreateWithoutAccountsInput = {
@@ -20263,6 +21938,7 @@ export namespace Prisma {
     image?: string | null
     averageRating?: number | null
     ratingCount?: number | null
+    credits?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     location?: LocationUncheckedCreateNestedOneWithoutUserInput
@@ -20275,6 +21951,7 @@ export namespace Prisma {
     ratingsGiven?: RatingUncheckedCreateNestedManyWithoutFromUserInput
     ratingsReceived?: RatingUncheckedCreateNestedManyWithoutToUserInput
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    messages?: MessageUncheckedCreateNestedManyWithoutSenderInput
   }
 
   export type UserCreateOrConnectWithoutAccountsInput = {
@@ -20301,6 +21978,7 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     averageRating?: NullableFloatFieldUpdateOperationsInput | number | null
     ratingCount?: NullableIntFieldUpdateOperationsInput | number | null
+    credits?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     location?: LocationUpdateOneWithoutUserNestedInput
@@ -20313,6 +21991,7 @@ export namespace Prisma {
     ratingsGiven?: RatingUpdateManyWithoutFromUserNestedInput
     ratingsReceived?: RatingUpdateManyWithoutToUserNestedInput
     sessions?: SessionUpdateManyWithoutUserNestedInput
+    messages?: MessageUpdateManyWithoutSenderNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAccountsInput = {
@@ -20323,6 +22002,7 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     averageRating?: NullableFloatFieldUpdateOperationsInput | number | null
     ratingCount?: NullableIntFieldUpdateOperationsInput | number | null
+    credits?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     location?: LocationUncheckedUpdateOneWithoutUserNestedInput
@@ -20335,6 +22015,7 @@ export namespace Prisma {
     ratingsGiven?: RatingUncheckedUpdateManyWithoutFromUserNestedInput
     ratingsReceived?: RatingUncheckedUpdateManyWithoutToUserNestedInput
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    messages?: MessageUncheckedUpdateManyWithoutSenderNestedInput
   }
 
   export type UserCreateWithoutSessionsInput = {
@@ -20345,6 +22026,7 @@ export namespace Prisma {
     image?: string | null
     averageRating?: number | null
     ratingCount?: number | null
+    credits?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     location?: LocationCreateNestedOneWithoutUserInput
@@ -20357,6 +22039,7 @@ export namespace Prisma {
     ratingsGiven?: RatingCreateNestedManyWithoutFromUserInput
     ratingsReceived?: RatingCreateNestedManyWithoutToUserInput
     accounts?: AccountCreateNestedManyWithoutUserInput
+    messages?: MessageCreateNestedManyWithoutSenderInput
   }
 
   export type UserUncheckedCreateWithoutSessionsInput = {
@@ -20367,6 +22050,7 @@ export namespace Prisma {
     image?: string | null
     averageRating?: number | null
     ratingCount?: number | null
+    credits?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     location?: LocationUncheckedCreateNestedOneWithoutUserInput
@@ -20379,6 +22063,7 @@ export namespace Prisma {
     ratingsGiven?: RatingUncheckedCreateNestedManyWithoutFromUserInput
     ratingsReceived?: RatingUncheckedCreateNestedManyWithoutToUserInput
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
+    messages?: MessageUncheckedCreateNestedManyWithoutSenderInput
   }
 
   export type UserCreateOrConnectWithoutSessionsInput = {
@@ -20405,6 +22090,7 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     averageRating?: NullableFloatFieldUpdateOperationsInput | number | null
     ratingCount?: NullableIntFieldUpdateOperationsInput | number | null
+    credits?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     location?: LocationUpdateOneWithoutUserNestedInput
@@ -20417,6 +22103,7 @@ export namespace Prisma {
     ratingsGiven?: RatingUpdateManyWithoutFromUserNestedInput
     ratingsReceived?: RatingUpdateManyWithoutToUserNestedInput
     accounts?: AccountUpdateManyWithoutUserNestedInput
+    messages?: MessageUpdateManyWithoutSenderNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -20427,6 +22114,7 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     averageRating?: NullableFloatFieldUpdateOperationsInput | number | null
     ratingCount?: NullableIntFieldUpdateOperationsInput | number | null
+    credits?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     location?: LocationUncheckedUpdateOneWithoutUserNestedInput
@@ -20439,12 +22127,11 @@ export namespace Prisma {
     ratingsGiven?: RatingUncheckedUpdateManyWithoutFromUserNestedInput
     ratingsReceived?: RatingUncheckedUpdateManyWithoutToUserNestedInput
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
+    messages?: MessageUncheckedUpdateManyWithoutSenderNestedInput
   }
 
   export type LocationCreateWithoutUserInput = {
     id?: string
-    latitude: number
-    longitude: number
     address?: string | null
     city?: string | null
     state?: string | null
@@ -20456,8 +22143,6 @@ export namespace Prisma {
 
   export type LocationUncheckedCreateWithoutUserInput = {
     id?: string
-    latitude: number
-    longitude: number
     address?: string | null
     city?: string | null
     state?: string | null
@@ -20501,6 +22186,12 @@ export namespace Prisma {
     imageUrl?: string | null
     hourlyRate?: number | null
     isActive?: boolean
+    locationType?: $Enums.ServiceLocationType
+    address?: string | null
+    city?: string | null
+    state?: string | null
+    country?: string | null
+    serviceRadius?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
     category?: ServiceCategoryCreateNestedOneWithoutServicesInput
@@ -20516,6 +22207,12 @@ export namespace Prisma {
     imageUrl?: string | null
     hourlyRate?: number | null
     isActive?: boolean
+    locationType?: $Enums.ServiceLocationType
+    address?: string | null
+    city?: string | null
+    state?: string | null
+    country?: string | null
+    serviceRadius?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
     providedExchanges?: ExchangeUncheckedCreateNestedManyWithoutProviderServiceInput
@@ -20550,6 +22247,7 @@ export namespace Prisma {
     requester: UserCreateNestedOneWithoutRequestedExchangesInput
     notifications?: NotificationCreateNestedManyWithoutExchangeInput
     ratings?: RatingCreateNestedManyWithoutExchangeInput
+    messages?: MessageCreateNestedManyWithoutExchangeInput
   }
 
   export type ExchangeUncheckedCreateWithoutProviderInput = {
@@ -20570,6 +22268,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     notifications?: NotificationUncheckedCreateNestedManyWithoutExchangeInput
     ratings?: RatingUncheckedCreateNestedManyWithoutExchangeInput
+    messages?: MessageUncheckedCreateNestedManyWithoutExchangeInput
   }
 
   export type ExchangeCreateOrConnectWithoutProviderInput = {
@@ -20600,6 +22299,7 @@ export namespace Prisma {
     provider: UserCreateNestedOneWithoutProvidedExchangesInput
     notifications?: NotificationCreateNestedManyWithoutExchangeInput
     ratings?: RatingCreateNestedManyWithoutExchangeInput
+    messages?: MessageCreateNestedManyWithoutExchangeInput
   }
 
   export type ExchangeUncheckedCreateWithoutRequesterInput = {
@@ -20620,6 +22320,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     notifications?: NotificationUncheckedCreateNestedManyWithoutExchangeInput
     ratings?: RatingUncheckedCreateNestedManyWithoutExchangeInput
+    messages?: MessageUncheckedCreateNestedManyWithoutExchangeInput
   }
 
   export type ExchangeCreateOrConnectWithoutRequesterInput = {
@@ -20816,6 +22517,30 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type MessageCreateWithoutSenderInput = {
+    id?: string
+    content: string
+    createdAt?: Date | string
+    exchange: ExchangeCreateNestedOneWithoutMessagesInput
+  }
+
+  export type MessageUncheckedCreateWithoutSenderInput = {
+    id?: string
+    exchangeId: string
+    content: string
+    createdAt?: Date | string
+  }
+
+  export type MessageCreateOrConnectWithoutSenderInput = {
+    where: MessageWhereUniqueInput
+    create: XOR<MessageCreateWithoutSenderInput, MessageUncheckedCreateWithoutSenderInput>
+  }
+
+  export type MessageCreateManySenderInputEnvelope = {
+    data: MessageCreateManySenderInput | MessageCreateManySenderInput[]
+    skipDuplicates?: boolean
+  }
+
   export type LocationUpsertWithoutUserInput = {
     update: XOR<LocationUpdateWithoutUserInput, LocationUncheckedUpdateWithoutUserInput>
     create: XOR<LocationCreateWithoutUserInput, LocationUncheckedCreateWithoutUserInput>
@@ -20829,8 +22554,6 @@ export namespace Prisma {
 
   export type LocationUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
-    latitude?: FloatFieldUpdateOperationsInput | number
-    longitude?: FloatFieldUpdateOperationsInput | number
     address?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
     state?: NullableStringFieldUpdateOperationsInput | string | null
@@ -20842,8 +22565,6 @@ export namespace Prisma {
 
   export type LocationUncheckedUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
-    latitude?: FloatFieldUpdateOperationsInput | number
-    longitude?: FloatFieldUpdateOperationsInput | number
     address?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
     state?: NullableStringFieldUpdateOperationsInput | string | null
@@ -20907,6 +22628,12 @@ export namespace Prisma {
     imageUrl?: StringNullableFilter<"Service"> | string | null
     hourlyRate?: FloatNullableFilter<"Service"> | number | null
     isActive?: BoolFilter<"Service"> | boolean
+    locationType?: EnumServiceLocationTypeFilter<"Service"> | $Enums.ServiceLocationType
+    address?: StringNullableFilter<"Service"> | string | null
+    city?: StringNullableFilter<"Service"> | string | null
+    state?: StringNullableFilter<"Service"> | string | null
+    country?: StringNullableFilter<"Service"> | string | null
+    serviceRadius?: IntNullableFilter<"Service"> | number | null
     createdAt?: DateTimeFilter<"Service"> | Date | string
     updatedAt?: DateTimeFilter<"Service"> | Date | string
   }
@@ -21118,6 +22845,33 @@ export namespace Prisma {
     expires?: DateTimeFilter<"Session"> | Date | string
   }
 
+  export type MessageUpsertWithWhereUniqueWithoutSenderInput = {
+    where: MessageWhereUniqueInput
+    update: XOR<MessageUpdateWithoutSenderInput, MessageUncheckedUpdateWithoutSenderInput>
+    create: XOR<MessageCreateWithoutSenderInput, MessageUncheckedCreateWithoutSenderInput>
+  }
+
+  export type MessageUpdateWithWhereUniqueWithoutSenderInput = {
+    where: MessageWhereUniqueInput
+    data: XOR<MessageUpdateWithoutSenderInput, MessageUncheckedUpdateWithoutSenderInput>
+  }
+
+  export type MessageUpdateManyWithWhereWithoutSenderInput = {
+    where: MessageScalarWhereInput
+    data: XOR<MessageUpdateManyMutationInput, MessageUncheckedUpdateManyWithoutSenderInput>
+  }
+
+  export type MessageScalarWhereInput = {
+    AND?: MessageScalarWhereInput | MessageScalarWhereInput[]
+    OR?: MessageScalarWhereInput[]
+    NOT?: MessageScalarWhereInput | MessageScalarWhereInput[]
+    id?: StringFilter<"Message"> | string
+    exchangeId?: StringFilter<"Message"> | string
+    senderId?: StringFilter<"Message"> | string
+    content?: StringFilter<"Message"> | string
+    createdAt?: DateTimeFilter<"Message"> | Date | string
+  }
+
   export type UserCreateWithoutLocationInput = {
     id?: string
     name?: string | null
@@ -21126,6 +22880,7 @@ export namespace Prisma {
     image?: string | null
     averageRating?: number | null
     ratingCount?: number | null
+    credits?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     skills?: SkillCreateNestedManyWithoutUserInput
@@ -21138,6 +22893,7 @@ export namespace Prisma {
     ratingsReceived?: RatingCreateNestedManyWithoutToUserInput
     accounts?: AccountCreateNestedManyWithoutUserInput
     sessions?: SessionCreateNestedManyWithoutUserInput
+    messages?: MessageCreateNestedManyWithoutSenderInput
   }
 
   export type UserUncheckedCreateWithoutLocationInput = {
@@ -21148,6 +22904,7 @@ export namespace Prisma {
     image?: string | null
     averageRating?: number | null
     ratingCount?: number | null
+    credits?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     skills?: SkillUncheckedCreateNestedManyWithoutUserInput
@@ -21160,6 +22917,7 @@ export namespace Prisma {
     ratingsReceived?: RatingUncheckedCreateNestedManyWithoutToUserInput
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    messages?: MessageUncheckedCreateNestedManyWithoutSenderInput
   }
 
   export type UserCreateOrConnectWithoutLocationInput = {
@@ -21186,6 +22944,7 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     averageRating?: NullableFloatFieldUpdateOperationsInput | number | null
     ratingCount?: NullableIntFieldUpdateOperationsInput | number | null
+    credits?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     skills?: SkillUpdateManyWithoutUserNestedInput
@@ -21198,6 +22957,7 @@ export namespace Prisma {
     ratingsReceived?: RatingUpdateManyWithoutToUserNestedInput
     accounts?: AccountUpdateManyWithoutUserNestedInput
     sessions?: SessionUpdateManyWithoutUserNestedInput
+    messages?: MessageUpdateManyWithoutSenderNestedInput
   }
 
   export type UserUncheckedUpdateWithoutLocationInput = {
@@ -21208,6 +22968,7 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     averageRating?: NullableFloatFieldUpdateOperationsInput | number | null
     ratingCount?: NullableIntFieldUpdateOperationsInput | number | null
+    credits?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     skills?: SkillUncheckedUpdateManyWithoutUserNestedInput
@@ -21220,6 +22981,7 @@ export namespace Prisma {
     ratingsReceived?: RatingUncheckedUpdateManyWithoutToUserNestedInput
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    messages?: MessageUncheckedUpdateManyWithoutSenderNestedInput
   }
 
   export type UserCreateWithoutSkillsInput = {
@@ -21230,6 +22992,7 @@ export namespace Prisma {
     image?: string | null
     averageRating?: number | null
     ratingCount?: number | null
+    credits?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     location?: LocationCreateNestedOneWithoutUserInput
@@ -21242,6 +23005,7 @@ export namespace Prisma {
     ratingsReceived?: RatingCreateNestedManyWithoutToUserInput
     accounts?: AccountCreateNestedManyWithoutUserInput
     sessions?: SessionCreateNestedManyWithoutUserInput
+    messages?: MessageCreateNestedManyWithoutSenderInput
   }
 
   export type UserUncheckedCreateWithoutSkillsInput = {
@@ -21252,6 +23016,7 @@ export namespace Prisma {
     image?: string | null
     averageRating?: number | null
     ratingCount?: number | null
+    credits?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     location?: LocationUncheckedCreateNestedOneWithoutUserInput
@@ -21264,6 +23029,7 @@ export namespace Prisma {
     ratingsReceived?: RatingUncheckedCreateNestedManyWithoutToUserInput
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    messages?: MessageUncheckedCreateNestedManyWithoutSenderInput
   }
 
   export type UserCreateOrConnectWithoutSkillsInput = {
@@ -21290,6 +23056,7 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     averageRating?: NullableFloatFieldUpdateOperationsInput | number | null
     ratingCount?: NullableIntFieldUpdateOperationsInput | number | null
+    credits?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     location?: LocationUpdateOneWithoutUserNestedInput
@@ -21302,6 +23069,7 @@ export namespace Prisma {
     ratingsReceived?: RatingUpdateManyWithoutToUserNestedInput
     accounts?: AccountUpdateManyWithoutUserNestedInput
     sessions?: SessionUpdateManyWithoutUserNestedInput
+    messages?: MessageUpdateManyWithoutSenderNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSkillsInput = {
@@ -21312,6 +23080,7 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     averageRating?: NullableFloatFieldUpdateOperationsInput | number | null
     ratingCount?: NullableIntFieldUpdateOperationsInput | number | null
+    credits?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     location?: LocationUncheckedUpdateOneWithoutUserNestedInput
@@ -21324,6 +23093,7 @@ export namespace Prisma {
     ratingsReceived?: RatingUncheckedUpdateManyWithoutToUserNestedInput
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    messages?: MessageUncheckedUpdateManyWithoutSenderNestedInput
   }
 
   export type ServiceCreateWithoutCategoryInput = {
@@ -21333,6 +23103,12 @@ export namespace Prisma {
     imageUrl?: string | null
     hourlyRate?: number | null
     isActive?: boolean
+    locationType?: $Enums.ServiceLocationType
+    address?: string | null
+    city?: string | null
+    state?: string | null
+    country?: string | null
+    serviceRadius?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutServicesInput
@@ -21348,6 +23124,12 @@ export namespace Prisma {
     imageUrl?: string | null
     hourlyRate?: number | null
     isActive?: boolean
+    locationType?: $Enums.ServiceLocationType
+    address?: string | null
+    city?: string | null
+    state?: string | null
+    country?: string | null
+    serviceRadius?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
     providedExchanges?: ExchangeUncheckedCreateNestedManyWithoutProviderServiceInput
@@ -21388,6 +23170,7 @@ export namespace Prisma {
     image?: string | null
     averageRating?: number | null
     ratingCount?: number | null
+    credits?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     location?: LocationCreateNestedOneWithoutUserInput
@@ -21400,6 +23183,7 @@ export namespace Prisma {
     ratingsReceived?: RatingCreateNestedManyWithoutToUserInput
     accounts?: AccountCreateNestedManyWithoutUserInput
     sessions?: SessionCreateNestedManyWithoutUserInput
+    messages?: MessageCreateNestedManyWithoutSenderInput
   }
 
   export type UserUncheckedCreateWithoutServicesInput = {
@@ -21410,6 +23194,7 @@ export namespace Prisma {
     image?: string | null
     averageRating?: number | null
     ratingCount?: number | null
+    credits?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     location?: LocationUncheckedCreateNestedOneWithoutUserInput
@@ -21422,6 +23207,7 @@ export namespace Prisma {
     ratingsReceived?: RatingUncheckedCreateNestedManyWithoutToUserInput
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    messages?: MessageUncheckedCreateNestedManyWithoutSenderInput
   }
 
   export type UserCreateOrConnectWithoutServicesInput = {
@@ -21464,6 +23250,7 @@ export namespace Prisma {
     requester: UserCreateNestedOneWithoutRequestedExchangesInput
     notifications?: NotificationCreateNestedManyWithoutExchangeInput
     ratings?: RatingCreateNestedManyWithoutExchangeInput
+    messages?: MessageCreateNestedManyWithoutExchangeInput
   }
 
   export type ExchangeUncheckedCreateWithoutProviderServiceInput = {
@@ -21484,6 +23271,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     notifications?: NotificationUncheckedCreateNestedManyWithoutExchangeInput
     ratings?: RatingUncheckedCreateNestedManyWithoutExchangeInput
+    messages?: MessageUncheckedCreateNestedManyWithoutExchangeInput
   }
 
   export type ExchangeCreateOrConnectWithoutProviderServiceInput = {
@@ -21514,6 +23302,7 @@ export namespace Prisma {
     requester: UserCreateNestedOneWithoutRequestedExchangesInput
     notifications?: NotificationCreateNestedManyWithoutExchangeInput
     ratings?: RatingCreateNestedManyWithoutExchangeInput
+    messages?: MessageCreateNestedManyWithoutExchangeInput
   }
 
   export type ExchangeUncheckedCreateWithoutRequesterServiceInput = {
@@ -21534,6 +23323,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     notifications?: NotificationUncheckedCreateNestedManyWithoutExchangeInput
     ratings?: RatingUncheckedCreateNestedManyWithoutExchangeInput
+    messages?: MessageUncheckedCreateNestedManyWithoutExchangeInput
   }
 
   export type ExchangeCreateOrConnectWithoutRequesterServiceInput = {
@@ -21565,6 +23355,7 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     averageRating?: NullableFloatFieldUpdateOperationsInput | number | null
     ratingCount?: NullableIntFieldUpdateOperationsInput | number | null
+    credits?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     location?: LocationUpdateOneWithoutUserNestedInput
@@ -21577,6 +23368,7 @@ export namespace Prisma {
     ratingsReceived?: RatingUpdateManyWithoutToUserNestedInput
     accounts?: AccountUpdateManyWithoutUserNestedInput
     sessions?: SessionUpdateManyWithoutUserNestedInput
+    messages?: MessageUpdateManyWithoutSenderNestedInput
   }
 
   export type UserUncheckedUpdateWithoutServicesInput = {
@@ -21587,6 +23379,7 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     averageRating?: NullableFloatFieldUpdateOperationsInput | number | null
     ratingCount?: NullableIntFieldUpdateOperationsInput | number | null
+    credits?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     location?: LocationUncheckedUpdateOneWithoutUserNestedInput
@@ -21599,6 +23392,7 @@ export namespace Prisma {
     ratingsReceived?: RatingUncheckedUpdateManyWithoutToUserNestedInput
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    messages?: MessageUncheckedUpdateManyWithoutSenderNestedInput
   }
 
   export type ServiceCategoryUpsertWithoutServicesInput = {
@@ -21663,6 +23457,12 @@ export namespace Prisma {
     imageUrl?: string | null
     hourlyRate?: number | null
     isActive?: boolean
+    locationType?: $Enums.ServiceLocationType
+    address?: string | null
+    city?: string | null
+    state?: string | null
+    country?: string | null
+    serviceRadius?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutServicesInput
@@ -21679,6 +23479,12 @@ export namespace Prisma {
     imageUrl?: string | null
     hourlyRate?: number | null
     isActive?: boolean
+    locationType?: $Enums.ServiceLocationType
+    address?: string | null
+    city?: string | null
+    state?: string | null
+    country?: string | null
+    serviceRadius?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
     requestedExchanges?: ExchangeUncheckedCreateNestedManyWithoutRequesterServiceInput
@@ -21696,6 +23502,12 @@ export namespace Prisma {
     imageUrl?: string | null
     hourlyRate?: number | null
     isActive?: boolean
+    locationType?: $Enums.ServiceLocationType
+    address?: string | null
+    city?: string | null
+    state?: string | null
+    country?: string | null
+    serviceRadius?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutServicesInput
@@ -21712,6 +23524,12 @@ export namespace Prisma {
     imageUrl?: string | null
     hourlyRate?: number | null
     isActive?: boolean
+    locationType?: $Enums.ServiceLocationType
+    address?: string | null
+    city?: string | null
+    state?: string | null
+    country?: string | null
+    serviceRadius?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
     providedExchanges?: ExchangeUncheckedCreateNestedManyWithoutProviderServiceInput
@@ -21730,6 +23548,7 @@ export namespace Prisma {
     image?: string | null
     averageRating?: number | null
     ratingCount?: number | null
+    credits?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     location?: LocationCreateNestedOneWithoutUserInput
@@ -21742,6 +23561,7 @@ export namespace Prisma {
     ratingsReceived?: RatingCreateNestedManyWithoutToUserInput
     accounts?: AccountCreateNestedManyWithoutUserInput
     sessions?: SessionCreateNestedManyWithoutUserInput
+    messages?: MessageCreateNestedManyWithoutSenderInput
   }
 
   export type UserUncheckedCreateWithoutProvidedExchangesInput = {
@@ -21752,6 +23572,7 @@ export namespace Prisma {
     image?: string | null
     averageRating?: number | null
     ratingCount?: number | null
+    credits?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     location?: LocationUncheckedCreateNestedOneWithoutUserInput
@@ -21764,6 +23585,7 @@ export namespace Prisma {
     ratingsReceived?: RatingUncheckedCreateNestedManyWithoutToUserInput
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    messages?: MessageUncheckedCreateNestedManyWithoutSenderInput
   }
 
   export type UserCreateOrConnectWithoutProvidedExchangesInput = {
@@ -21779,6 +23601,7 @@ export namespace Prisma {
     image?: string | null
     averageRating?: number | null
     ratingCount?: number | null
+    credits?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     location?: LocationCreateNestedOneWithoutUserInput
@@ -21791,6 +23614,7 @@ export namespace Prisma {
     ratingsReceived?: RatingCreateNestedManyWithoutToUserInput
     accounts?: AccountCreateNestedManyWithoutUserInput
     sessions?: SessionCreateNestedManyWithoutUserInput
+    messages?: MessageCreateNestedManyWithoutSenderInput
   }
 
   export type UserUncheckedCreateWithoutRequestedExchangesInput = {
@@ -21801,6 +23625,7 @@ export namespace Prisma {
     image?: string | null
     averageRating?: number | null
     ratingCount?: number | null
+    credits?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     location?: LocationUncheckedCreateNestedOneWithoutUserInput
@@ -21813,6 +23638,7 @@ export namespace Prisma {
     ratingsReceived?: RatingUncheckedCreateNestedManyWithoutToUserInput
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    messages?: MessageUncheckedCreateNestedManyWithoutSenderInput
   }
 
   export type UserCreateOrConnectWithoutRequestedExchangesInput = {
@@ -21882,6 +23708,30 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type MessageCreateWithoutExchangeInput = {
+    id?: string
+    content: string
+    createdAt?: Date | string
+    sender: UserCreateNestedOneWithoutMessagesInput
+  }
+
+  export type MessageUncheckedCreateWithoutExchangeInput = {
+    id?: string
+    senderId: string
+    content: string
+    createdAt?: Date | string
+  }
+
+  export type MessageCreateOrConnectWithoutExchangeInput = {
+    where: MessageWhereUniqueInput
+    create: XOR<MessageCreateWithoutExchangeInput, MessageUncheckedCreateWithoutExchangeInput>
+  }
+
+  export type MessageCreateManyExchangeInputEnvelope = {
+    data: MessageCreateManyExchangeInput | MessageCreateManyExchangeInput[]
+    skipDuplicates?: boolean
+  }
+
   export type ServiceUpsertWithoutProvidedExchangesInput = {
     update: XOR<ServiceUpdateWithoutProvidedExchangesInput, ServiceUncheckedUpdateWithoutProvidedExchangesInput>
     create: XOR<ServiceCreateWithoutProvidedExchangesInput, ServiceUncheckedCreateWithoutProvidedExchangesInput>
@@ -21900,6 +23750,12 @@ export namespace Prisma {
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     hourlyRate?: NullableFloatFieldUpdateOperationsInput | number | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    locationType?: EnumServiceLocationTypeFieldUpdateOperationsInput | $Enums.ServiceLocationType
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    state?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    serviceRadius?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutServicesNestedInput
@@ -21916,6 +23772,12 @@ export namespace Prisma {
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     hourlyRate?: NullableFloatFieldUpdateOperationsInput | number | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    locationType?: EnumServiceLocationTypeFieldUpdateOperationsInput | $Enums.ServiceLocationType
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    state?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    serviceRadius?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     requestedExchanges?: ExchangeUncheckedUpdateManyWithoutRequesterServiceNestedInput
@@ -21939,6 +23801,12 @@ export namespace Prisma {
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     hourlyRate?: NullableFloatFieldUpdateOperationsInput | number | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    locationType?: EnumServiceLocationTypeFieldUpdateOperationsInput | $Enums.ServiceLocationType
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    state?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    serviceRadius?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutServicesNestedInput
@@ -21955,6 +23823,12 @@ export namespace Prisma {
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     hourlyRate?: NullableFloatFieldUpdateOperationsInput | number | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    locationType?: EnumServiceLocationTypeFieldUpdateOperationsInput | $Enums.ServiceLocationType
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    state?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    serviceRadius?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     providedExchanges?: ExchangeUncheckedUpdateManyWithoutProviderServiceNestedInput
@@ -21979,6 +23853,7 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     averageRating?: NullableFloatFieldUpdateOperationsInput | number | null
     ratingCount?: NullableIntFieldUpdateOperationsInput | number | null
+    credits?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     location?: LocationUpdateOneWithoutUserNestedInput
@@ -21991,6 +23866,7 @@ export namespace Prisma {
     ratingsReceived?: RatingUpdateManyWithoutToUserNestedInput
     accounts?: AccountUpdateManyWithoutUserNestedInput
     sessions?: SessionUpdateManyWithoutUserNestedInput
+    messages?: MessageUpdateManyWithoutSenderNestedInput
   }
 
   export type UserUncheckedUpdateWithoutProvidedExchangesInput = {
@@ -22001,6 +23877,7 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     averageRating?: NullableFloatFieldUpdateOperationsInput | number | null
     ratingCount?: NullableIntFieldUpdateOperationsInput | number | null
+    credits?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     location?: LocationUncheckedUpdateOneWithoutUserNestedInput
@@ -22013,6 +23890,7 @@ export namespace Prisma {
     ratingsReceived?: RatingUncheckedUpdateManyWithoutToUserNestedInput
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    messages?: MessageUncheckedUpdateManyWithoutSenderNestedInput
   }
 
   export type UserUpsertWithoutRequestedExchangesInput = {
@@ -22034,6 +23912,7 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     averageRating?: NullableFloatFieldUpdateOperationsInput | number | null
     ratingCount?: NullableIntFieldUpdateOperationsInput | number | null
+    credits?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     location?: LocationUpdateOneWithoutUserNestedInput
@@ -22046,6 +23925,7 @@ export namespace Prisma {
     ratingsReceived?: RatingUpdateManyWithoutToUserNestedInput
     accounts?: AccountUpdateManyWithoutUserNestedInput
     sessions?: SessionUpdateManyWithoutUserNestedInput
+    messages?: MessageUpdateManyWithoutSenderNestedInput
   }
 
   export type UserUncheckedUpdateWithoutRequestedExchangesInput = {
@@ -22056,6 +23936,7 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     averageRating?: NullableFloatFieldUpdateOperationsInput | number | null
     ratingCount?: NullableIntFieldUpdateOperationsInput | number | null
+    credits?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     location?: LocationUncheckedUpdateOneWithoutUserNestedInput
@@ -22068,6 +23949,7 @@ export namespace Prisma {
     ratingsReceived?: RatingUncheckedUpdateManyWithoutToUserNestedInput
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    messages?: MessageUncheckedUpdateManyWithoutSenderNestedInput
   }
 
   export type NotificationUpsertWithWhereUniqueWithoutExchangeInput = {
@@ -22102,6 +23984,22 @@ export namespace Prisma {
     data: XOR<RatingUpdateManyMutationInput, RatingUncheckedUpdateManyWithoutExchangeInput>
   }
 
+  export type MessageUpsertWithWhereUniqueWithoutExchangeInput = {
+    where: MessageWhereUniqueInput
+    update: XOR<MessageUpdateWithoutExchangeInput, MessageUncheckedUpdateWithoutExchangeInput>
+    create: XOR<MessageCreateWithoutExchangeInput, MessageUncheckedCreateWithoutExchangeInput>
+  }
+
+  export type MessageUpdateWithWhereUniqueWithoutExchangeInput = {
+    where: MessageWhereUniqueInput
+    data: XOR<MessageUpdateWithoutExchangeInput, MessageUncheckedUpdateWithoutExchangeInput>
+  }
+
+  export type MessageUpdateManyWithWhereWithoutExchangeInput = {
+    where: MessageScalarWhereInput
+    data: XOR<MessageUpdateManyMutationInput, MessageUncheckedUpdateManyWithoutExchangeInput>
+  }
+
   export type UserCreateWithoutSentNotificationsInput = {
     id?: string
     name?: string | null
@@ -22110,6 +24008,7 @@ export namespace Prisma {
     image?: string | null
     averageRating?: number | null
     ratingCount?: number | null
+    credits?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     location?: LocationCreateNestedOneWithoutUserInput
@@ -22122,6 +24021,7 @@ export namespace Prisma {
     ratingsReceived?: RatingCreateNestedManyWithoutToUserInput
     accounts?: AccountCreateNestedManyWithoutUserInput
     sessions?: SessionCreateNestedManyWithoutUserInput
+    messages?: MessageCreateNestedManyWithoutSenderInput
   }
 
   export type UserUncheckedCreateWithoutSentNotificationsInput = {
@@ -22132,6 +24032,7 @@ export namespace Prisma {
     image?: string | null
     averageRating?: number | null
     ratingCount?: number | null
+    credits?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     location?: LocationUncheckedCreateNestedOneWithoutUserInput
@@ -22144,6 +24045,7 @@ export namespace Prisma {
     ratingsReceived?: RatingUncheckedCreateNestedManyWithoutToUserInput
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    messages?: MessageUncheckedCreateNestedManyWithoutSenderInput
   }
 
   export type UserCreateOrConnectWithoutSentNotificationsInput = {
@@ -22159,6 +24061,7 @@ export namespace Prisma {
     image?: string | null
     averageRating?: number | null
     ratingCount?: number | null
+    credits?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     location?: LocationCreateNestedOneWithoutUserInput
@@ -22171,6 +24074,7 @@ export namespace Prisma {
     ratingsReceived?: RatingCreateNestedManyWithoutToUserInput
     accounts?: AccountCreateNestedManyWithoutUserInput
     sessions?: SessionCreateNestedManyWithoutUserInput
+    messages?: MessageCreateNestedManyWithoutSenderInput
   }
 
   export type UserUncheckedCreateWithoutReceivedNotificationsInput = {
@@ -22181,6 +24085,7 @@ export namespace Prisma {
     image?: string | null
     averageRating?: number | null
     ratingCount?: number | null
+    credits?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     location?: LocationUncheckedCreateNestedOneWithoutUserInput
@@ -22193,6 +24098,7 @@ export namespace Prisma {
     ratingsReceived?: RatingUncheckedCreateNestedManyWithoutToUserInput
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    messages?: MessageUncheckedCreateNestedManyWithoutSenderInput
   }
 
   export type UserCreateOrConnectWithoutReceivedNotificationsInput = {
@@ -22218,6 +24124,7 @@ export namespace Prisma {
     provider: UserCreateNestedOneWithoutProvidedExchangesInput
     requester: UserCreateNestedOneWithoutRequestedExchangesInput
     ratings?: RatingCreateNestedManyWithoutExchangeInput
+    messages?: MessageCreateNestedManyWithoutExchangeInput
   }
 
   export type ExchangeUncheckedCreateWithoutNotificationsInput = {
@@ -22238,6 +24145,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     ratings?: RatingUncheckedCreateNestedManyWithoutExchangeInput
+    messages?: MessageUncheckedCreateNestedManyWithoutExchangeInput
   }
 
   export type ExchangeCreateOrConnectWithoutNotificationsInput = {
@@ -22264,6 +24172,7 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     averageRating?: NullableFloatFieldUpdateOperationsInput | number | null
     ratingCount?: NullableIntFieldUpdateOperationsInput | number | null
+    credits?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     location?: LocationUpdateOneWithoutUserNestedInput
@@ -22276,6 +24185,7 @@ export namespace Prisma {
     ratingsReceived?: RatingUpdateManyWithoutToUserNestedInput
     accounts?: AccountUpdateManyWithoutUserNestedInput
     sessions?: SessionUpdateManyWithoutUserNestedInput
+    messages?: MessageUpdateManyWithoutSenderNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSentNotificationsInput = {
@@ -22286,6 +24196,7 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     averageRating?: NullableFloatFieldUpdateOperationsInput | number | null
     ratingCount?: NullableIntFieldUpdateOperationsInput | number | null
+    credits?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     location?: LocationUncheckedUpdateOneWithoutUserNestedInput
@@ -22298,6 +24209,7 @@ export namespace Prisma {
     ratingsReceived?: RatingUncheckedUpdateManyWithoutToUserNestedInput
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    messages?: MessageUncheckedUpdateManyWithoutSenderNestedInput
   }
 
   export type UserUpsertWithoutReceivedNotificationsInput = {
@@ -22319,6 +24231,7 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     averageRating?: NullableFloatFieldUpdateOperationsInput | number | null
     ratingCount?: NullableIntFieldUpdateOperationsInput | number | null
+    credits?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     location?: LocationUpdateOneWithoutUserNestedInput
@@ -22331,6 +24244,7 @@ export namespace Prisma {
     ratingsReceived?: RatingUpdateManyWithoutToUserNestedInput
     accounts?: AccountUpdateManyWithoutUserNestedInput
     sessions?: SessionUpdateManyWithoutUserNestedInput
+    messages?: MessageUpdateManyWithoutSenderNestedInput
   }
 
   export type UserUncheckedUpdateWithoutReceivedNotificationsInput = {
@@ -22341,6 +24255,7 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     averageRating?: NullableFloatFieldUpdateOperationsInput | number | null
     ratingCount?: NullableIntFieldUpdateOperationsInput | number | null
+    credits?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     location?: LocationUncheckedUpdateOneWithoutUserNestedInput
@@ -22353,6 +24268,7 @@ export namespace Prisma {
     ratingsReceived?: RatingUncheckedUpdateManyWithoutToUserNestedInput
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    messages?: MessageUncheckedUpdateManyWithoutSenderNestedInput
   }
 
   export type ExchangeUpsertWithoutNotificationsInput = {
@@ -22384,6 +24300,7 @@ export namespace Prisma {
     provider?: UserUpdateOneRequiredWithoutProvidedExchangesNestedInput
     requester?: UserUpdateOneRequiredWithoutRequestedExchangesNestedInput
     ratings?: RatingUpdateManyWithoutExchangeNestedInput
+    messages?: MessageUpdateManyWithoutExchangeNestedInput
   }
 
   export type ExchangeUncheckedUpdateWithoutNotificationsInput = {
@@ -22404,6 +24321,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     ratings?: RatingUncheckedUpdateManyWithoutExchangeNestedInput
+    messages?: MessageUncheckedUpdateManyWithoutExchangeNestedInput
   }
 
   export type ExchangeCreateWithoutRatingsInput = {
@@ -22424,6 +24342,7 @@ export namespace Prisma {
     provider: UserCreateNestedOneWithoutProvidedExchangesInput
     requester: UserCreateNestedOneWithoutRequestedExchangesInput
     notifications?: NotificationCreateNestedManyWithoutExchangeInput
+    messages?: MessageCreateNestedManyWithoutExchangeInput
   }
 
   export type ExchangeUncheckedCreateWithoutRatingsInput = {
@@ -22444,6 +24363,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     notifications?: NotificationUncheckedCreateNestedManyWithoutExchangeInput
+    messages?: MessageUncheckedCreateNestedManyWithoutExchangeInput
   }
 
   export type ExchangeCreateOrConnectWithoutRatingsInput = {
@@ -22459,6 +24379,7 @@ export namespace Prisma {
     image?: string | null
     averageRating?: number | null
     ratingCount?: number | null
+    credits?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     location?: LocationCreateNestedOneWithoutUserInput
@@ -22471,6 +24392,7 @@ export namespace Prisma {
     ratingsReceived?: RatingCreateNestedManyWithoutToUserInput
     accounts?: AccountCreateNestedManyWithoutUserInput
     sessions?: SessionCreateNestedManyWithoutUserInput
+    messages?: MessageCreateNestedManyWithoutSenderInput
   }
 
   export type UserUncheckedCreateWithoutRatingsGivenInput = {
@@ -22481,6 +24403,7 @@ export namespace Prisma {
     image?: string | null
     averageRating?: number | null
     ratingCount?: number | null
+    credits?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     location?: LocationUncheckedCreateNestedOneWithoutUserInput
@@ -22493,6 +24416,7 @@ export namespace Prisma {
     ratingsReceived?: RatingUncheckedCreateNestedManyWithoutToUserInput
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    messages?: MessageUncheckedCreateNestedManyWithoutSenderInput
   }
 
   export type UserCreateOrConnectWithoutRatingsGivenInput = {
@@ -22508,6 +24432,7 @@ export namespace Prisma {
     image?: string | null
     averageRating?: number | null
     ratingCount?: number | null
+    credits?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     location?: LocationCreateNestedOneWithoutUserInput
@@ -22520,6 +24445,7 @@ export namespace Prisma {
     ratingsGiven?: RatingCreateNestedManyWithoutFromUserInput
     accounts?: AccountCreateNestedManyWithoutUserInput
     sessions?: SessionCreateNestedManyWithoutUserInput
+    messages?: MessageCreateNestedManyWithoutSenderInput
   }
 
   export type UserUncheckedCreateWithoutRatingsReceivedInput = {
@@ -22530,6 +24456,7 @@ export namespace Prisma {
     image?: string | null
     averageRating?: number | null
     ratingCount?: number | null
+    credits?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     location?: LocationUncheckedCreateNestedOneWithoutUserInput
@@ -22542,6 +24469,7 @@ export namespace Prisma {
     ratingsGiven?: RatingUncheckedCreateNestedManyWithoutFromUserInput
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    messages?: MessageUncheckedCreateNestedManyWithoutSenderInput
   }
 
   export type UserCreateOrConnectWithoutRatingsReceivedInput = {
@@ -22578,6 +24506,7 @@ export namespace Prisma {
     provider?: UserUpdateOneRequiredWithoutProvidedExchangesNestedInput
     requester?: UserUpdateOneRequiredWithoutRequestedExchangesNestedInput
     notifications?: NotificationUpdateManyWithoutExchangeNestedInput
+    messages?: MessageUpdateManyWithoutExchangeNestedInput
   }
 
   export type ExchangeUncheckedUpdateWithoutRatingsInput = {
@@ -22598,6 +24527,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     notifications?: NotificationUncheckedUpdateManyWithoutExchangeNestedInput
+    messages?: MessageUncheckedUpdateManyWithoutExchangeNestedInput
   }
 
   export type UserUpsertWithoutRatingsGivenInput = {
@@ -22619,6 +24549,7 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     averageRating?: NullableFloatFieldUpdateOperationsInput | number | null
     ratingCount?: NullableIntFieldUpdateOperationsInput | number | null
+    credits?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     location?: LocationUpdateOneWithoutUserNestedInput
@@ -22631,6 +24562,7 @@ export namespace Prisma {
     ratingsReceived?: RatingUpdateManyWithoutToUserNestedInput
     accounts?: AccountUpdateManyWithoutUserNestedInput
     sessions?: SessionUpdateManyWithoutUserNestedInput
+    messages?: MessageUpdateManyWithoutSenderNestedInput
   }
 
   export type UserUncheckedUpdateWithoutRatingsGivenInput = {
@@ -22641,6 +24573,7 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     averageRating?: NullableFloatFieldUpdateOperationsInput | number | null
     ratingCount?: NullableIntFieldUpdateOperationsInput | number | null
+    credits?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     location?: LocationUncheckedUpdateOneWithoutUserNestedInput
@@ -22653,6 +24586,7 @@ export namespace Prisma {
     ratingsReceived?: RatingUncheckedUpdateManyWithoutToUserNestedInput
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    messages?: MessageUncheckedUpdateManyWithoutSenderNestedInput
   }
 
   export type UserUpsertWithoutRatingsReceivedInput = {
@@ -22674,6 +24608,7 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     averageRating?: NullableFloatFieldUpdateOperationsInput | number | null
     ratingCount?: NullableIntFieldUpdateOperationsInput | number | null
+    credits?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     location?: LocationUpdateOneWithoutUserNestedInput
@@ -22686,6 +24621,7 @@ export namespace Prisma {
     ratingsGiven?: RatingUpdateManyWithoutFromUserNestedInput
     accounts?: AccountUpdateManyWithoutUserNestedInput
     sessions?: SessionUpdateManyWithoutUserNestedInput
+    messages?: MessageUpdateManyWithoutSenderNestedInput
   }
 
   export type UserUncheckedUpdateWithoutRatingsReceivedInput = {
@@ -22696,6 +24632,7 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     averageRating?: NullableFloatFieldUpdateOperationsInput | number | null
     ratingCount?: NullableIntFieldUpdateOperationsInput | number | null
+    credits?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     location?: LocationUncheckedUpdateOneWithoutUserNestedInput
@@ -22706,6 +24643,219 @@ export namespace Prisma {
     sentNotifications?: NotificationUncheckedUpdateManyWithoutSenderNestedInput
     receivedNotifications?: NotificationUncheckedUpdateManyWithoutRecipientNestedInput
     ratingsGiven?: RatingUncheckedUpdateManyWithoutFromUserNestedInput
+    accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
+    sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    messages?: MessageUncheckedUpdateManyWithoutSenderNestedInput
+  }
+
+  export type ExchangeCreateWithoutMessagesInput = {
+    id?: string
+    status?: $Enums.ExchangeStatus
+    requestedDate?: Date | string | null
+    scheduledDate?: Date | string | null
+    completedDate?: Date | string | null
+    hours?: number | null
+    providerRating?: number | null
+    requesterRating?: number | null
+    providerReview?: string | null
+    requesterReview?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    providerService?: ServiceCreateNestedOneWithoutProvidedExchangesInput
+    requesterService?: ServiceCreateNestedOneWithoutRequestedExchangesInput
+    provider: UserCreateNestedOneWithoutProvidedExchangesInput
+    requester: UserCreateNestedOneWithoutRequestedExchangesInput
+    notifications?: NotificationCreateNestedManyWithoutExchangeInput
+    ratings?: RatingCreateNestedManyWithoutExchangeInput
+  }
+
+  export type ExchangeUncheckedCreateWithoutMessagesInput = {
+    id?: string
+    status?: $Enums.ExchangeStatus
+    providerServiceId?: string | null
+    requesterServiceId?: string | null
+    providerId: string
+    requesterId: string
+    requestedDate?: Date | string | null
+    scheduledDate?: Date | string | null
+    completedDate?: Date | string | null
+    hours?: number | null
+    providerRating?: number | null
+    requesterRating?: number | null
+    providerReview?: string | null
+    requesterReview?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    notifications?: NotificationUncheckedCreateNestedManyWithoutExchangeInput
+    ratings?: RatingUncheckedCreateNestedManyWithoutExchangeInput
+  }
+
+  export type ExchangeCreateOrConnectWithoutMessagesInput = {
+    where: ExchangeWhereUniqueInput
+    create: XOR<ExchangeCreateWithoutMessagesInput, ExchangeUncheckedCreateWithoutMessagesInput>
+  }
+
+  export type UserCreateWithoutMessagesInput = {
+    id?: string
+    name?: string | null
+    email?: string | null
+    emailVerified?: Date | string | null
+    image?: string | null
+    averageRating?: number | null
+    ratingCount?: number | null
+    credits?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    location?: LocationCreateNestedOneWithoutUserInput
+    skills?: SkillCreateNestedManyWithoutUserInput
+    services?: ServiceCreateNestedManyWithoutUserInput
+    providedExchanges?: ExchangeCreateNestedManyWithoutProviderInput
+    requestedExchanges?: ExchangeCreateNestedManyWithoutRequesterInput
+    sentNotifications?: NotificationCreateNestedManyWithoutSenderInput
+    receivedNotifications?: NotificationCreateNestedManyWithoutRecipientInput
+    ratingsGiven?: RatingCreateNestedManyWithoutFromUserInput
+    ratingsReceived?: RatingCreateNestedManyWithoutToUserInput
+    accounts?: AccountCreateNestedManyWithoutUserInput
+    sessions?: SessionCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutMessagesInput = {
+    id?: string
+    name?: string | null
+    email?: string | null
+    emailVerified?: Date | string | null
+    image?: string | null
+    averageRating?: number | null
+    ratingCount?: number | null
+    credits?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    location?: LocationUncheckedCreateNestedOneWithoutUserInput
+    skills?: SkillUncheckedCreateNestedManyWithoutUserInput
+    services?: ServiceUncheckedCreateNestedManyWithoutUserInput
+    providedExchanges?: ExchangeUncheckedCreateNestedManyWithoutProviderInput
+    requestedExchanges?: ExchangeUncheckedCreateNestedManyWithoutRequesterInput
+    sentNotifications?: NotificationUncheckedCreateNestedManyWithoutSenderInput
+    receivedNotifications?: NotificationUncheckedCreateNestedManyWithoutRecipientInput
+    ratingsGiven?: RatingUncheckedCreateNestedManyWithoutFromUserInput
+    ratingsReceived?: RatingUncheckedCreateNestedManyWithoutToUserInput
+    accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
+    sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutMessagesInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutMessagesInput, UserUncheckedCreateWithoutMessagesInput>
+  }
+
+  export type ExchangeUpsertWithoutMessagesInput = {
+    update: XOR<ExchangeUpdateWithoutMessagesInput, ExchangeUncheckedUpdateWithoutMessagesInput>
+    create: XOR<ExchangeCreateWithoutMessagesInput, ExchangeUncheckedCreateWithoutMessagesInput>
+    where?: ExchangeWhereInput
+  }
+
+  export type ExchangeUpdateToOneWithWhereWithoutMessagesInput = {
+    where?: ExchangeWhereInput
+    data: XOR<ExchangeUpdateWithoutMessagesInput, ExchangeUncheckedUpdateWithoutMessagesInput>
+  }
+
+  export type ExchangeUpdateWithoutMessagesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: EnumExchangeStatusFieldUpdateOperationsInput | $Enums.ExchangeStatus
+    requestedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    scheduledDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hours?: NullableFloatFieldUpdateOperationsInput | number | null
+    providerRating?: NullableIntFieldUpdateOperationsInput | number | null
+    requesterRating?: NullableIntFieldUpdateOperationsInput | number | null
+    providerReview?: NullableStringFieldUpdateOperationsInput | string | null
+    requesterReview?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    providerService?: ServiceUpdateOneWithoutProvidedExchangesNestedInput
+    requesterService?: ServiceUpdateOneWithoutRequestedExchangesNestedInput
+    provider?: UserUpdateOneRequiredWithoutProvidedExchangesNestedInput
+    requester?: UserUpdateOneRequiredWithoutRequestedExchangesNestedInput
+    notifications?: NotificationUpdateManyWithoutExchangeNestedInput
+    ratings?: RatingUpdateManyWithoutExchangeNestedInput
+  }
+
+  export type ExchangeUncheckedUpdateWithoutMessagesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: EnumExchangeStatusFieldUpdateOperationsInput | $Enums.ExchangeStatus
+    providerServiceId?: NullableStringFieldUpdateOperationsInput | string | null
+    requesterServiceId?: NullableStringFieldUpdateOperationsInput | string | null
+    providerId?: StringFieldUpdateOperationsInput | string
+    requesterId?: StringFieldUpdateOperationsInput | string
+    requestedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    scheduledDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hours?: NullableFloatFieldUpdateOperationsInput | number | null
+    providerRating?: NullableIntFieldUpdateOperationsInput | number | null
+    requesterRating?: NullableIntFieldUpdateOperationsInput | number | null
+    providerReview?: NullableStringFieldUpdateOperationsInput | string | null
+    requesterReview?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    notifications?: NotificationUncheckedUpdateManyWithoutExchangeNestedInput
+    ratings?: RatingUncheckedUpdateManyWithoutExchangeNestedInput
+  }
+
+  export type UserUpsertWithoutMessagesInput = {
+    update: XOR<UserUpdateWithoutMessagesInput, UserUncheckedUpdateWithoutMessagesInput>
+    create: XOR<UserCreateWithoutMessagesInput, UserUncheckedCreateWithoutMessagesInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutMessagesInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutMessagesInput, UserUncheckedUpdateWithoutMessagesInput>
+  }
+
+  export type UserUpdateWithoutMessagesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerified?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    image?: NullableStringFieldUpdateOperationsInput | string | null
+    averageRating?: NullableFloatFieldUpdateOperationsInput | number | null
+    ratingCount?: NullableIntFieldUpdateOperationsInput | number | null
+    credits?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    location?: LocationUpdateOneWithoutUserNestedInput
+    skills?: SkillUpdateManyWithoutUserNestedInput
+    services?: ServiceUpdateManyWithoutUserNestedInput
+    providedExchanges?: ExchangeUpdateManyWithoutProviderNestedInput
+    requestedExchanges?: ExchangeUpdateManyWithoutRequesterNestedInput
+    sentNotifications?: NotificationUpdateManyWithoutSenderNestedInput
+    receivedNotifications?: NotificationUpdateManyWithoutRecipientNestedInput
+    ratingsGiven?: RatingUpdateManyWithoutFromUserNestedInput
+    ratingsReceived?: RatingUpdateManyWithoutToUserNestedInput
+    accounts?: AccountUpdateManyWithoutUserNestedInput
+    sessions?: SessionUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutMessagesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerified?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    image?: NullableStringFieldUpdateOperationsInput | string | null
+    averageRating?: NullableFloatFieldUpdateOperationsInput | number | null
+    ratingCount?: NullableIntFieldUpdateOperationsInput | number | null
+    credits?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    location?: LocationUncheckedUpdateOneWithoutUserNestedInput
+    skills?: SkillUncheckedUpdateManyWithoutUserNestedInput
+    services?: ServiceUncheckedUpdateManyWithoutUserNestedInput
+    providedExchanges?: ExchangeUncheckedUpdateManyWithoutProviderNestedInput
+    requestedExchanges?: ExchangeUncheckedUpdateManyWithoutRequesterNestedInput
+    sentNotifications?: NotificationUncheckedUpdateManyWithoutSenderNestedInput
+    receivedNotifications?: NotificationUncheckedUpdateManyWithoutRecipientNestedInput
+    ratingsGiven?: RatingUncheckedUpdateManyWithoutFromUserNestedInput
+    ratingsReceived?: RatingUncheckedUpdateManyWithoutToUserNestedInput
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
   }
@@ -22724,6 +24874,12 @@ export namespace Prisma {
     imageUrl?: string | null
     hourlyRate?: number | null
     isActive?: boolean
+    locationType?: $Enums.ServiceLocationType
+    address?: string | null
+    city?: string | null
+    state?: string | null
+    country?: string | null
+    serviceRadius?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -22826,6 +24982,13 @@ export namespace Prisma {
     expires: Date | string
   }
 
+  export type MessageCreateManySenderInput = {
+    id?: string
+    exchangeId: string
+    content: string
+    createdAt?: Date | string
+  }
+
   export type SkillUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
@@ -22851,6 +25014,12 @@ export namespace Prisma {
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     hourlyRate?: NullableFloatFieldUpdateOperationsInput | number | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    locationType?: EnumServiceLocationTypeFieldUpdateOperationsInput | $Enums.ServiceLocationType
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    state?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    serviceRadius?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     category?: ServiceCategoryUpdateOneWithoutServicesNestedInput
@@ -22866,6 +25035,12 @@ export namespace Prisma {
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     hourlyRate?: NullableFloatFieldUpdateOperationsInput | number | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    locationType?: EnumServiceLocationTypeFieldUpdateOperationsInput | $Enums.ServiceLocationType
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    state?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    serviceRadius?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     providedExchanges?: ExchangeUncheckedUpdateManyWithoutProviderServiceNestedInput
@@ -22880,6 +25055,12 @@ export namespace Prisma {
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     hourlyRate?: NullableFloatFieldUpdateOperationsInput | number | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    locationType?: EnumServiceLocationTypeFieldUpdateOperationsInput | $Enums.ServiceLocationType
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    state?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    serviceRadius?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -22902,6 +25083,7 @@ export namespace Prisma {
     requester?: UserUpdateOneRequiredWithoutRequestedExchangesNestedInput
     notifications?: NotificationUpdateManyWithoutExchangeNestedInput
     ratings?: RatingUpdateManyWithoutExchangeNestedInput
+    messages?: MessageUpdateManyWithoutExchangeNestedInput
   }
 
   export type ExchangeUncheckedUpdateWithoutProviderInput = {
@@ -22922,6 +25104,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     notifications?: NotificationUncheckedUpdateManyWithoutExchangeNestedInput
     ratings?: RatingUncheckedUpdateManyWithoutExchangeNestedInput
+    messages?: MessageUncheckedUpdateManyWithoutExchangeNestedInput
   }
 
   export type ExchangeUncheckedUpdateManyWithoutProviderInput = {
@@ -22960,6 +25143,7 @@ export namespace Prisma {
     provider?: UserUpdateOneRequiredWithoutProvidedExchangesNestedInput
     notifications?: NotificationUpdateManyWithoutExchangeNestedInput
     ratings?: RatingUpdateManyWithoutExchangeNestedInput
+    messages?: MessageUpdateManyWithoutExchangeNestedInput
   }
 
   export type ExchangeUncheckedUpdateWithoutRequesterInput = {
@@ -22980,6 +25164,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     notifications?: NotificationUncheckedUpdateManyWithoutExchangeNestedInput
     ratings?: RatingUncheckedUpdateManyWithoutExchangeNestedInput
+    messages?: MessageUncheckedUpdateManyWithoutExchangeNestedInput
   }
 
   export type ExchangeUncheckedUpdateManyWithoutRequesterInput = {
@@ -23186,6 +25371,27 @@ export namespace Prisma {
     expires?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type MessageUpdateWithoutSenderInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    content?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    exchange?: ExchangeUpdateOneRequiredWithoutMessagesNestedInput
+  }
+
+  export type MessageUncheckedUpdateWithoutSenderInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    exchangeId?: StringFieldUpdateOperationsInput | string
+    content?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MessageUncheckedUpdateManyWithoutSenderInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    exchangeId?: StringFieldUpdateOperationsInput | string
+    content?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type ServiceCreateManyCategoryInput = {
     id?: string
     title: string
@@ -23194,6 +25400,12 @@ export namespace Prisma {
     imageUrl?: string | null
     hourlyRate?: number | null
     isActive?: boolean
+    locationType?: $Enums.ServiceLocationType
+    address?: string | null
+    city?: string | null
+    state?: string | null
+    country?: string | null
+    serviceRadius?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -23205,6 +25417,12 @@ export namespace Prisma {
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     hourlyRate?: NullableFloatFieldUpdateOperationsInput | number | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    locationType?: EnumServiceLocationTypeFieldUpdateOperationsInput | $Enums.ServiceLocationType
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    state?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    serviceRadius?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutServicesNestedInput
@@ -23220,6 +25438,12 @@ export namespace Prisma {
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     hourlyRate?: NullableFloatFieldUpdateOperationsInput | number | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    locationType?: EnumServiceLocationTypeFieldUpdateOperationsInput | $Enums.ServiceLocationType
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    state?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    serviceRadius?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     providedExchanges?: ExchangeUncheckedUpdateManyWithoutProviderServiceNestedInput
@@ -23234,6 +25458,12 @@ export namespace Prisma {
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     hourlyRate?: NullableFloatFieldUpdateOperationsInput | number | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    locationType?: EnumServiceLocationTypeFieldUpdateOperationsInput | $Enums.ServiceLocationType
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    state?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    serviceRadius?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -23292,6 +25522,7 @@ export namespace Prisma {
     requester?: UserUpdateOneRequiredWithoutRequestedExchangesNestedInput
     notifications?: NotificationUpdateManyWithoutExchangeNestedInput
     ratings?: RatingUpdateManyWithoutExchangeNestedInput
+    messages?: MessageUpdateManyWithoutExchangeNestedInput
   }
 
   export type ExchangeUncheckedUpdateWithoutProviderServiceInput = {
@@ -23312,6 +25543,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     notifications?: NotificationUncheckedUpdateManyWithoutExchangeNestedInput
     ratings?: RatingUncheckedUpdateManyWithoutExchangeNestedInput
+    messages?: MessageUncheckedUpdateManyWithoutExchangeNestedInput
   }
 
   export type ExchangeUncheckedUpdateManyWithoutProviderServiceInput = {
@@ -23350,6 +25582,7 @@ export namespace Prisma {
     requester?: UserUpdateOneRequiredWithoutRequestedExchangesNestedInput
     notifications?: NotificationUpdateManyWithoutExchangeNestedInput
     ratings?: RatingUpdateManyWithoutExchangeNestedInput
+    messages?: MessageUpdateManyWithoutExchangeNestedInput
   }
 
   export type ExchangeUncheckedUpdateWithoutRequesterServiceInput = {
@@ -23370,6 +25603,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     notifications?: NotificationUncheckedUpdateManyWithoutExchangeNestedInput
     ratings?: RatingUncheckedUpdateManyWithoutExchangeNestedInput
+    messages?: MessageUncheckedUpdateManyWithoutExchangeNestedInput
   }
 
   export type ExchangeUncheckedUpdateManyWithoutRequesterServiceInput = {
@@ -23409,6 +25643,13 @@ export namespace Prisma {
     toUserId: string
     createdAt?: Date | string
     updatedAt?: Date | string
+  }
+
+  export type MessageCreateManyExchangeInput = {
+    id?: string
+    senderId: string
+    content: string
+    createdAt?: Date | string
   }
 
   export type NotificationUpdateWithoutExchangeInput = {
@@ -23472,6 +25713,27 @@ export namespace Prisma {
     toUserId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MessageUpdateWithoutExchangeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    content?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    sender?: UserUpdateOneRequiredWithoutMessagesNestedInput
+  }
+
+  export type MessageUncheckedUpdateWithoutExchangeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    senderId?: StringFieldUpdateOperationsInput | string
+    content?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MessageUncheckedUpdateManyWithoutExchangeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    senderId?: StringFieldUpdateOperationsInput | string
+    content?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
 

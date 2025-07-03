@@ -11,7 +11,7 @@ const Hero: React.FC = () => {
         <div className="flex flex-col md:flex-row md:items-center">
           <div className="md:w-1/2 mb-12 md:mb-0">
             <div className="relative inline-block mb-6">
-              <h1 className=" tracking-satoshi-tight text-4xl md:text-5xl lg:text-6xl font-bold leading-snug text-gray-900 relative z-10">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-snug text-gray-900 relative z-10">
                 Exchange Skills
                 <br />
                 <span className="text-blue-600">Without Money</span>
@@ -20,7 +20,7 @@ const Hero: React.FC = () => {
             </div>
             
             <p className="text-lg md:text-xl text-gray-700 mb-8 max-w-xl">
-              The neighborhood marketplace where services are exchanged without money changing hands.
+              The neighborhood marketplace where skills are exchanged using our credits system no money needed.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4">

@@ -1,34 +1,10 @@
-@font-face {
-  font-family: 'Satoshi';
-  src: url('/fonts/Satoshi_Complete/Fonts/WEB/fonts/Satoshi-Regular.woff2') format('woff2');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Satoshi';
-  src: url('/fonts/Satoshi_Complete/Fonts/WEB/fonts/Satoshi-Bold.woff2') format('woff2');
-  font-weight: 700; /* Assuming Bold is 700 */
-  font-style: normal;
-  font-display: swap;
-}
-
-/* Add other weights/styles if needed */
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  font-family: 'Geist', system-ui, sans-serif;
-}
-
 html {
   scroll-behavior: smooth;
 }
-
-
 
 @layer base {
   :root {
@@ -85,8 +61,6 @@ html {
     --chart-5: 340 75% 55%;
   }
 }
-
-
 
 @layer base {
   * {

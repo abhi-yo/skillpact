@@ -1,14 +1,15 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useMemo, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import Image from 'next/image'; // For user images
 import { trpc } from '@/lib/trpc';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, AlertCircle, Star, UserCircle } from 'lucide-react';
+import { Loader2, AlertCircle, Star, UserCircle, ChevronRight, Filter, Search, X, MapPin } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
+import { DashboardLayout } from '@/components/DashboardLayout';
 
-// Interface matching the structure returned by browseServices
 interface BrowsedService {
   id: string;
   title: string;
@@ -21,23 +22,77 @@ interface BrowsedService {
     image: string | null;
     averageRating: number | null;
   } | null;
-  // Add other fields needed for display
+  distance_km?: number;
 }
 
-const BrowseServicesPage: React.FC = () => {
+// Debounce hook
+function useDebounce<T>(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+}
+
+function BrowseServicesContent() {
+  const searchParams = useSearchParams();
+  const initialSearchQuery = searchParams.get('q');
+  const [searchTerm, setSearchTerm] = useState(initialSearchQuery || '');
+  const [isFiltersOpen, setFiltersOpen] = useState(false);
+  const [filters, setFilters] = useState({
+    category: '',
+    sortBy: 'newest',
+  });
+
+  useEffect(() => {
+    if (initialSearchQuery) {
+      setSearchTerm(initialSearchQuery);
+    }
+  }, [initialSearchQuery]);
+
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
+
+  const queryFilters = useMemo(() => {
+    // ... existing code ...
+  }, [debouncedSearchTerm]);
   
-  // TODO: Add state for filters (category, search)
+  const [showNearby, setShowNearby] = useState(false);
   
   const {
      data: browseData, 
-     isLoading, 
-     error 
+     isLoading: browseLoading, 
+     error: browseError 
   } = trpc.service.browseServices.useQuery(
-    { /* Pass filters here later */ }, 
-    { staleTime: 5 * 60 * 1000 } // Cache for 5 mins
+    {}, 
+    { 
+      staleTime: 5 * 60 * 1000,
+      enabled: !showNearby
+    }
   );
 
-  const services = browseData?.services; // Extract services array
+  const {
+     data: nearbyServices, 
+     isLoading: nearbyLoading, 
+     error: nearbyError 
+  } = trpc.service.getNearbyServices.useQuery(
+    { limit: 50 }, 
+    { 
+      staleTime: 5 * 60 * 1000,
+      enabled: showNearby
+    }
+  );
+
+  const services = showNearby ? nearbyServices : browseData?.services;
+  const isLoading = showNearby ? nearbyLoading : browseLoading;
+  const error = showNearby ? nearbyError : browseError;
 
   if (isLoading) {
     return (
@@ -48,88 +103,216 @@ const BrowseServicesPage: React.FC = () => {
   }
 
   if (error) {
+    if (showNearby && error.message.includes('Please set your location')) {
+      return (
+        <DashboardLayout>
+          <div className="min-h-screen bg-blue-50 p-8">
+            <div className="mb-10">
+              <div className="flex items-center justify-between mb-4">
+                <h1 className="font-satoshi text-4xl font-bold">Browse Services</h1>
+                <div className="flex bg-white border-2 border-black rounded-lg shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] overflow-hidden">
+                  <button
+                    onClick={() => setShowNearby(false)}
+                    className="px-4 py-2 font-medium text-sm bg-blue-500 text-white"
+                  >
+                    All Services
+                  </button>
+                  <button
+                    onClick={() => setShowNearby(true)}
+                    className="px-4 py-2 font-medium text-sm bg-white text-black"
+                  >
+                    <MapPin size={16} className="inline mr-1" />
+                    Nearby
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center justify-center min-h-[400px]">
+              <div className="text-center bg-white border-2 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] p-8 max-w-md">
+                <MapPin className="mx-auto h-16 w-16 text-blue-500 mb-4" />
+                <h2 className="font-satoshi text-2xl font-bold mb-4">Location Required</h2>
+                <p className="text-gray-600 mb-6">
+                  To view nearby services, please set your location and service radius in your profile.
+                </p>
+                <div className="space-y-3">
+                  <Link href="/profile/edit">
+                    <Button className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all">
+                      Set Location
+                    </Button>
+                  </Link>
+                  <Button
+                    onClick={() => setShowNearby(false)}
+                    className="w-full bg-white text-black border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all"
+                  >
+                    Browse All Services Instead
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </DashboardLayout>
+      );
+    }
+    
     return (
+      <DashboardLayout>
       <div className="container mx-auto p-4 text-center text-red-600">
-        Error loading services: {error.message}
+          <AlertCircle className="mx-auto h-16 w-16 mb-4" />
+          <h2 className="text-xl font-bold mb-2">Error Loading Services</h2>
+          <p>{error.message}</p>
       </div>
+      </DashboardLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-blue-50 py-10 font-inter">
-      <div className="container mx-auto max-w-6xl">
-        <div className="flex justify-between items-center mb-10">
-          <h1 className="font-satoshi tracking-tight text-4xl font-bold">Browse Services</h1>
-          {/* TODO: Add Filter Dropdowns/Search Bar */}
+    <DashboardLayout>
+      <div className="min-h-screen bg-blue-50 p-8">
+        <div className="mb-10">
+          <div className="flex items-center justify-between mb-4">
+            <h1 className="font-satoshi text-4xl font-bold">
+              {showNearby ? 'Nearby Services' : 'Browse Services'}
+            </h1>
+            <div className="flex bg-white border-2 border-black rounded-lg shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] overflow-hidden">
+              <button
+                onClick={() => setShowNearby(false)}
+                className={`px-4 py-2 font-medium text-sm transition-all ${
+                  !showNearby 
+                    ? 'bg-blue-500 text-white' 
+                    : 'bg-white text-black hover:bg-gray-50'
+                }`}
+              >
+                All Services
+              </button>
+              <button
+                onClick={() => setShowNearby(true)}
+                className={`px-4 py-2 font-medium text-sm transition-all ${
+                  showNearby 
+                    ? 'bg-blue-500 text-white' 
+                    : 'bg-white text-black hover:bg-gray-50'
+                }`}
+              >
+                <MapPin size={16} className="inline mr-1" />
+                Nearby
+              </button>
+            </div>
+          </div>
+          <p className="text-gray-600">
+            {showNearby 
+              ? 'Services within your area, sorted by distance'
+              : 'All available services in our platform'
+            }
+          </p>
         </div>
+        <div className="container mx-auto max-w-6xl">
+          <div className="flex justify-between items-center mb-10">
+            {/* TODO: Add Filter Dropdowns/Search Bar */}
+          </div>
 
-        {services && services.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {services.map((service: BrowsedService) => (
-              <Card key={service.id} className="border-2 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] flex flex-col overflow-hidden bg-white transition-all duration-150 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1">
-                {/* User Info Header */}
-                <CardHeader className="border-b-2 border-black p-1 bg-orange-100 -mt-5">
-                   <div className="flex items-center space-x-1">
-                     {service.user?.image ? (
-                        <Image 
-                          src={service.user.image}
-                          alt={service.user.name || 'User'}
-                          width={40}
-                          height={40}
-                          className="rounded-full border-2 border-black"
-                         />
-                     ) : (
-                         <UserCircle size={40} className="border-2 border-black rounded-full text-gray-500"/>
-                     )}
-                     <div>
-                        <p className="font-satoshi text-2xl font-bold leading-none">{service.user?.name || 'SkillSwap User'}</p>
-                        {service.user?.averageRating !== null && service.user?.averageRating !== undefined && (
-                            <div className="flex items-center text-xs text-gray-700 mt-0.5">
-                                <Star size={12} className="mr-1 text-yellow-500 fill-yellow-400"/>
-                                {service.user.averageRating.toFixed(1)}
-                            </div>
+          {services && services.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {(services as BrowsedService[]).map((service) => (
+                <div key={service.id} className="border-2 border-black rounded-lg shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] flex flex-col overflow-hidden bg-white transition-all duration-150 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1">
+                  {/* Header */}
+                  <div className="flex items-center space-x-1 bg-orange-100 p-2 border-b-2 border-black">
+                       {service.user?.image ? (
+                          <Image 
+                            src={service.user.image}
+                            alt={service.user.name || 'User'}
+                            width={40}
+                            height={40}
+                            className="rounded-full border-2 border-black"
+                           />
+                       ) : (
+                           <UserCircle size={40} className="border-2 border-black rounded-full text-gray-500"/>
+                       )}
+                    <div className="flex-1">
+                      <p className="font-satoshi text-lg font-bold leading-none">{service.user?.name || 'SkillSwap User'}</p>
+                      <div className="flex items-center justify-between">
+                          {service.user?.averageRating !== null && service.user?.averageRating !== undefined && (
+                              <div className="flex items-center text-xs text-gray-700 mt-0.5">
+                                  <Star size={12} className="mr-1 text-yellow-500 fill-yellow-400"/>
+                                  {service.user.averageRating.toFixed(1)}
+                              </div>
+                          )}
+                        {showNearby && service.distance_km !== undefined && (
+                          <div className="flex items-center text-xs text-gray-700 mt-0.5">
+                            <MapPin size={12} className="mr-1 text-blue-500"/>
+                            {service.distance_km < 1 
+                              ? `${Math.round(service.distance_km * 1000)}m away`
+                              : `${service.distance_km.toFixed(1)}km away`
+                            }
+                          </div>
                         )}
+                      </div>
+                       </div>
                      </div>
-                   </div>
-                </CardHeader>
-                
-                <CardContent className="px-3 pb-3 pt-1 flex-grow flex flex-col">
-                  <div>
-                    <h3 className="font-satoshi tracking-tight text-2xl font-bold line-clamp-2 mb-1 leading-none">{service.title}</h3>
-                     {service.category && (
-                       <span className="inline-block bg-gray-200 border border-black px-2 py-0.5 text-xs font-medium mr-2 mt-1 mb-1">
-                         {service.category.name}
-                       </span>
-                    )}
-                    <p className="text-sm text-gray-700 mb-1 line-clamp-3">{service.description || 'No description provided.'}</p>
+                  
+                  <div className="px-3 pb-3 pt-2 flex-grow flex flex-col">
+                    <div>
+                      <h3 className="font-satoshi tracking-tight text-2xl font-bold line-clamp-2 mb-1 leading-none">{service.title}</h3>
+                       {service.category && (
+                         <span className="inline-block bg-gray-200 border border-black px-2 py-0.5 text-xs font-medium mr-2 mt-1 mb-1">
+                           {service.category.name}
+                         </span>
+                      )}
+                      <p className="text-sm text-gray-700 mb-1 line-clamp-3">{service.description || 'No description provided.'}</p>
+                    </div>
+                    <div className="mt-1 pt-2 border-t-2 border-black flex justify-between items-center">
+                       <p className="text-sm font-medium">
+                         Rate/Hours: <span className="font-bold">{service.hourlyRate ?? 'N/A'}</span>
+                       </p>
+                       <Link href={`/services/${service.id}`} passHref>
+                           <Button 
+                               size="sm" 
+                          className="text-xs bg-blue-200 text-black font-bold border-2 border-black rounded-md shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all"
+                           >
+                               View Details
+                           </Button>
+                       </Link>
+                    </div>
                   </div>
-                  <div className="mt-1 pt-2 border-t-2 border-black flex justify-between items-center">
-                     <p className="text-sm font-medium">
-                       Rate/Hours: <span className="font-bold">{service.hourlyRate ?? 'N/A'}</span>
-                     </p>
-                     <Link href={`/services/${service.id}`} passHref>
-                         <Button 
-                             size="sm" 
-                             className="text-xs bg-blue-200 text-black font-bold border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all"
-                         >
-                             View Details
-                         </Button>
-                     </Link>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-16 border-2 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] bg-white">
-            <h2 className="text-xl font-semibold mb-2">No Services Found</h2>
-            <p className="text-gray-600">No services are currently available for browsing.</p>
-             {/* Optional: Link to offer service? */}
-          </div>
-        )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-16 border-2 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] bg-white">
+              {showNearby ? (
+                <>
+                  <MapPin className="mx-auto h-16 w-16 text-gray-400 mb-4" />
+                  <h2 className="text-xl font-semibold mb-2">No Nearby Services Found</h2>
+                  <p className="text-gray-600 mb-4">
+                    No services are available within your current radius.
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    Try increasing your service radius in your profile settings.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <Search className="mx-auto h-16 w-16 text-gray-400 mb-4" />
+              <h2 className="text-xl font-semibold mb-2">No Services Found</h2>
+                  <p className="text-gray-600">
+                    No services are currently available. Check back later or create your own service!
+                  </p>
+                </>
+              )}
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </DashboardLayout>
   );
-};
+}
 
-export default BrowseServicesPage; 
+export default function BrowseServicesPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <Loader2 className="animate-spin h-12 w-12 text-blue-600" />
+      </div>
+    }>
+      <BrowseServicesContent />
+    </Suspense>
+  );
+} 

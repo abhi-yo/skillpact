@@ -1,24 +1,28 @@
 import type { Metadata } from "next";
-import { Inter, Space_Grotesk } from "next/font/google";
+import localFont from 'next/font/local';
 import "./globals.css";
 import TrpcProvider from "@/components/TrpcProvider";
 import AuthProvider from "@/components/auth-provider";
 import { Toaster } from "react-hot-toast";
 
-// Initialize Inter font
-const inter = Inter({
-  subsets: ["latin"],
-  variable: '--font-inter',
-});
-
-const spaceGrotesk = Space_Grotesk({
-  subsets: ["latin"],
-  variable: "--font-space",
+const satoshi = localFont({
+  src: [
+    {
+      path: './fonts/Satoshi_Complete/Fonts/WEB/fonts/Satoshi-Variable.woff2',
+      style: 'normal',
+    },
+    {
+      path: './fonts/Satoshi_Complete/Fonts/WEB/fonts/Satoshi-VariableItalic.woff2',
+      style: 'italic',
+    },
+  ],
+  variable: '--font-satoshi',
+  display: 'swap',
 });
 
 export const metadata: Metadata = {
-  title: "SkillExchange",
-  description: "Skill exchange platform",
+  title: "Skillpact",
+  description: "Credit-based skill exchange platform where neighbors help neighbors",
 };
 
 export default function RootLayout({
@@ -27,8 +31,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-      <html lang="en">
-      <body className={`${inter.variable} ${spaceGrotesk.variable} font-sans`}>
+      <html lang="en" className={`${satoshi.variable}`}>
+      <body className="font-sans">
         <AuthProvider>
           <TrpcProvider>
             {children}
