@@ -302,7 +302,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "C:\\Users\\Akshat\\projects\\april\\skillswap\\prisma\\generated\\client",
+      "value": "/Users/akshatsingh/skillexchange/prisma/generated/client",
       "fromEnvVar": null
     },
     "config": {
@@ -311,12 +311,12 @@ const config = {
     "binaryTargets": [
       {
         "fromEnvVar": null,
-        "value": "windows",
+        "value": "darwin-arm64",
         "native": true
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "C:\\Users\\Akshat\\projects\\april\\skillswap\\prisma\\schema.prisma",
+    "sourceFilePath": "/Users/akshatsingh/skillexchange/prisma/schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
