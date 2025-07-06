@@ -5,20 +5,20 @@ import { Star } from 'lucide-react';
 
 const testimonials = [
   {
-    quote: "I earned 15 credits teaching guitar and used them for plumbing repairs. The credit system is so fair and transparent!",
-    author: "Sarah K.",
-    role: "Music Teacher",
+    quote: "It's empowering to know my tech skills have real value here. I've earned a good amount of credits just by helping people out, and now I have a 'rainy day' fund of credits for whenever I need help around the house.",
+    author: "Shounak C.",
+    role: "Integration Engineer",
     stars: 5,
   },
   {
-    quote: "I love earning credits helping neighbors with gardening and using them for tech support. Perfect for retirees!",
-    author: "James T.",
+    quote: "I love contributing to the community with my gardening skills. Earning credits is a bonus! It feels great knowing those credits are there for me when I need them for anything, from tech support to a ride to the airport.",
+    author: "Sid T.",
     role: "Retired Engineer",
     stars: 5,
   },
   {
-    quote: "As a college student, I tutor kids for credits and get car repairs done. No money needed - just skills!",
-    author: "Miguel R.",
+    quote: "As a student, having a bank of credits is a huge relief. I earn them by tutoring, and it means I don't have to worry about cash for unexpected costs. It's an incredible system for managing expenses.",
+    author: "Neha R.",
     role: "Student",
     stars: 5,
   },

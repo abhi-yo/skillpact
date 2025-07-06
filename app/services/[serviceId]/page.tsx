@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { toast } from 'react-hot-toast';
+import { DashboardLayout } from '@/components/DashboardLayout';
 
 // Interface matching getServiceById return structure (adjust as needed)
 interface ServiceDetails extends React.HTMLAttributes<HTMLDivElement> {
@@ -91,41 +92,48 @@ const ServiceDetailPage: React.FC = () => {
 
     if (isLoading) {
         return (
-          <div className="min-h-screen flex items-center justify-center bg-gray-50">
-            <Loader2 className="animate-spin h-12 w-12 text-blue-600" />
-          </div>
+          <DashboardLayout>
+            <div className="min-h-screen flex items-center justify-center bg-blue-50">
+              <Loader2 className="animate-spin h-12 w-12 text-blue-600" />
+            </div>
+          </DashboardLayout>
         );
     }
     
     if (error) {
         return (
-          <div className="container mx-auto p-4 text-center text-red-600">
-            Error loading service details: {error.message}
-          </div>
+          <DashboardLayout>
+            <div className="container mx-auto p-4 text-center text-red-600">
+              Error loading service details: {error.message}
+            </div>
+          </DashboardLayout>
         );
     }
 
     if (!service) {
         return (
+          <DashboardLayout>
             <div className="container mx-auto p-4 text-center text-gray-600">
               Service not found.
             </div>
-          );
+          </DashboardLayout>
+        );
     }
 
   return (
-        <div className="min-h-screen bg-blue-50 py-10 font-inter">
-            <div className="container mx-auto max-w-3xl">
+    <DashboardLayout>
+        <div className="min-h-screen bg-blue-50 px-4 sm:px-6 lg:px-8 py-6">
+            <div className="max-w-4xl mx-auto">
                 {/* Back Button */}
-                <Link href="/services/browse" className="inline-flex items-center text-sm font-medium text-gray-700 hover:text-black mb-4">
+                <Link href="/services/browse" className="inline-flex items-center text-sm font-medium text-gray-700 hover:text-black mb-6">
                     <ArrowLeft size={16} className="mr-1" />
                     Back to Browse
                 </Link>
 
-                <Card className="border-2 border-black rounded-lg shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] bg-white">
+                <Card className="border-2 border-black rounded-lg shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] bg-white py-0">
                     {/* Provider Info Header */}
-                    <CardHeader className="border-b-2 border-black p-2 bg-orange-100 rounded-t-lg -m-[2px]">
-                       <div className="flex items-center space-x-2">
+                    <CardHeader className="border-b-2 border-black p-0 bg-gray-50 rounded-t-lg -m-[2px]">
+                       <div className="flex items-center space-x-3 p-3">
                          {service.user?.image ? (
                             <Image 
                               src={service.user.image}
@@ -206,7 +214,8 @@ const ServiceDetailPage: React.FC = () => {
                     </CardContent>
                 </Card>
             </div>
-    </div>
+        </div>
+    </DashboardLayout>
   );
 };
 

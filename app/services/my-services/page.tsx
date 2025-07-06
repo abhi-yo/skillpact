@@ -135,7 +135,7 @@ const MyServicesPage: React.FC = () => {
           {myServices && myServices.length > 0 ? (
             <div className="grid grid-cols-1 gap-4 mt-3 w-full max-w-4xl lg:max-w-6xl mx-auto">
               {myServices.map((service: MyService) => (
-                <Card key={service.id} className="bg-white border-2 border-black rounded-lg shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] flex flex-col hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-all duration-150">
+                <Card key={service.id} className="bg-white border-2 border-black rounded-lg shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] flex flex-col hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all duration-150">
                   <CardHeader className="border-b-2 border-black pb-1">
                     <div className="flex justify-between items-start gap-3">
                       <div className="flex-grow min-w-0">

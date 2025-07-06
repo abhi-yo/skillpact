@@ -1,27 +1,20 @@
+import { Star } from "lucide-react";
+
 export default function Marquee({ items }: { items: string[] }) {
+  const displayItems = [...items, ...items];
+
   return (
-    <div className="relative flex w-full overflow-x-hidden border-b-2 border-t-2 border-border bg-secondary-background text-foreground font-base">
-      <div className="animate-marquee whitespace-nowrap py-12">
-        {items.map((item) => {
-          return (
-            <span key={item} className="mx-4 text-4xl">
+    <div className="relative w-full overflow-x-hidden border-b-4 border-black bg-blue-600 text-white group">
+      <div className="animate-marquee group-hover:[animation-play-state:paused] whitespace-nowrap py-2 flex items-center">
+        {displayItems.map((item, index) => (
+          <div key={index} className="flex items-center">
+            <span className="mx-4 text-sm font-semibold tracking-wide">
               {item}
             </span>
-          )
-        })}
+            <span className="text-blue-200">•</span>
+          </div>
+        ))}
       </div>
-
-      <div className="absolute top-0 animate-marquee2 whitespace-nowrap py-12">
-        {items.map((item) => {
-          return (
-            <span key={item} className="mx-4 text-4xl">
-              {item}
-            </span>
-          )
-        })}
-      </div>
-
-      {/* must have both of these in order to work */}
     </div>
-  )
+  );
 }

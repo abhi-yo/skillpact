@@ -23,10 +23,12 @@ const Navbar: React.FC = () => {
 
   return (
     <nav 
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled || mobileMenuOpen
-          ? 'bg-white shadow-md py-3' 
-          : 'bg-transparent py-5'
+      className={`fixed left-0 right-0 z-50 transition-all duration-300 ${
+        isScrolled
+          ? 'bg-white shadow-md py-3 top-0' 
+          : 'bg-transparent py-5 top-[45px]'
+      } ${
+        mobileMenuOpen ? 'bg-white shadow-md py-3 top-0' : ''
       }`}
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">

@@ -6,6 +6,9 @@ import { getToken } from 'next-auth/jwt';
 const publicPaths = [
   '/',
   '/login',
+  '/terms-of-service',
+  '/privacy-policy',
+  '/community-guidelines',
   '/api/auth/*',
   '/api/trpc/*', // tRPC routes are protected internally
 ];

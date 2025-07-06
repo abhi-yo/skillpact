@@ -167,54 +167,55 @@ function BrowseServicesContent() {
 
   return (
     <DashboardLayout>
-      <div className="min-h-screen bg-blue-50 p-8">
-        <div className="mb-10">
-          <div className="flex items-center justify-between mb-4">
-            <h1 className="font-satoshi text-4xl font-bold">
-              {showNearby ? 'Nearby Services' : 'Browse Services'}
-            </h1>
-            <div className="flex bg-white border-2 border-black rounded-lg shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] overflow-hidden">
-              <button
-                onClick={() => setShowNearby(false)}
-                className={`px-4 py-2 font-medium text-sm transition-all ${
-                  !showNearby 
-                    ? 'bg-blue-500 text-white' 
-                    : 'bg-white text-black hover:bg-gray-50'
-                }`}
-              >
-                All Services
-              </button>
-              <button
-                onClick={() => setShowNearby(true)}
-                className={`px-4 py-2 font-medium text-sm transition-all ${
-                  showNearby 
-                    ? 'bg-blue-500 text-white' 
-                    : 'bg-white text-black hover:bg-gray-50'
-                }`}
-              >
-                <MapPin size={16} className="inline mr-1" />
-                Nearby
-              </button>
+      <div className="min-h-screen bg-blue-50 px-4 sm:px-6 lg:px-8 py-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="mb-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-3">
+              <div className="relative">
+                <h1 className="font-satoshi text-3xl font-bold">
+                  {showNearby ? 'Nearby Services' : 'Browse Services'}
+                </h1>
+                <svg viewBox="0 0 240 8" className="w-60 h-2 absolute left-0" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M2,6 Q60,2 120,4 T238,6" stroke="#9ca3af" strokeWidth="3" fill="none" strokeLinecap="round" />
+                </svg>
+              </div>
+              <div className="flex bg-white border-2 border-black rounded-lg shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] overflow-hidden">
+                <button
+                  onClick={() => setShowNearby(false)}
+                  className={`px-4 py-2 font-medium text-sm transition-all ${
+                    !showNearby 
+                      ? 'bg-blue-500 text-white' 
+                      : 'bg-white text-black hover:bg-gray-50'
+                  }`}
+                >
+                  All Services
+                </button>
+                <button
+                  onClick={() => setShowNearby(true)}
+                  className={`px-4 py-2 font-medium text-sm transition-all ${
+                    showNearby 
+                      ? 'bg-blue-500 text-white' 
+                      : 'bg-white text-black hover:bg-gray-50'
+                  }`}
+                >
+                  <MapPin size={16} className="inline mr-1" />
+                  Nearby
+                </button>
+              </div>
             </div>
-          </div>
-          <p className="text-gray-600">
-            {showNearby 
-              ? 'Services within your area, sorted by distance'
-              : 'All available services in our platform'
-            }
-          </p>
-        </div>
-        <div className="container mx-auto max-w-6xl">
-          <div className="flex justify-between items-center mb-10">
-            {/* TODO: Add Filter Dropdowns/Search Bar */}
+            <p className="text-gray-600 mt-2">
+              {showNearby 
+                ? 'Services within your area, sorted by distance'
+                : 'All available services in our platform'
+              }
+            </p>
           </div>
 
           {services && services.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {(services as BrowsedService[]).map((service) => (
                 <div key={service.id} className="border-2 border-black rounded-lg shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] flex flex-col overflow-hidden bg-white transition-all duration-150 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1">
-                  {/* Header */}
-                  <div className="flex items-center space-x-1 bg-orange-100 p-2 border-b-2 border-black">
+                  <div className="flex items-center space-x-3 bg-gray-50 p-3 border-b-2 border-black">
                        {service.user?.image ? (
                           <Image 
                             src={service.user.image}
@@ -226,17 +227,17 @@ function BrowseServicesContent() {
                        ) : (
                            <UserCircle size={40} className="border-2 border-black rounded-full text-gray-500"/>
                        )}
-                    <div className="flex-1">
-                      <p className="font-satoshi text-lg font-bold leading-none">{service.user?.name || 'SkillSwap User'}</p>
-                      <div className="flex items-center justify-between">
+                    <div className="flex-1 min-w-0">
+                      <p className="font-satoshi text-sm font-bold leading-none truncate">{service.user?.name || 'SkillSwap User'}</p>
+                      <div className="flex items-center justify-between mt-1">
                           {service.user?.averageRating !== null && service.user?.averageRating !== undefined && (
-                              <div className="flex items-center text-xs text-gray-700 mt-0.5">
+                              <div className="flex items-center text-xs text-gray-700">
                                   <Star size={12} className="mr-1 text-yellow-500 fill-yellow-400"/>
                                   {service.user.averageRating.toFixed(1)}
                               </div>
                           )}
                         {showNearby && service.distance_km !== undefined && (
-                          <div className="flex items-center text-xs text-gray-700 mt-0.5">
+                          <div className="flex items-center text-xs text-gray-700">
                             <MapPin size={12} className="mr-1 text-blue-500"/>
                             {service.distance_km < 1 
                               ? `${Math.round(service.distance_km * 1000)}m away`
@@ -245,27 +246,28 @@ function BrowseServicesContent() {
                           </div>
                         )}
                       </div>
-                       </div>
-                     </div>
+                    </div>
+                  </div>
                   
-                  <div className="px-3 pb-3 pt-2 flex-grow flex flex-col">
-                    <div>
-                      <h3 className="font-satoshi tracking-tight text-2xl font-bold line-clamp-2 mb-1 leading-none">{service.title}</h3>
+                  <div className="p-4 flex-grow flex flex-col">
+                    <div className="flex-grow">
+                      <h3 className="font-satoshi text-lg font-bold line-clamp-2 mb-2 leading-tight">{service.title}</h3>
                        {service.category && (
-                         <span className="inline-block bg-gray-200 border border-black px-2 py-0.5 text-xs font-medium mr-2 mt-1 mb-1">
+                         <span className="inline-block bg-blue-100 border border-black px-2 py-1 text-xs font-medium rounded mb-2">
                            {service.category.name}
                          </span>
                       )}
-                      <p className="text-sm text-gray-700 mb-1 line-clamp-3">{service.description || 'No description provided.'}</p>
+                      <p className="text-sm text-gray-700 mb-3 line-clamp-3 leading-relaxed">{service.description || 'No description provided.'}</p>
                     </div>
-                    <div className="mt-1 pt-2 border-t-2 border-black flex justify-between items-center">
-                       <p className="text-sm font-medium">
-                         Rate/Hours: <span className="font-bold">{service.hourlyRate ?? 'N/A'}</span>
-                       </p>
+                    <div className="pt-3 border-t border-gray-200 flex justify-between items-center">
+                       <div>
+                         <p className="text-xs text-gray-500">Rate/Hours</p>
+                         <p className="text-sm font-bold">{service.hourlyRate ?? 'N/A'}</p>
+                       </div>
                        <Link href={`/services/${service.id}`} passHref>
                            <Button 
                                size="sm" 
-                          className="text-xs bg-blue-200 text-black font-bold border-2 border-black rounded-md shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all"
+                          className="text-xs bg-blue-500 text-white font-bold border-2 border-black rounded-md shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all"
                            >
                                View Details
                            </Button>
@@ -276,7 +278,7 @@ function BrowseServicesContent() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-16 border-2 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] bg-white">
+            <div className="text-center py-16 border-2 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] bg-white rounded-lg">
               {showNearby ? (
                 <>
                   <MapPin className="mx-auto h-16 w-16 text-gray-400 mb-4" />

@@ -6,7 +6,7 @@ import Link from 'next/link';
 
 const Hero: React.FC = () => {
   return (
-    <section className="pt-24 pb-16 md:pt-32 md:pb-24 overflow-hidden">
+    <section className="pt-20 pb-16 md:pt-28 md:pb-24 overflow-hidden">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row md:items-center">
           <div className="md:w-1/2 mb-12 md:mb-0">
