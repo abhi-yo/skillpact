@@ -4,6 +4,7 @@ import "./globals.css";
 import TrpcProvider from "@/components/TrpcProvider";
 import AuthProvider from "@/components/auth-provider";
 import { Toaster } from "react-hot-toast";
+import { Analytics } from "@vercel/analytics/react";
 
 const satoshi = localFont({
   src: [
@@ -54,6 +55,7 @@ export default function RootLayout({
           <TrpcProvider>{children}</TrpcProvider>
         </AuthProvider>
         <Toaster position="top-right" />
+        <Analytics />
       </body>
     </html>
   );
