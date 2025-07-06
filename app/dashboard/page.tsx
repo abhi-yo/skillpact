@@ -360,11 +360,11 @@ const DashboardPage: React.FC = () => {
 
               {/* Activity Overview Card */}
               <div className="bg-white border-2 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] rounded-lg">
-                <div className="px-3 py-3 md:px-6 md:py-5 border-b-2 border-black flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-3 bg-gradient-to-r from-blue-500 to-blue-600 rounded-t-lg">
-                  <h2 className="font-satoshi tracking-tight text-lg md:text-2xl font-bold text-white flex items-center">
+                <div className="px-3 py-2 md:px-5 md:py-3 border-b-2 border-black flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-3 bg-gradient-to-r from-blue-500 to-blue-600 rounded-t-lg">
+                  <h2 className="font-satoshi tracking-tight text-lg md:text-xl font-bold text-white flex items-center">
                     <BarChart
-                      className="mr-2 md:mr-3"
-                      size={28}
+                      className="mr-2 md:mr-2"
+                      size={24}
                       strokeWidth={2}
                     />
                     <span className="md:inline">Activity Overview</span>
@@ -372,13 +372,13 @@ const DashboardPage: React.FC = () => {
                   <div className="flex items-center gap-2 md:gap-3 w-full sm:w-auto">
                     <button
                       onClick={() => utils.invalidate()}
-                      className="text-sm md:text-base font-bold bg-white text-blue-600 px-3 py-1.5 md:px-4 md:py-2 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all duration-150 flex-1 sm:flex-none text-center rounded-lg"
+                      className="text-sm md:text-base font-bold bg-white text-blue-600 px-3 py-1 md:px-4 md:py-1.5 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all duration-150 flex-1 sm:flex-none text-center rounded-lg"
                     >
                       Refresh Stats
                     </button>
                     <Link
                       href="/activity"
-                      className="text-sm md:text-base font-bold text-white bg-blue-400 px-3 py-1.5 md:px-4 md:py-2 border-2 border-white shadow-[2px_2px_0px_0px_rgba(255,255,255,0.8)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all duration-150 flex items-center justify-center focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-white flex-1 sm:flex-none rounded-lg"
+                      className="text-sm md:text-base font-bold text-white bg-blue-400 px-3 py-1 md:px-4 md:py-1.5 border-2 border-white shadow-[2px_2px_0px_0px_rgba(255,255,255,0.8)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all duration-150 flex items-center justify-center focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-white flex-1 sm:flex-none rounded-lg"
                     >
                       <span className="hidden sm:inline">
                         View Detailed Activity
