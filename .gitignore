@@ -28,4 +28,24 @@ dist-ssr
 .env.*
 !.env.example
 
+# Next.js
 .next/
+out/
+
+# Turbo
+.turbo/
+
+# Build outputs
+build/
+dist/
+
+# Prisma
+packages/database/prisma/generated/client/
+packages/database/dist/
+
+# Production
+/build
+/dist
+
+# Exclude separate chat app
+chatapp/
