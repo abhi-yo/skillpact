@@ -29,9 +29,9 @@ importers:
       '@nestjs/platform-express':
         specifier: ^11.0.1
         version: 11.0.1(@nestjs/common@11.0.1)(@nestjs/core@11.0.1)
-      database:
-        specifier: workspace:*
-        version: link:../../packages/database
+      '@prisma/client':
+        specifier: 6.6.0
+        version: 6.6.0(prisma@6.6.0)(typescript@5.7.3)
       reflect-metadata:
         specifier: ^0.2.2
         version: 0.2.2
@@ -47,7 +47,7 @@ importers:
         version: 9.18.0
       '@nestjs/cli':
         specifier: ^11.0.0
-        version: 11.0.0(@swc/cli@0.6.0)(@swc/core@1.10.7)(@types/node@22.16.1)
+        version: 11.0.0(@swc/cli@0.6.0)(@swc/core@1.10.7)(@types/node@22.16.1)(esbuild@0.25.6)
       '@nestjs/schematics':
         specifier: ^11.0.0
         version: 11.0.0(chokidar@4.0.3)(typescript@5.7.3)
@@ -90,6 +90,9 @@ importers:
       prettier:
         specifier: ^3.4.2
         version: 3.4.2
+      prisma:
+        specifier: 6.6.0
+        version: 6.6.0(typescript@5.7.3)
       source-map-support:
         specifier: ^0.5.21
         version: 0.5.21
@@ -98,7 +101,7 @@ importers:
         version: 7.0.0
       ts-jest:
         specifier: ^29.2.5
-        version: 29.2.5(@babel/core@7.28.0)(jest@29.7.0)(typescript@5.7.3)
+        version: 29.2.5(@babel/core@7.28.0)(esbuild@0.25.6)(jest@29.7.0)(typescript@5.7.3)
       ts-loader:
         specifier: ^9.5.2
         version: 9.5.2(typescript@5.7.3)(webpack@5.99.9)
@@ -1842,7 +1845,7 @@ packages:
     dev: true
     optional: true
 
-  /@nestjs/cli@11.0.0(@swc/cli@0.6.0)(@swc/core@1.10.7)(@types/node@22.16.1):
+  /@nestjs/cli@11.0.0(@swc/cli@0.6.0)(@swc/core@1.10.7)(@types/node@22.16.1)(esbuild@0.25.6):
     resolution: {integrity: sha512-53Hparhbz4nNQNttf6EFfYNeFxSLdshqnvaiWy3MBnZxgAuqtAZP3xsiNHPId5dYtzGCjdK60FN4Vcspx3Y+aw==}
     engines: {node: '>= 20.11'}
     hasBin: true
@@ -1874,7 +1877,7 @@ packages:
       tsconfig-paths: 4.2.0
       tsconfig-paths-webpack-plugin: 4.2.0
       typescript: 5.7.3
-      webpack: 5.97.1(@swc/core@1.10.7)
+      webpack: 5.97.1(@swc/core@1.10.7)(esbuild@0.25.6)
       webpack-node-externals: 3.0.0
     transitivePeerDependencies:
       - '@types/node'
@@ -6377,7 +6380,7 @@ packages:
       semver: 7.7.2
       tapable: 2.2.2
       typescript: 5.7.3
-      webpack: 5.97.1(@swc/core@1.10.7)
+      webpack: 5.97.1(@swc/core@1.10.7)(esbuild@0.25.6)
     dev: true
 
   /form-data-encoder@2.1.4:
@@ -9741,7 +9744,7 @@ packages:
       streamx: 2.22.1
     dev: true
 
-  /terser-webpack-plugin@5.3.14(@swc/core@1.10.7)(webpack@5.97.1):
+  /terser-webpack-plugin@5.3.14(@swc/core@1.10.7)(esbuild@0.25.6)(webpack@5.97.1):
     resolution: {integrity: sha512-vkZjpUjb6OMS7dhV+tILUW6BhpDR7P2L/aQSAv+Uwk+m8KATX9EccViHTJR2qDtACKPIYndLGCyl3FMo+r2LMw==}
     engines: {node: '>= 10.13.0'}
     peerDependencies:
@@ -9759,14 +9762,15 @@ packages:
     dependencies:
       '@jridgewell/trace-mapping': 0.3.29
       '@swc/core': 1.10.7
+      esbuild: 0.25.6
       jest-worker: 27.5.1
       schema-utils: 4.3.2
       serialize-javascript: 6.0.2
       terser: 5.43.1
-      webpack: 5.97.1(@swc/core@1.10.7)
+      webpack: 5.97.1(@swc/core@1.10.7)(esbuild@0.25.6)
     dev: true
 
-  /terser-webpack-plugin@5.3.14(@swc/core@1.10.7)(webpack@5.99.9):
+  /terser-webpack-plugin@5.3.14(@swc/core@1.10.7)(esbuild@0.25.6)(webpack@5.99.9):
     resolution: {integrity: sha512-vkZjpUjb6OMS7dhV+tILUW6BhpDR7P2L/aQSAv+Uwk+m8KATX9EccViHTJR2qDtACKPIYndLGCyl3FMo+r2LMw==}
     engines: {node: '>= 10.13.0'}
     peerDependencies:
@@ -9784,11 +9788,12 @@ packages:
     dependencies:
       '@jridgewell/trace-mapping': 0.3.29
       '@swc/core': 1.10.7
+      esbuild: 0.25.6
       jest-worker: 27.5.1
       schema-utils: 4.3.2
       serialize-javascript: 6.0.2
       terser: 5.43.1
-      webpack: 5.99.9(@swc/core@1.10.7)
+      webpack: 5.99.9(@swc/core@1.10.7)(esbuild@0.25.6)
     dev: true
 
   /terser@5.43.1:
@@ -9907,7 +9912,7 @@ packages:
   /ts-interface-checker@0.1.13:
     resolution: {integrity: sha512-Y/arvbn+rrz3JCKl9C4kVNfTfSm2/mEp5FSz5EsZSANGPSlQrpRI5M4PKF+mJnE52jOO90PnPSc3Ur3bTQw0gA==}
 
-  /ts-jest@29.2.5(@babel/core@7.28.0)(jest@29.7.0)(typescript@5.7.3):
+  /ts-jest@29.2.5(@babel/core@7.28.0)(esbuild@0.25.6)(jest@29.7.0)(typescript@5.7.3):
     resolution: {integrity: sha512-KD8zB2aAZrcKIdGk4OwpJggeLcH1FgrICqDSROWqlnJXGCXK4Mn6FcdK2B6670Xr73lHMG1kHw8R87A0ecZ+vA==}
     engines: {node: ^14.15.0 || ^16.10.0 || ^18.0.0 || >=20.0.0}
     hasBin: true
@@ -9934,6 +9939,7 @@ packages:
       '@babel/core': 7.28.0
       bs-logger: 0.2.6
       ejs: 3.1.10
+      esbuild: 0.25.6
       fast-json-stable-stringify: 2.1.0
       jest: 29.7.0(@types/node@22.16.1)(ts-node@10.9.2)
       jest-util: 29.7.0
@@ -9958,7 +9964,7 @@ packages:
       semver: 7.7.2
       source-map: 0.7.4
       typescript: 5.7.3
-      webpack: 5.99.9(@swc/core@1.10.7)
+      webpack: 5.99.9(@swc/core@1.10.7)(esbuild@0.25.6)
     dev: true
 
   /ts-node@10.9.2(@swc/core@1.10.7)(@types/node@22.16.1)(typescript@5.7.3):
@@ -10492,7 +10498,7 @@ packages:
     engines: {node: '>=10.13.0'}
     dev: true
 
-  /webpack@5.97.1(@swc/core@1.10.7):
+  /webpack@5.97.1(@swc/core@1.10.7)(esbuild@0.25.6):
     resolution: {integrity: sha512-EksG6gFY3L1eFMROS/7Wzgrii5mBAFe4rIr3r2BTfo7bcc+DWwFZ4OJ/miOuHJO/A85HwyI4eQ0F6IKXesO7Fg==}
     engines: {node: '>=10.13.0'}
     hasBin: true
@@ -10522,7 +10528,7 @@ packages:
       neo-async: 2.6.2
       schema-utils: 3.3.0
       tapable: 2.2.2
-      terser-webpack-plugin: 5.3.14(@swc/core@1.10.7)(webpack@5.97.1)
+      terser-webpack-plugin: 5.3.14(@swc/core@1.10.7)(esbuild@0.25.6)(webpack@5.97.1)
       watchpack: 2.4.4
       webpack-sources: 3.3.3
     transitivePeerDependencies:
@@ -10531,7 +10537,7 @@ packages:
       - uglify-js
     dev: true
 
-  /webpack@5.99.9(@swc/core@1.10.7):
+  /webpack@5.99.9(@swc/core@1.10.7)(esbuild@0.25.6):
     resolution: {integrity: sha512-brOPwM3JnmOa+7kd3NsmOUOwbDAj8FT9xDsG3IW0MgbN9yZV7Oi/s/+MNQ/EcSMqw7qfoRyXPoeEWT8zLVdVGg==}
     engines: {node: '>=10.13.0'}
     hasBin: true
@@ -10562,7 +10568,7 @@ packages:
       neo-async: 2.6.2
       schema-utils: 4.3.2
       tapable: 2.2.2
-      terser-webpack-plugin: 5.3.14(@swc/core@1.10.7)(webpack@5.99.9)
+      terser-webpack-plugin: 5.3.14(@swc/core@1.10.7)(esbuild@0.25.6)(webpack@5.99.9)
       watchpack: 2.4.4
       webpack-sources: 3.3.3
     transitivePeerDependencies:

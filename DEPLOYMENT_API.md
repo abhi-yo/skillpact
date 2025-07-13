@@ -17,7 +17,7 @@ This guide explains how to deploy the NestJS API from the monorepo to Vercel.
 1. Go to Vercel dashboard
 2. Click "New Project"
 3. Select your GitHub repository: `abhi-yo/skillexchange`
-4. **Important**: Set Root Directory to `.` (root of the monorepo, NOT `apps/api`)
+4. **Important**: Set Root Directory to `apps/api` (standalone API deployment)
 5. Set Framework Preset to "Other"
 
 ### 2. Configure Environment Variables
@@ -37,9 +37,8 @@ NODE_ENV=production
 The deployment will automatically:
 
 1. Install dependencies with `pnpm install`
-2. Build the database package (includes Prisma generate)
-3. Build the API package
-4. Deploy the serverless function
+2. Generate Prisma client and build the API (`pnpm build`)
+3. Deploy the serverless function
 
 ## Configuration Files
 
@@ -59,31 +58,35 @@ The deployment will automatically:
 
 ```
 skillexchange/
-├── vercel.json                 # Vercel configuration
-├── apps/
-│   └── api/
-│       ├── serverless.js      # Serverless wrapper
-│       └── dist/              # Built NestJS app
-└── packages/
-    └── database/              # Shared database package
+└── apps/
+    └── api/                   # Standalone API deployment
+        ├── vercel.json        # Vercel configuration
+        ├── serverless.js      # Serverless wrapper
+        ├── prisma/            # Prisma schema and migrations
+        └── dist/              # Built NestJS app
 ```
 
 ## Common Issues and Solutions
 
 ### 1. Workspace Dependencies
 
-- **Problem**: `database` package not found
-- **Solution**: Deploy from monorepo root, not `apps/api`
+- **Problem**: `database` package not found or build timeout
+- **Solution**: Use standalone API deployment with Prisma included directly
 
 ### 2. Build Order
 
 - **Problem**: API tries to import database before it's built
-- **Solution**: Build database first, then API (handled in vercel.json)
+- **Solution**: Prisma generation is included in the API build script
 
 ### 3. Serverless Functions
 
 - **Problem**: NestJS app not compatible with serverless
 - **Solution**: Use serverless wrapper (serverless.js)
+
+### 4. Prisma Client Module Resolution
+
+- **Problem**: `Module not found: Can't resolve './prisma/generated/client/index.js'`
+- **Solution**: Build script copies generated files to dist folder for proper module resolution
 
 ## Testing the Deployment
 
