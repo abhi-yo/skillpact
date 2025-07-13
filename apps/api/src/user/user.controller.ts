@@ -1,5 +1,5 @@
 import { Controller, Get, Param, NotFoundException } from '@nestjs/common';
-import { UserService } from './user.service.js';
+import { UserService } from './user.service';
 
 @Controller('users')
 export class UserController {
