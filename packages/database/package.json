@@ -11,7 +11,7 @@
     "dist/**"
   ],
   "scripts": {
-    "build": "prisma generate && rm -rf prisma/client && cp -r prisma/generated/client prisma/client && tsc && cp -r prisma/client dist/prisma",
+    "build": "prisma generate && tsc && mkdir -p dist/prisma/generated && cp -r prisma/generated/client dist/prisma/generated/client",
     "clean": "rm -rf dist",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
