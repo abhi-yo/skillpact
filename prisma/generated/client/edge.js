@@ -35,12 +35,12 @@ exports.Prisma = Prisma
 exports.$Enums = {}
 
 /**
- * Prisma Client JS version: 6.7.0
- * Query Engine version: 3cff47a7f5d65c3ea74883f1d736e41d68ce91ed
+ * Prisma Client JS version: 6.12.0
+ * Query Engine version: 8047c96bbd92db98a2abc7c9323ce77c02c89dbc
  */
 Prisma.prismaVersion = {
-  client: "6.7.0",
-  engine: "3cff47a7f5d65c3ea74883f1d736e41d68ce91ed"
+  client: "6.12.0",
+  engine: "8047c96bbd92db98a2abc7c9323ce77c02c89dbc"
 }
 
 Prisma.PrismaClientKnownRequestError = PrismaClientKnownRequestError;
@@ -302,7 +302,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "/Users/akshatsingh/skillexchange/prisma/generated/client",
+      "value": "/Users/akshatsingh/Desktop/skillexchange/prisma/generated/client",
       "fromEnvVar": null
     },
     "config": {
@@ -316,7 +316,7 @@ const config = {
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "/Users/akshatsingh/skillexchange/prisma/schema.prisma",
+    "sourceFilePath": "/Users/akshatsingh/Desktop/skillexchange/prisma/schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
@@ -324,8 +324,8 @@ const config = {
     "schemaEnvPath": "../../../.env"
   },
   "relativePath": "../..",
-  "clientVersion": "6.7.0",
-  "engineVersion": "3cff47a7f5d65c3ea74883f1d736e41d68ce91ed",
+  "clientVersion": "6.12.0",
+  "engineVersion": "8047c96bbd92db98a2abc7c9323ce77c02c89dbc",
   "datasourceNames": [
     "db"
   ],
