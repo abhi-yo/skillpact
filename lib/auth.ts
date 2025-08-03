@@ -16,23 +16,40 @@ export const authOptions = {
     error: "/login",
   },
   session: {
-    strategy: "jwt" as const,
+    strategy: "database" as const,
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+  },
+  cookies: {
+    sessionToken: {
+      name: `next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === 'production'
+      }
+    },
   },
   callbacks: {
-    session: ({ session, token }: any) => {
-      if (session.user) {
-        session.user.id = token.sub;
+    session: ({ session, user }: any) => {
+      if (session.user && user) {
+        session.user.id = user.id;
       }
       return session;
     },
     signIn: async ({ user, account }: any) => {
-      console.log("Sign-in attempt:", {
-        email: user.email,
-        provider: account?.provider,
-        exists: !!user.id
-      });
-      return true;
+      try {
+        console.log("Sign-in attempt:", {
+          email: user.email,
+          provider: account?.provider,
+          userId: user.id
+        });
+        return true;
+      } catch (error) {
+        console.error("Sign-in error:", error);
+        return false;
+      }
     },
   },
-  debug: process.env.NODE_ENV === 'development',
+  debug: false, // Disable debug logs in production
 } 
