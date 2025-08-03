@@ -15,8 +15,10 @@ export default function LoginPage() {
   // Redirect if already logged in
   useEffect(() => {
     if (status === 'authenticated' && session) {
+      console.log("User is authenticated, redirecting to dashboard...")
       toast.success("Welcome back! Redirecting to your dashboard...")
-      router.push("/dashboard")
+      // Use replace instead of push to prevent back button issues
+      router.replace("/dashboard")
     }
   }, [session, status, router])
 
