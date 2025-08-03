@@ -46,11 +46,11 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  // Check if user is authenticated
-  const token = await getToken({ req });
+  // Check for session token cookie (database sessions)
+  const sessionToken = req.cookies.get("next-auth.session-token")?.value;
 
   // Redirect to login if not authenticated
-  if (!token) {
+  if (!sessionToken) {
     const url = new URL("/login", req.url);
     url.searchParams.set("callbackUrl", pathname);
     return NextResponse.redirect(url);
