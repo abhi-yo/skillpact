@@ -46,7 +46,18 @@ const Footer: React.FC = () => {
         </div>
         
         <div className="pt-8 border-t border-blue-800 text-center text-blue-300 text-sm">
-          <p>© 2025 Skillpact. All rights reserved.</p>
+          <p className="mb-2">© 2025 Skillpact. All rights reserved.</p>
+          <p className="text-blue-400/60 text-xs">
+            Database powered by{' '}
+            <a 
+              href="https://neon.tech" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-blue-200/80 hover:text-green-300 transition-colors underline decoration-dotted"
+            >
+              Neon
+            </a>
+          </p>
         </div>
       </div>
     </footer>
