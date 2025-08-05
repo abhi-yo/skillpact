@@ -30,9 +30,11 @@ const Hero: React.FC = () => {
                 <ArrowRight className="ml-2" size={20} />
                 </span>
               </Link>
-              <button className="w-full sm:w-auto px-8 py-3 bg-white text-blue-600 font-semibold text-base transition-all border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none flex items-center justify-center">
-                Learn More
-              </button>
+              <Link href="/about">
+                <span className="w-full sm:w-auto px-8 py-3 bg-white text-blue-600 font-semibold text-base transition-all border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none flex items-center justify-center cursor-pointer">
+                  Learn More
+                </span>
+              </Link>
             </div>
           </div>
           
