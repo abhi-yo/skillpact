@@ -39,16 +39,16 @@
 
 ## ✨ Features
 
-- **🔄 Credit-Based Exchange System** - Internal economy for tracking and managing service transactions
-- **👥 User Profile Management** - Comprehensive profiles with skills, services, and reputation tracking
-- **🗺️ Geolocation Services** - Location-based service discovery and filtering
-- **💬 Real-time Communication** - Built-in messaging system for coordination and negotiation
-- **⭐ Reputation & Rating System** - User feedback and trust building mechanisms
-- **📅 Exchange Lifecycle Management** - Complete workflow from proposal to completion
-- **🔔 Notification System** - Real-time updates for exchange activities and messages
-- **📱 Responsive Web Design** - Cross-platform compatibility with mobile-first approach
-- **🔐 Authentication & Authorization** - Secure user management with OAuth integration
-- **🎯 Service Categorization** - Organized taxonomy for easy service discovery
+- **Credit-Based Exchange System** - Internal economy for tracking and managing service transactions
+- **User Profile Management** - Comprehensive profiles with skills, services, and reputation tracking
+- **Geolocation Services** - Location-based service discovery and filtering
+- **Real-time Communication** - Built-in messaging system for coordination and negotiation
+- **Reputation & Rating System** - User feedback and trust building mechanisms
+- **Exchange Lifecycle Management** - Complete workflow from proposal to completion
+- **Notification System** - Real-time updates for exchange activities and messages
+- **Responsive Web Design** - Cross-platform compatibility with mobile-first approach
+- **Authentication & Authorization** - Secure user management with OAuth integration
+- **Service Categorization** - Organized taxonomy for easy service discovery
 
 ## 🎯 Application Workflow
 
@@ -209,12 +209,12 @@ git commit -m "feat: add amazing feature"
 
 ### **Areas for Contribution**
 
-- 🎨 **UI/UX Improvements** - Enhance the user interface and experience
-- 🔧 **New Features** - Add functionality like group exchanges, skill workshops
-- 🌍 **Internationalization** - Add support for multiple languages
-- 📱 **Mobile App** - React Native or Flutter implementation
-- 🧪 **Testing** - Add comprehensive test coverage
-- 📚 **Documentation** - Improve docs and add tutorials
+- **UI/UX Improvements** - Enhance the user interface and experience
+- **New Features** - Add functionality like group exchanges, skill workshops
+- **Internationalization** - Add support for multiple languages
+- **Mobile App** - React Native or Flutter implementation
+- **Testing** - Add comprehensive test coverage
+- **Documentation** - Improve docs and add tutorials
 
 ### **Development Guidelines**
 
@@ -266,10 +266,10 @@ The application uses a relational database design with the following core entiti
 **This project is proudly powered by [Neon](https://neon.tech) — the serverless PostgreSQL platform that makes database management effortless.**
 
 Neon provides:
-- ⚡ **Serverless PostgreSQL** with instant branching
-- 🔄 **Automatic scaling** based on your app's needs
-- 🛡️ **Built-in connection pooling** for optimal performance
-- 🌱 **Database branching** for safe development and testing
+- **Serverless PostgreSQL** with instant branching
+- **Automatic scaling** based on your app's needs
+- **Built-in connection pooling** for optimal performance
+- **Database branching** for safe development and testing
 
 <i>Special thanks to Neon for sponsoring this open source project and supporting the developer community!</i>
 
@@ -280,12 +280,6 @@ Neon provides:
 ## 📄 License
 
 This project is open source and available under the [MIT License](LICENSE).
-
-## 🔗 Links
-
-- **Live Demo**: [skillpact.co](https://skillpact.co)
-- **Documentation**: [docs.skillpact.co](https://docs.skillpact.co) *(If you have docs)*
-- **Community**: [Join our Discord](https://discord.gg/skillpact) *(If you have a community)*
 
 ## 🏗️ Built By
 
