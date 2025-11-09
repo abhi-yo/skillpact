@@ -8,9 +8,10 @@ const nextConfig = {
             {
                 protocol: 'https',
                 hostname: 'lh3.googleusercontent.com',
-                // You might need to adjust port and pathname if URLs vary more
-                // port: '',
-                // pathname: '/a/**', 
+            },
+            {
+                protocol: 'https',
+                hostname: 'media.licdn.com',
             },
             // Add other allowed image hostnames here if needed
         ],
