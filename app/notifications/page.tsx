@@ -1,16 +1,16 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { trpc } from '@/lib/trpc';
-import { Loader2, AlertCircle, ArrowLeft, Bell, CheckCircle, Clock, MessagesSquare, Check } from 'lucide-react';
+import { Loader2, AlertCircle, Bell, CheckCircle, Clock, MessagesSquare, ChevronDown, ChevronUp, ExternalLink, Video } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { toast } from "react-hot-toast";
 import { DashboardLayout } from '@/components/DashboardLayout';
+import { toast } from 'react-hot-toast';
+import { Button } from '@/components/ui/button';
 
 // Interface matching the structure returned by getNotifications
 interface Notification {
@@ -23,10 +23,46 @@ interface Notification {
   // Add sender info if needed/available
 }
 
+interface MeetingNotificationData {
+  title?: string;
+  scheduledFor?: string;
+  meetingLink?: string;
+  platform?: string;
+  scheduledBy?: string;
+  message?: string;
+}
+
 const NotificationsPage: React.FC = () => {
   const router = useRouter();
   const { data: session, status: authStatus } = useSession();
   const utils = trpc.useUtils(); // Get tRPC utils
+  const [expandedNotifications, setExpandedNotifications] = useState<Set<string>>(new Set());
+
+  // Toggle expanded state
+  const toggleExpanded = (notificationId: string) => {
+    setExpandedNotifications(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(notificationId)) {
+        newSet.delete(notificationId);
+      } else {
+        newSet.add(notificationId);
+      }
+      return newSet;
+    });
+  };
+
+  // Parse notification message (could be JSON for meeting details)
+  const parseNotificationData = (message: string): MeetingNotificationData | null => {
+    try {
+      const parsed = JSON.parse(message);
+      if (parsed.meetingLink) {
+        return parsed;
+      }
+      return null;
+    } catch {
+      return null;
+    }
+  };
 
   // Redirect if not logged in
   React.useEffect(() => {
@@ -52,24 +88,23 @@ const NotificationsPage: React.FC = () => {
   const markReadMutation = trpc.user.markNotificationsAsRead.useMutation({
     onSuccess: (data) => {
       if (data.success) {
-        toast.success(`Notifications marked as read.`);
         // Invalidate relevant queries
         utils.user.getNotifications.invalidate();
         utils.user.getDashboardStats.invalidate(); // For the bell badge
-      } else {
-        toast.error('Failed to mark notifications as read.');
       }
     },
     onError: (error) => {
-      toast.error('Failed to mark notifications as read.');
       console.error("Mark read error:", error);
     },
   });
 
-  const handleMarkAllRead = () => {
-    // Call mutation without specific IDs to mark all unread
-    markReadMutation.mutate({}); 
-  };
+  // Auto-mark notifications as read when page is opened
+  React.useEffect(() => {
+    if (authStatus === 'authenticated' && notifications && notifications.some(n => !n.isRead)) {
+      // Only mark as read if there are unread notifications
+      markReadMutation.mutate({});
+    }
+  }, [authStatus, notifications]);
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
@@ -116,25 +151,15 @@ const NotificationsPage: React.FC = () => {
     <DashboardLayout>
       <div className="w-full px-4 sm:px-8 py-6 bg-blue-50 min-h-screen">
         
-        {/* Header & Mark All Read Button */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 max-w-5xl lg:max-w-6xl mx-auto">
-          <div>
-            <div className="relative inline-block">
-              <h1 className="font-satoshi tracking-tight text-3xl font-bold text-black">Notifications</h1>
-              <svg viewBox="0 0 200 8" className="w-full h-2 absolute left-0" xmlns="http://www.w3.org/2000/svg">
-                <path d="M2,6 Q50,2 100,4 T198,6" stroke="#9ca3af" strokeWidth="3" fill="none" strokeLinecap="round" />
-              </svg>
-            </div>
-            <p className="text-base text-gray-600 mt-2">Stay updated with your latest activities</p>
+        {/* Header */}
+        <div className="mb-8 max-w-5xl lg:max-w-6xl mx-auto">
+          <div className="relative inline-block">
+            <h1 className="font-satoshi tracking-tight text-3xl font-bold text-black">Notifications</h1>
+            <svg viewBox="0 0 200 8" className="w-full h-2 absolute left-0" xmlns="http://www.w3.org/2000/svg">
+              <path d="M2,6 Q50,2 100,4 T198,6" stroke="#9ca3af" strokeWidth="3" fill="none" strokeLinecap="round" />
+            </svg>
           </div>
-          <Button 
-            onClick={handleMarkAllRead}
-            disabled={markReadMutation.isPending || !notifications?.some(n => !n.isRead)}
-            className="text-base font-bold border-2 border-black rounded-lg shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all bg-white text-black px-6 py-2"
-          >
-            {markReadMutation.isPending ? <Loader2 size={18} className="animate-spin mr-2"/> : <Check size={18} className="mr-2"/>}
-            Mark All as Read
-          </Button>
+          <p className="text-base text-gray-600 mt-2">Stay updated with your latest activities</p>
         </div>
 
         {/* Notification List */}
@@ -143,37 +168,127 @@ const NotificationsPage: React.FC = () => {
             <div className="space-y-3">
               {notifications.map((notification: Notification) => {
                 const { Icon, color } = getNotificationIcon(notification.type);
+                const meetingData = parseNotificationData(notification.message);
+                const isExpanded = expandedNotifications.has(notification.id);
                 
-                const notificationContent = (
-                  <div className={cn(
-                    "block bg-white border-2 border-black rounded-lg shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] p-5 transition-all duration-150",
-                    notification.exchangeId && "hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] cursor-pointer",
-                    !notification.isRead && "border-l-4 border-l-blue-500"
-                  )}>
-                    <div className="flex items-start space-x-4">
-                      <div className={`flex-shrink-0 w-10 h-10 border-2 border-black rounded-lg flex items-center justify-center ${color} shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]`}>
-                        <Icon size={18} />
+                return (
+                  <div 
+                    key={notification.id}
+                    className={cn(
+                      "bg-white border-2 border-black rounded-lg shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all duration-150",
+                      !notification.isRead && "border-l-4 border-l-blue-500"
+                    )}
+                  >
+                    {/* Main notification header - always visible */}
+                    <div 
+                      className="p-5 cursor-pointer hover:bg-gray-50"
+                      onClick={() => toggleExpanded(notification.id)}
+                    >
+                      <div className="flex items-start space-x-4">
+                        <div className={`flex-shrink-0 w-10 h-10 border-2 border-black rounded-lg flex items-center justify-center ${color} shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]`}>
+                          <Icon size={18} />
+                        </div>
+                        <div className="flex-grow min-w-0">
+                          <p className="text-base font-semibold text-black leading-relaxed">
+                            {meetingData ? meetingData.message || notification.message : notification.message}
+                          </p>
+                          <p className="text-sm text-gray-600 mt-2">
+                            {notification.createdAt ? format(new Date(notification.createdAt), 'PPP p') : ''}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {!notification.isRead && (
+                            <div className="flex-shrink-0 w-3 h-3 rounded-full bg-blue-500 border border-black" aria-label="Unread"></div>
+                          )}
+                          {meetingData && (
+                            isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />
+                          )}
+                        </div>
                       </div>
-                      <div className="flex-grow min-w-0">
-                        <p className="text-base font-semibold text-black leading-relaxed">{notification.message}</p>
-                        <p className="text-sm text-gray-600 mt-2">
-                          {notification.createdAt ? format(new Date(notification.createdAt), 'PPP p') : ''}
-                        </p>
-                      </div>
-                      {!notification.isRead && (
-                        <div className="flex-shrink-0 w-3 h-3 rounded-full bg-blue-500 border border-black mt-1" aria-label="Unread"></div>
-                      )}
                     </div>
-                  </div>
-                );
-                
-                return notification.exchangeId ? (
-                  <Link key={notification.id} href={`/exchanges/${notification.exchangeId}`}>
-                    {notificationContent}
-                  </Link>
-                ) : (
-                  <div key={notification.id}>
-                    {notificationContent}
+
+                    {/* Expandable meeting details */}
+                    {meetingData && isExpanded && (
+                      <div className="px-5 pb-5 pt-2 border-t-2 border-gray-200">
+                        <div className="bg-purple-50 border-2 border-black rounded-lg p-4 space-y-3">
+                          {meetingData.title && (
+                            <div>
+                              <p className="text-xs font-bold text-gray-600 uppercase">Meeting Title</p>
+                              <p className="text-sm font-semibold text-black">{meetingData.title}</p>
+                            </div>
+                          )}
+                          
+                          {meetingData.scheduledFor && (
+                            <div>
+                              <p className="text-xs font-bold text-gray-600 uppercase">Scheduled For</p>
+                              <p className="text-sm font-semibold text-black flex items-center gap-2">
+                                <Clock size={14} /> {meetingData.scheduledFor}
+                              </p>
+                            </div>
+                          )}
+
+                          {meetingData.platform && (
+                            <div>
+                              <p className="text-xs font-bold text-gray-600 uppercase">Platform</p>
+                              <p className="text-sm font-semibold text-black flex items-center gap-2">
+                                <Video size={14} /> {meetingData.platform}
+                              </p>
+                            </div>
+                          )}
+
+                          {meetingData.meetingLink && (
+                            <div>
+                              <p className="text-xs font-bold text-gray-600 uppercase mb-2">Meeting Link</p>
+                              <a
+                                href={meetingData.meetingLink}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={(e) => e.stopPropagation()}
+                                className="inline-flex items-center gap-2 px-4 py-2 bg-green-200 text-black font-bold border-2 border-black rounded-lg shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
+                              >
+                                <Video size={16} /> Join Meeting <ExternalLink size={14} />
+                              </a>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Action buttons */}
+                        <div className="flex gap-3 mt-4">
+                          {notification.exchangeId && (
+                            <Link 
+                              href={`/exchanges/${notification.exchangeId}`}
+                              className="flex-1"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <Button className="w-full bg-blue-200 border-2 border-black rounded-lg shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all">
+                                View Exchange Details
+                              </Button>
+                            </Link>
+                          )}
+                          <Button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleExpanded(notification.id);
+                            }}
+                            className="flex-1 bg-gray-100 border-2 border-black rounded-lg shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
+                          >
+                            Close
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Non-meeting notifications - simple link */}
+                    {!meetingData && notification.exchangeId && (
+                      <Link 
+                        href={`/exchanges/${notification.exchangeId}`}
+                        className="block px-5 pb-4"
+                      >
+                        <Button className="w-full bg-blue-200 border-2 border-black rounded-lg shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all">
+                          View Exchange
+                        </Button>
+                      </Link>
+                    )}
                   </div>
                 );
               })}
