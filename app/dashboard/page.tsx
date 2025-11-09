@@ -623,94 +623,91 @@ const DashboardPage: React.FC = () => {
 
             {/* Right sidebar - 3 columns */}
             <div className="lg:col-span-3 space-y-8">
-              <div className="bg-white border-2 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] rounded-lg">
-                <div className="bg-blue-500 px-4 py-3 border-b-2 border-black rounded-t-lg">
-                  <h2 className="font-satoshi tracking-tight text-lg font-bold flex items-center text-white">
-                    <User className="mr-2" size={18} strokeWidth={2} /> Profile
-                    Setup
-                  </h2>
+              {/* Profile Setup Card - Hidden when 100% complete */}
+              {profileCompletion < 100 && (
+                <div className="bg-white border-2 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] rounded-lg">
+                  <div className="bg-blue-500 px-4 py-3 border-b-2 border-black rounded-t-lg">
+                    <h2 className="font-satoshi tracking-tight text-lg font-bold flex items-center text-white">
+                      <User className="mr-2" size={18} strokeWidth={2} /> Profile
+                      Setup
+                    </h2>
+                  </div>
+                  <div className="px-5 py-5 font-inter rounded-b-lg">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="font-satoshi text-sm font-semibold text-black block mb-1">
+                        Progress
+                      </span>
+                      <span className="text-sm font-bold text-black">
+                        {profileCompletion}%
+                      </span>
+                    </div>
+                    <div className="w-full bg-gray-200 border border-black h-3 mb-4 rounded-lg">
+                      <div
+                        className="bg-blue-500 h-full transition-all duration-500 ease-out rounded-lg"
+                        style={{ width: `${profileCompletion}%` }}
+                      ></div>
+                    </div>
+                    <div className="space-y-2 text-sm mb-2">
+                      <h3 className="font-satoshi font-semibold text-black mb-2">
+                        Complete these steps:
+                      </h3>
+                      <ul className="space-y-3">
+                        <li className="flex items-center">
+                          <div className="flex-shrink-0 w-5 h-5 bg-white border-2 border-black flex items-center justify-center rounded-lg">
+                            {!hasMissingRadius && (
+                              <CheckCircle
+                                size={12}
+                                className="text-green-600"
+                                strokeWidth={2}
+                              />
+                            )}
+                          </div>
+                          <Link
+                            href="/profile/edit#radius"
+                            className="ml-2 text-black font-medium no-underline hover:underline transition-colors transition-all focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-black"
+                          >
+                            Set your service radius
+                          </Link>
+                        </li>
+                        <li className="flex items-center">
+                          <div className="flex-shrink-0 w-5 h-5 bg-white border-2 border-black flex items-center justify-center rounded-lg">
+                            {!hasMissingSkills && (
+                              <CheckCircle
+                                size={12}
+                                className="text-green-600"
+                                strokeWidth={2}
+                              />
+                            )}
+                          </div>
+                          <Link
+                            href="/profile/edit#skills"
+                            className="ml-2 text-black font-medium no-underline hover:underline transition-colors transition-all focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-black"
+                          >
+                            Add your skills
+                          </Link>
+                        </li>
+                        <li className="flex items-center">
+                          <div className="flex-shrink-0 w-5 h-5 bg-white border-2 border-black flex items-center justify-center rounded-lg">
+                            {!hasMissingServices && (
+                              <CheckCircle
+                                size={12}
+                                className="text-green-600"
+                                strokeWidth={2}
+                              />
+                            )}
+                          </div>
+                          <Link
+                            href="/services/new"
+                            className="ml-2 text-black font-medium no-underline hover:underline transition-colors transition-all focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-black"
+                          >
+                            Create your first service
+                          </Link>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
                 </div>
-                <div className="px-5 py-5 font-inter rounded-b-lg">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="font-satoshi text-sm font-semibold text-black block mb-1">
-                      Progress
-                    </span>
-                    <span className="text-sm font-bold text-black">
-                      {profileCompletion}%
-                    </span>
-                  </div>
-                  <div className="w-full bg-gray-200 border border-black h-3 mb-4 rounded-lg">
-                    <div
-                      className="bg-blue-500 h-full transition-all duration-500 ease-out rounded-lg"
-                      style={{ width: `${profileCompletion}%` }}
-                    ></div>
-                  </div>
-                  <div className="space-y-2 text-sm mb-2">
-                    <h3 className="font-satoshi font-semibold text-black mb-2">
-                      Complete these steps:
-                    </h3>
-                    <ul className="space-y-3">
-                      <li className="flex items-center">
-                        <div className="flex-shrink-0 w-5 h-5 bg-white border-2 border-black flex items-center justify-center rounded-lg">
-                          {!hasMissingRadius && (
-                            <CheckCircle
-                              size={12}
-                              className="text-green-600"
-                              strokeWidth={2}
-                            />
-                          )}
-                        </div>
-                        <Link
-                          href="/profile/edit#radius"
-                          className="ml-2 text-black font-medium no-underline hover:underline transition-colors transition-all focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-black"
-                        >
-                          Set your service radius
-                        </Link>
-                      </li>
-                      <li className="flex items-center">
-                        <div className="flex-shrink-0 w-5 h-5 bg-white border-2 border-black flex items-center justify-center rounded-lg">
-                          {!hasMissingSkills && (
-                            <CheckCircle
-                              size={12}
-                              className="text-green-600"
-                              strokeWidth={2}
-                            />
-                          )}
-                        </div>
-                        <Link
-                          href="/profile/edit#skills"
-                          className="ml-2 text-black font-medium no-underline hover:underline transition-colors transition-all focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-black"
-                        >
-                          Add your skills
-                        </Link>
-                      </li>
-                      <li className="flex items-center">
-                        <div className="flex-shrink-0 w-5 h-5 bg-white border-2 border-black flex items-center justify-center rounded-lg">
-                          {!hasMissingServices && (
-                            <CheckCircle
-                              size={12}
-                              className="text-green-600"
-                              strokeWidth={2}
-                            />
-                          )}
-                        </div>
-                        <Link
-                          href="/services/new"
-                          className="ml-2 text-black font-medium no-underline hover:underline transition-colors transition-all focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-black"
-                        >
-                          Create your first service
-                        </Link>
-                      </li>
-                    </ul>
-                  </div>
-                  {profileCompletion >= 100 && (
-                    <p className="text-green-600 font-bold flex items-center text-sm mt-2">
-                      <CheckCircle size={16} className="mr-1" strokeWidth={2} />
-                      Profile Complete!
-                    </p>
-                  )}
-                </div>
-              </div>
+              )}
               <div className="bg-white border-2 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] rounded-lg">
                 <div className="bg-blue-500 px-4 py-3 border-b-2 border-black rounded-t-lg">
                   <h2 className="font-satoshi tracking-tight text-lg font-bold flex items-center text-white">
