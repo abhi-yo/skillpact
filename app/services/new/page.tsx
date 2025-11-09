@@ -6,7 +6,7 @@ import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { toast } from "sonner";
+import { toast } from "react-hot-toast";
 import { trpc } from "@/lib/trpc";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import {
@@ -67,7 +67,12 @@ const CreateServicePage: React.FC = () => {
       router.push(`/services/${data.id}`);
     },
     onError: (error: { message: string }) => {
-      toast.error(`Failed to create service: ${error.message}`);
+      // Show minimal, appropriate error message
+      const errorMessage = error.message.toLowerCase().includes('inappropriate') || 
+                          error.message.toLowerCase().includes('could not be validated')
+        ? 'Content rejected'
+        : 'Failed to create service';
+      toast.error(errorMessage);
     },
   });
 
@@ -340,7 +345,7 @@ const CreateServicePage: React.FC = () => {
               </div>
               <div className="mt-8 flex justify-end">
                 <Button type="submit" size="lg" className={neoButton} disabled={isSubmitDisabled}>
-                  {createServiceMutation.isPending ? 'Submitting...' : 
+                  {createServiceMutation.isPending ? 'Validating & Creating...' : 
                    isLocationRequired ? 'Set Location First' : 'Create Service'}
                 </Button>
               </div>
