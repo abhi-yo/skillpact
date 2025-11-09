@@ -6,7 +6,7 @@ import { useSession } from 'next-auth/react';
 import { trpc } from '@/lib/trpc';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, AlertCircle, ArrowLeft, User, ArrowRightLeft, Clock, Check, X, Calendar as CalendarIcon, Star, CheckCircle } from 'lucide-react';
+import { Loader2, AlertCircle, ArrowLeft, User, ArrowRightLeft, Clock, Check, X, Calendar as CalendarIcon, Star, CheckCircle, Video, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { format } from 'date-fns';
@@ -39,15 +39,19 @@ interface ExchangeDetails {
   createdAt: Date | string;
   updatedAt: Date | string;
   hours: number | null;
+  // calendarLink: string | null; // Disabled until DB migration
+  // calendarEventId: string | null; // Disabled until DB migration
   provider: {
     id: string;
     name: string | null;
     image: string | null;
+    email: string | null;
   } | null;
   requester: {
     id: string;
     name: string | null;
     image: string | null;
+    email: string | null;
   } | null;
   providerService: {
     id: string;
@@ -80,6 +84,9 @@ const ExchangeDetailPage: React.FC = () => {
     const [selectedScheduleDate, setSelectedScheduleDate] = useState<Date | undefined>();
     const [selectedScheduleTime, setSelectedScheduleTime] = useState('');
     const [isSchedulingDialogOpen, setIsSchedulingDialogOpen] = useState(false);
+    const [isMeetScheduleDialogOpen, setIsMeetScheduleDialogOpen] = useState(false);
+    const [meetingLink, setMeetingLink] = useState('');
+    const [meetingPlatform, setMeetingPlatform] = useState('Google Meet');
     const [isCancelling, setIsCancelling] = useState(false);
 
     const { data: exchange, isLoading, error, refetch } = trpc.exchange.getExchangeById.useQuery(
@@ -125,6 +132,32 @@ const ExchangeDetailPage: React.FC = () => {
         onError: (error) => {
             toast.error(`Failed to schedule: ${error.message}`);
             console.error("Schedule error:", error);
+        },
+        onSettled: () => {
+            setIsLoadingAction(false);
+        },
+    });
+
+    // --- Schedule Exchange with Meeting Link ---
+    const scheduleWithMeetingLinkMutation = trpc.exchange.scheduleWithMeetingLink.useMutation({
+        onMutate: () => {
+            setIsLoadingAction(true);
+        },
+        onSuccess: (data) => {
+            toast.success('🎥 Meeting scheduled!');
+            setIsMeetScheduleDialogOpen(false);
+            setSelectedScheduleDate(undefined);
+            setSelectedScheduleTime('');
+            setMeetingLink('');
+            setMeetingPlatform('Google Meet');
+            if (data.meetingLink) {
+                toast.success(`Meeting link added successfully!`, { duration: 3000 });
+            }
+            refetch();
+        },
+        onError: (error) => {
+            toast.error(`Failed to schedule: ${error.message}`);
+            console.error("Schedule with meeting link error:", error);
         },
         onSettled: () => {
             setIsLoadingAction(false);
@@ -194,6 +227,30 @@ const ExchangeDetailPage: React.FC = () => {
         scheduleMutation.mutate({ 
             exchangeId, 
             scheduledDate: selectedScheduleDate
+        });
+    };
+
+    const handleScheduleWithMeetingLink = () => {
+        if (!exchangeId || !selectedScheduleDate) {
+            toast.error('Please select a date and time.');
+            return;
+        }
+        
+        if (!selectedScheduleTime) {
+            toast.error('Please select a time for the meeting.');
+            return;
+        }
+        
+        // Combine date and time
+        const [hours, minutes] = selectedScheduleTime.split(':');
+        const dateTime = new Date(selectedScheduleDate);
+        dateTime.setHours(parseInt(hours), parseInt(minutes));
+
+        scheduleWithMeetingLinkMutation.mutate({
+            exchangeId,
+            scheduledDate: dateTime.toISOString(),
+            meetingLink: meetingLink || undefined,
+            meetingPlatform: meetingPlatform,
         });
     };
 
@@ -463,9 +520,11 @@ const ExchangeDetailPage: React.FC = () => {
                                     {exchange.status === 'ACCEPTED' && (
                                         <>
                                             <p className="text-sm font-medium mb-3">Schedule the exchange:</p>
+                                            
+                                            {/* Regular Schedule Button */}
                                             <Dialog open={isSchedulingDialogOpen} onOpenChange={setIsSchedulingDialogOpen}>
                                                 <DialogTrigger asChild>
-                                                    <Button disabled={isLoadingAction} className="w-full bg-indigo-200 border-2 border-black rounded-lg shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all">
+                                                    <Button disabled={isLoadingAction} className="w-full bg-indigo-200 border-2 border-black rounded-lg shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all mb-3">
                                                         <CalendarIcon size={16} className="mr-2"/> Set Schedule
                                                     </Button>
                                                 </DialogTrigger>
@@ -513,6 +572,86 @@ const ExchangeDetailPage: React.FC = () => {
                                                     </DialogFooter>
                                                 </DialogContent>
                                             </Dialog>
+
+                                            {/* Schedule with Meeting Link Button */}
+                                            <Dialog open={isMeetScheduleDialogOpen} onOpenChange={setIsMeetScheduleDialogOpen}>
+                                                <DialogTrigger asChild>
+                                                    <Button disabled={isLoadingAction} className="w-full bg-purple-200 border-2 border-black rounded-lg shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all">
+                                                        <Video size={16} className="mr-2"/> Schedule with Video Call
+                                                    </Button>
+                                                </DialogTrigger>
+                                                <DialogContent className="sm:max-w-[425px] bg-white border-2 border-black rounded-lg shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
+                                                    <DialogHeader className="border-b-2 border-black pb-3">
+                                                        <DialogTitle className="font-satoshi text-lg font-bold">Schedule with Video Call</DialogTitle>
+                                                        <DialogDescription>
+                                                            Schedule your exchange and optionally add a meeting link from any platform (Google Meet, Zoom, Teams, etc.)
+                                                        </DialogDescription>
+                                                    </DialogHeader>
+                                                    <div className="py-4 space-y-4">
+                                                        <Calendar
+                                                            mode="single"
+                                                            selected={selectedScheduleDate}
+                                                            onSelect={setSelectedScheduleDate}
+                                                            className="rounded-lg border border-black mx-auto"
+                                                            disabled={(date) => date < new Date(new Date().setDate(new Date().getDate() - 1))}
+                                                        />
+                                                        <div className="flex flex-col items-center">
+                                                            <label htmlFor="meeting-time" className="font-bold mb-1">Select Time *</label>
+                                                            <input
+                                                                id="meeting-time"
+                                                                type="time"
+                                                                value={selectedScheduleTime}
+                                                                onChange={e => setSelectedScheduleTime(e.target.value)}
+                                                                className="border-2 border-black rounded-lg px-2 py-1 text-base"
+                                                                style={{ width: '120px' }}
+                                                                required
+                                                            />
+                                                        </div>
+                                                        <div className="space-y-2">
+                                                            <label htmlFor="platform" className="font-bold text-sm">Platform (optional)</label>
+                                                            <select
+                                                                id="platform"
+                                                                value={meetingPlatform}
+                                                                onChange={e => setMeetingPlatform(e.target.value)}
+                                                                className="w-full border-2 border-black rounded-lg px-3 py-2 text-sm"
+                                                            >
+                                                                <option value="Google Meet">Google Meet</option>
+                                                                <option value="Zoom">Zoom</option>
+                                                                <option value="Microsoft Teams">Microsoft Teams</option>
+                                                                <option value="Skype">Skype</option>
+                                                                <option value="Other">Other</option>
+                                                            </select>
+                                                        </div>
+                                                        <div className="space-y-2">
+                                                            <label htmlFor="meeting-link" className="font-bold text-sm">Meeting Link (optional)</label>
+                                                            <input
+                                                                id="meeting-link"
+                                                                type="url"
+                                                                value={meetingLink}
+                                                                onChange={e => setMeetingLink(e.target.value)}
+                                                                placeholder="https://meet.google.com/..."
+                                                                className="w-full border-2 border-black rounded-lg px-3 py-2 text-sm"
+                                                            />
+                                                            <p className="text-xs text-gray-500">Create a meeting in your preferred platform and paste the link here. Both parties will receive it in notifications.</p>
+                                                        </div>
+                                                    </div>
+                                                    <DialogFooter className="border-t-2 border-black pt-4">
+                                                        <DialogClose asChild>
+                                                            <Button type="button" className="bg-gray-200 border-2 border-black rounded-lg shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all">
+                                                                Cancel
+                                                            </Button>
+                                                        </DialogClose>
+                                                        <Button 
+                                                            type="button"
+                                                            onClick={handleScheduleWithMeetingLink}
+                                                            disabled={!selectedScheduleDate || !selectedScheduleTime || isLoadingAction}
+                                                            className="bg-purple-200 border-2 border-black rounded-lg shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
+                                                        >
+                                                            {isLoadingAction ? <Loader2 className="animate-spin mr-2" size={16}/> : <Video size={16} className="mr-2"/>} Schedule Meeting
+                                                        </Button>
+                                                    </DialogFooter>
+                                                </DialogContent>
+                                            </Dialog>
                                         </>
                                     )}
 
@@ -521,6 +660,17 @@ const ExchangeDetailPage: React.FC = () => {
                                             <p className="text-sm font-medium mb-2">
                                                 Scheduled for: {formatDate(exchange.scheduledDate)}
                                             </p>
+
+                                            {/* Info box for meeting */}
+                                            <div className="mb-4 p-3 bg-purple-50 border-2 border-purple-300 rounded-lg">
+                                                <p className="text-xs font-semibold text-purple-900 mb-1 flex items-center">
+                                                    <Video size={14} className="mr-1"/> Video Meeting
+                                                </p>
+                                                <p className="text-xs text-purple-700">
+                                                    Check your <Link href="/notifications" className="underline font-bold">Notifications</Link> for meeting details and link! 🎥
+                                                </p>
+                                            </div>
+
                                             {isProvider && (
                                                 <Button 
                                                     onClick={handleComplete}
