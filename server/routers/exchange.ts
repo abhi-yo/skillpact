@@ -1,8 +1,8 @@
 import { router, protectedProcedure } from "../trpc";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
-import { ExchangeStatus, NotificationType } from "@/prisma/generated/client"; // Import NotificationType
-import { format } from 'date-fns'; // Added date-fns import
+import { ExchangeStatus, NotificationType } from "@/prisma/generated/client";
+import { format } from 'date-fns';
 
 // Define exchange status values as string literals
 const EXCHANGE_STATUS = {
@@ -402,6 +402,114 @@ export const exchangeRouter = router({
       return updatedExchange;
     }),
 
+  // Schedule exchange with meeting link
+  scheduleWithMeetingLink: protectedProcedure
+    .input(z.object({
+      exchangeId: z.string(),
+      scheduledDate: z.string().datetime(),
+      meetingLink: z.string().url().optional(),
+      meetingPlatform: z.string().optional().default('Video Call'),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const userId = ctx.session.user.id;
+      const { exchangeId, scheduledDate, meetingLink, meetingPlatform } = input;
+
+      // Check if exchange exists and user is part of it
+      const exchange = await ctx.prisma.exchange.findUnique({
+        where: { id: exchangeId },
+        include: {
+          providerService: true,
+          requesterService: true,
+        },
+      });
+
+      if (!exchange) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Exchange not found",
+        });
+      }
+
+      if (exchange.providerId !== userId && exchange.requesterId !== userId) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You are not part of this exchange",
+        });
+      }
+
+      // Update exchange status and scheduled date
+      const updatedExchange = await ctx.prisma.exchange.update({
+        where: { id: exchangeId },
+        data: {
+          scheduledDate: new Date(scheduledDate),
+          status: ExchangeStatus.SCHEDULED,
+        },
+        include: {
+          providerService: true,
+          requesterService: true,
+          provider: {
+            select: {
+              id: true,
+              name: true,
+              image: true,
+              email: true,
+            },
+          },
+          requester: {
+            select: {
+              id: true,
+              name: true,
+              image: true,
+              email: true,
+            },
+          },
+        },
+      });
+
+      const recipientId = exchange.providerId === userId ? exchange.requesterId : exchange.providerId;
+      const schedulerName = ctx.session.user.name || 'Someone';
+      
+      // Create rich notification with meeting details
+      let notificationMessage: string;
+
+      if (meetingLink) {
+        // User provided a meeting link
+        notificationMessage = JSON.stringify({
+          title: `Video Meeting for "${exchange.providerService?.title}"`,
+          scheduledFor: format(new Date(scheduledDate), 'PPP p'),
+          meetingLink: meetingLink,
+          platform: meetingPlatform,
+          scheduledBy: schedulerName,
+          message: `${schedulerName} scheduled your exchange with a video call link.`,
+        });
+      } else {
+        // No meeting link provided
+        notificationMessage = JSON.stringify({
+          title: `Exchange for "${exchange.providerService?.title}"`,
+          scheduledFor: format(new Date(scheduledDate), 'PPP p'),
+          scheduledBy: schedulerName,
+          message: `${schedulerName} scheduled your exchange.`,
+        });
+      }
+
+      await ctx.prisma.notification.create({
+        data: {
+          type: NotificationType.EXCHANGE_SCHEDULED,
+          message: notificationMessage,
+          senderId: userId,
+          recipientId: recipientId,
+          exchangeId: exchange.id,
+        },
+      });
+
+      // Return meeting details in response
+      return { 
+        ...updatedExchange, 
+        meetingLink: meetingLink || null,
+        meetingPlatform: meetingPlatform || null,
+      };
+    }),
+
   // Complete an exchange
   completeExchange: protectedProcedure
     .input(z.object({ 
@@ -654,6 +762,7 @@ export const exchangeRouter = router({
               id: true,
               name: true,
               image: true,
+              email: true,
             },
           },
           requester: {
@@ -661,6 +770,7 @@ export const exchangeRouter = router({
               id: true,
               name: true,
               image: true,
+              email: true,
             },
           },
           providerService: {
