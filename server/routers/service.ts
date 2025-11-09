@@ -1,6 +1,7 @@
 import { router, publicProcedure, protectedProcedure } from "../trpc";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
+import { validateServiceContent } from "../../lib/gemini-validator";
 
 export const serviceRouter = router({
   // Create a new service (renamed from 'create')
@@ -23,6 +24,16 @@ export const serviceRouter = router({
     }))
     .mutation(async ({ ctx, input }) => {
       const userId = ctx.session.user.id;
+      
+      // Validate content with Gemini AI before creating service
+      const validation = await validateServiceContent(input.title, input.description);
+      
+      if (!validation.isAppropriate) {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: validation.reason || 'Service content is inappropriate and cannot be published.',
+        });
+      }
       
       // Create the service
       const service = await ctx.prisma.service.create({
