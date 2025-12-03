@@ -304,7 +304,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "/Users/akshatsingh/Desktop/skillpact/prisma/generated/client",
+      "value": "/Users/akshatsingh/skillpact/prisma/generated/client",
       "fromEnvVar": null
     },
     "config": {
@@ -318,7 +318,7 @@ const config = {
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "/Users/akshatsingh/Desktop/skillpact/prisma/schema.prisma",
+    "sourceFilePath": "/Users/akshatsingh/skillpact/prisma/schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
