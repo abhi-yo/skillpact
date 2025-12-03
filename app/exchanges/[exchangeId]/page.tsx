@@ -714,11 +714,11 @@ const ExchangeDetailPage: React.FC = () => {
                                     {exchange && userId && canChat && (
                                       <Dialog>
                                         <DialogTrigger asChild>
-                                          <Button className="w-full border-2 border-black rounded-lg bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all">
+                                          <Button className="w-full border-[1.5px] border-black rounded-xl bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px] transition-all">
                                             Send Message
                                           </Button>
                                         </DialogTrigger>
-                                        <DialogContent className="sm:max-w-lg w-full p-0 border-2 border-black rounded-lg shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
+                                        <DialogContent className="sm:max-w-lg w-full p-0 border-[1.5px] border-black rounded-2xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] bg-white overflow-hidden">
                                           <ChatPanel exchangeId={exchange.id} userId={userId} className="h-[60vh] w-full" />
                                         </DialogContent>
                                       </Dialog>

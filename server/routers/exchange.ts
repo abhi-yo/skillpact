@@ -27,7 +27,6 @@ export const exchangeRouter = router({
           { requesterId: userId }
         ],
         status: { in: [EXCHANGE_STATUS.ACCEPTED, EXCHANGE_STATUS.SCHEDULED] },
-        scheduledDate: { gte: now },
       },
       include: {
         provider: {
@@ -60,7 +59,7 @@ export const exchangeRouter = router({
       orderBy: {
         scheduledDate: 'asc',
       },
-      take: 5, // Limit to next 5 upcoming exchanges
+      take: 50, // Limit to next 50 upcoming exchanges
     });
   }),
 
@@ -609,7 +608,7 @@ export const exchangeRouter = router({
           statusFilter = {
             OR: [
               { providerId: userId, status: EXCHANGE_STATUS.REQUESTED },
-              { requesterId: userId, status: EXCHANGE_STATUS.ACCEPTED, scheduledDate: { gt: new Date() } }
+              { requesterId: userId, status: EXCHANGE_STATUS.REQUESTED }
             ]
           };
           break;
@@ -620,7 +619,6 @@ export const exchangeRouter = router({
               { requesterId: userId }
             ],
             status: { in: [EXCHANGE_STATUS.ACCEPTED, EXCHANGE_STATUS.SCHEDULED] },
-            scheduledDate: { gt: new Date() },
           };
           break;
         case 'completed':
