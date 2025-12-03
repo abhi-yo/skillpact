@@ -103,7 +103,7 @@ const DashboardPage: React.FC = () => {
 
   // Calendar state
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(
-    new Date()
+    undefined
   );
 
   // --- tRPC Queries ---
